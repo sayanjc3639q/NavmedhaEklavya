@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { 
@@ -24,6 +24,7 @@ import {
   resetSubmissionStatus,
 } from "@/redux/slices/submissionSlice";
 import { CategoryConfig } from "@/config/categories";
+import { getLiveConfig } from "@/redux/slices/configSlice";
 import styles from "./SubmissionForm.module.css";
 
 interface Props {
@@ -36,6 +37,11 @@ export function SubmissionForm({ category }: Props) {
     (state) => state.submission
   );
   const { user } = useAppSelector((state) => state.auth);
+  const { data: configData } = useAppSelector((state) => state.config);
+
+  useEffect(() => {
+    dispatch(getLiveConfig());
+  }, [dispatch]);
 
   const [step, setStep] = useState<1 | 2>(1);
   const [copiedUpi, setCopiedUpi] = useState(false);
@@ -68,8 +74,10 @@ export function SubmissionForm({ category }: Props) {
   // Local Validation Errors
   const [stepError, setStepError] = useState<string | null>(null);
 
-  const UPI_ID = "eklavyanavadya@upi";
-  const INSTAGRAM_URL = "https://www.instagram.com/eklavya_official";
+  const UPI_ID = configData?.upiId || "eklavyanavadya@upi";
+  const ENTRY_FEE = configData?.isPaid ? (configData?.entryFee ?? 49) : 0;
+  const INSTAGRAM_HANDLE = configData?.instagramPageHandle || "eklavya_official";
+  const INSTAGRAM_URL = `https://www.instagram.com/${INSTAGRAM_HANDLE}`;
 
   const handleCopyUpi = () => {
     navigator.clipboard.writeText(UPI_ID);
@@ -513,7 +521,9 @@ export function SubmissionForm({ category }: Props) {
             </div>
             <h3 className={styles.formSectionTitle}>Registration & Entry Fee Payment</h3>
             <p className={styles.formSectionDesc}>
-              Scan the QR code or copy the official UPI ID to pay the nominal entry fee (₹49 per entry). Upload your payment screenshot and transaction reference below.
+              {ENTRY_FEE > 0
+                ? `Scan the QR code or copy the official UPI ID to pay the nominal entry fee (₹${ENTRY_FEE} per entry). Upload your payment screenshot and transaction reference below.`
+                : "Entry for this edition is Free! Please complete the verification below to register your submission."}
             </p>
           </div>
 
@@ -521,9 +531,16 @@ export function SubmissionForm({ category }: Props) {
           <div className={styles.paymentCard}>
             <div className={styles.qrSide}>
               <div className={styles.qrFrame}>
-                {/* Visual SVG QR Code with Festive Branding */}
+                {/* Visual SVG QR Code with Festive Branding or Live Server QR */}
                 <div className={styles.qrCodeWrapper}>
-                  <svg viewBox="0 0 200 200" className={styles.qrSvg}>
+                  {configData?.upiQrImageUrl ? (
+                    <img
+                      src={configData.upiQrImageUrl}
+                      alt="UPI Payment QR"
+                      style={{ width: "200px", height: "200px", objectFit: "contain", borderRadius: "12px", background: "#fff" }}
+                    />
+                  ) : (
+                    <svg viewBox="0 0 200 200" className={styles.qrSvg}>
                     <rect width="200" height="200" fill="#ffffff" rx="12" />
                     {/* Corner 1 */}
                     <rect x="15" y="15" width="45" height="45" fill="#78350f" rx="6" />
@@ -564,6 +581,7 @@ export function SubmissionForm({ category }: Props) {
                     <rect x="160" y="145" width="22" height="15" fill="#78350f" />
                     <rect x="165" y="168" width="18" height="15" fill="#b45309" />
                   </svg>
+                  )}
                   <span className={styles.qrBadge}>Scan with any UPI App</span>
                 </div>
               </div>
@@ -572,11 +590,13 @@ export function SubmissionForm({ category }: Props) {
             <div className={styles.upiSide}>
               <div className={styles.feeTag}>
                 <span>Registration Fee:</span>
-                <strong>₹49 / Entry</strong>
+                <strong>{ENTRY_FEE > 0 ? `₹${ENTRY_FEE} / Entry` : "FREE ENTRY"}</strong>
               </div>
 
               <div className={styles.upiBox}>
-                <span className={styles.upiLabel}>Official UPI ID:</span>
+                <span className={styles.upiLabel}>
+                  Official UPI ID {configData?.accountHolderName ? `(${configData.accountHolderName})` : ""}:
+                </span>
                 <div className={styles.upiValueWrap}>
                   <code className={styles.upiCode}>{UPI_ID}</code>
                   <button
