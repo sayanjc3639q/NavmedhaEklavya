@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -23,33 +23,184 @@ import {
   AlertCircle,
   ExternalLink,
   Sparkles,
-  Lock
+  Lock,
+  RefreshCw,
+  PlayCircle,
+  Image as ImageIcon
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { logout } from "@/redux/slices/authSlice";
+import { logout, checkAuthSession } from "@/redux/slices/authSlice";
+import { clearSubmissions } from "@/redux/slices/submissionSlice";
+import { fetchMySubmissions } from "@/services/api";
 import { Navbar } from "@/components/layout/Navbar/Navbar";
 import { Footer } from "@/components/layout/Footer/Footer";
 import styles from "./page.module.css";
+
+interface NormalizedEntry {
+  id: string;
+  entryNumber: string;
+  category: "photography" | "artworks" | "content" | "reels";
+  categoryLabel: string;
+  title: string;
+  description?: string;
+  content?: string;
+  mediaUrl?: string;
+  paymentStatus: "Pending" | "Verified" | "Rejected";
+  utrNumber?: string;
+  paymentScreenshotUrl?: string;
+  instagramStatus?: string;
+  submittedAt: string;
+}
 
 export default function ProfilePage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
-  const { submissions } = useAppSelector((state) => state.submission);
+  const { submissions: localSubmissions } = useAppSelector((state) => state.submission);
 
   const [activeTab, setActiveTab] = useState<"submissions" | "certificate" | "details">("submissions");
   const [selectedSubmissionForCert, setSelectedSubmissionForCert] = useState<string | null>(null);
 
+  const [backendSubmissions, setBackendSubmissions] = useState<NormalizedEntry[]>([]);
+  const [isLoadingSubmissions, setIsLoadingSubmissions] = useState(false);
+  const [submissionError, setSubmissionError] = useState<string | null>(null);
+
+  useEffect(() => {
+    dispatch(checkAuthSession());
+  }, [dispatch]);
+
+  const loadSubmissions = useCallback(async () => {
+    if (!user) {
+      setBackendSubmissions([]);
+      return;
+    }
+    setIsLoadingSubmissions(true);
+    setSubmissionError(null);
+
+    try {
+      const res = await fetchMySubmissions();
+      if (res.success && res.data) {
+        const normalized: NormalizedEntry[] = [];
+
+        // 1. Photography
+        if (Array.isArray(res.data.photo)) {
+          res.data.photo.forEach((p: any) => {
+            normalized.push({
+              id: p._id,
+              entryNumber: p.entryNumber || `NM26-PH-${p._id?.slice(-3)}`,
+              category: "photography",
+              categoryLabel: "Photography",
+              title: p.caption || "Festival Moments",
+              description: p.cameraOrDevice ? `Shot on: ${p.cameraOrDevice}` : undefined,
+              mediaUrl: p.photoUrl,
+              paymentStatus: p.paymentStatus || "Pending",
+              utrNumber: p.utrNumber,
+              paymentScreenshotUrl: p.paymentScreenshotUrl,
+              instagramStatus: p.instagramStatus,
+              submittedAt: p.createdAt || new Date().toISOString(),
+            });
+          });
+        }
+
+        // 2. Artworks
+        if (Array.isArray(res.data.art)) {
+          res.data.art.forEach((a: any) => {
+            normalized.push({
+              id: a._id,
+              entryNumber: a.entryNumber || `NM26-AR-${a._id?.slice(-3)}`,
+              category: "artworks",
+              categoryLabel: "Artwork",
+              title: a.titleOfArtwork || "Creative Artwork",
+              description: a.artType ? `Type: ${a.artType}${a.description ? ` • ${a.description}` : ""}` : a.description,
+              mediaUrl: a.artworkUrl,
+              paymentStatus: a.paymentStatus || "Pending",
+              utrNumber: a.utrNumber,
+              paymentScreenshotUrl: a.paymentScreenshotUrl,
+              submittedAt: a.createdAt || new Date().toISOString(),
+            });
+          });
+        }
+
+        // 3. Writing
+        if (Array.isArray(res.data.writing)) {
+          res.data.writing.forEach((w: any) => {
+            normalized.push({
+              id: w._id,
+              entryNumber: w.entryNumber || `NM26-CW-${w._id?.slice(-3)}`,
+              category: "content",
+              categoryLabel: "Writing & Poetry",
+              title: w.titleOfPiece || "Literary Piece",
+              description: `${w.genre || "Creative"} • ${w.language || "English"}`,
+              content: w.content,
+              mediaUrl: w.documentPdfUrl,
+              paymentStatus: w.paymentStatus || "Pending",
+              utrNumber: w.utrNumber,
+              paymentScreenshotUrl: w.paymentScreenshotUrl,
+              submittedAt: w.createdAt || new Date().toISOString(),
+            });
+          });
+        }
+
+        // 4. Reels
+        if (Array.isArray(res.data.reels)) {
+          res.data.reels.forEach((r: any) => {
+            normalized.push({
+              id: r._id,
+              entryNumber: r.entryNumber || `NM26-RL-${r._id?.slice(-3)}`,
+              category: "reels",
+              categoryLabel: "Reel / Short Video",
+              title: r.reelTitle || "Reel Masterpiece",
+              description: `${r.reelGenre || "Creative"}${r.instagramHandle ? ` • @${r.instagramHandle.replace("@", "")}` : ""}`,
+              mediaUrl: r.videoDriveLink,
+              paymentStatus: r.paymentStatus || "Pending",
+              utrNumber: r.utrNumber,
+              paymentScreenshotUrl: r.paymentScreenshotUrl,
+              submittedAt: r.createdAt || new Date().toISOString(),
+            });
+          });
+        }
+
+        // Sort descending by submission date
+        normalized.sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime());
+        setBackendSubmissions(normalized);
+      }
+    } catch (err: any) {
+      setSubmissionError(err?.message || "Failed to load submissions from server.");
+    } finally {
+      setIsLoadingSubmissions(false);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    loadSubmissions();
+  }, [loadSubmissions]);
+
   // If user is not logged in, show prompt or sample login view
   const handleLogout = () => {
+    setBackendSubmissions([]);
     dispatch(logout());
+    dispatch(clearSubmissions());
     router.push("/login");
   };
 
-  // Filter submissions by current user or show all user's submissions
-  const userSubmissions = user 
-    ? submissions.filter((s) => !s.userId || s.userId === user.id || s.email === user.email)
-    : submissions;
+  // Convert local submissions to NormalizedEntry format for guest preview mode only
+  const localNormalized: NormalizedEntry[] = localSubmissions.map((s) => ({
+    id: s.id,
+    entryNumber: s.id,
+    category: s.category,
+    categoryLabel: s.category === "photography" ? "Photography" : s.category === "artworks" ? "Artwork" : s.category === "content" ? "Writing & Poetry" : "Reel",
+    title: s.title,
+    description: s.description,
+    paymentStatus: (s.status === "Verified" ? "Verified" : "Pending") as any,
+    utrNumber: s.transactionId,
+    submittedAt: s.submittedAt,
+  }));
+
+  // For logged-in users, ALWAYS use their verified backend submissions from their account.
+  // Never show another account's cached local submissions.
+  const displaySubmissions: NormalizedEntry[] = user 
+    ? backendSubmissions 
+    : [];
 
   // Fallback demo user if visiting directly without logging in
   const currentUser = user || {
@@ -63,6 +214,33 @@ export default function ProfilePage() {
     mobileNumber: "+91 98765 43210",
     collegeName: "Heritage Institute of Technology",
     isAuthenticated: false,
+  };
+
+  const getStatusBadge = (status: "Pending" | "Verified" | "Rejected") => {
+    switch (status) {
+      case "Verified":
+        return (
+          <span className={styles.statusBadgeVerified}>
+            <CheckCircle size={13} />
+            <span>Verified & Approved</span>
+          </span>
+        );
+      case "Rejected":
+        return (
+          <span className={styles.statusBadgeRejected}>
+            <AlertCircle size={13} />
+            <span>Needs Correction</span>
+          </span>
+        );
+      case "Pending":
+      default:
+        return (
+          <span className={styles.statusBadgeReview}>
+            <Clock size={13} />
+            <span>Payment Under Review</span>
+          </span>
+        );
+    }
   };
 
   return (
@@ -113,7 +291,7 @@ export default function ProfilePage() {
           {!user && (
             <div className={styles.demoNotice}>
               <AlertCircle size={18} />
-              <span>You are viewing in preview mode. <Link href="/login"><strong>Sign in with Google</strong></Link> to save your academic details and entries permanently.</span>
+              <span>You are viewing in preview mode. <Link href="/login"><strong>Sign in with Google</strong></Link> to view and manage your verified festival entries permanently.</span>
             </div>
           )}
 
@@ -124,7 +302,7 @@ export default function ProfilePage() {
               className={`${styles.tabBtn} ${activeTab === "submissions" ? styles.tabActive : ""}`}
             >
               <FileText size={18} />
-              <span>My Submissions ({userSubmissions.length})</span>
+              <span>My Submissions ({displaySubmissions.length})</span>
             </button>
             <button
               onClick={() => setActiveTab("certificate")}
@@ -147,7 +325,24 @@ export default function ProfilePage() {
           ══════════════════════════════════════════════════ */}
           {activeTab === "submissions" && (
             <div className={styles.tabContent}>
-              {userSubmissions.length === 0 ? (
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+                <p style={{ margin: 0, fontSize: "0.9rem", color: "#78350f", fontWeight: 600 }}>
+                  Showing your official NAVMEDHA entries and verification progress
+                </p>
+                {user && (
+                  <button 
+                    onClick={loadSubmissions} 
+                    disabled={isLoadingSubmissions}
+                    className={styles.refreshBtn}
+                    title="Refresh submission statuses"
+                  >
+                    <RefreshCw size={14} className={isLoadingSubmissions ? "spinning" : ""} />
+                    <span>{isLoadingSubmissions ? "Updating..." : "Refresh Status"}</span>
+                  </button>
+                )}
+              </div>
+
+              {displaySubmissions.length === 0 ? (
                 <div className={styles.emptyState}>
                   <div className={styles.emptyIconWrap}>
                     <Image
@@ -167,16 +362,13 @@ export default function ProfilePage() {
                 </div>
               ) : (
                 <div className={styles.submissionsGrid}>
-                  {userSubmissions.map((entry) => (
+                  {displaySubmissions.map((entry) => (
                     <div key={entry.id} className={styles.submissionCard}>
                       <div className={styles.cardTopRow}>
                         <span className={styles.categoryBadge}>
-                          {entry.category.toUpperCase()}
+                          {entry.categoryLabel.toUpperCase()}
                         </span>
-                        <span className={styles.statusBadgeReview}>
-                          <Clock size={13} />
-                          <span>{entry.status || "Under Review"}</span>
-                        </span>
+                        {getStatusBadge(entry.paymentStatus)}
                       </div>
 
                       <h3 className={styles.submissionTitle}>{entry.title}</h3>
@@ -184,24 +376,71 @@ export default function ProfilePage() {
                         <p className={styles.submissionDesc}>{entry.description}</p>
                       )}
 
+                      {/* Visual Media Preview if Photo or Artwork */}
+                      {(entry.category === "photography" || entry.category === "artworks") && entry.mediaUrl && (
+                        <div className={styles.mediaThumbnailWrap}>
+                          <Image
+                            src={entry.mediaUrl}
+                            alt={entry.title}
+                            fill
+                            unoptimized
+                            className={styles.mediaThumbnail}
+                            sizes="(max-width: 768px) 100vw, 360px"
+                          />
+                        </div>
+                      )}
+
+                      {/* Text content snippet for writing */}
+                      {entry.category === "content" && entry.content && (
+                        <div className={styles.contentSnippet}>
+                          {entry.content.slice(0, 240)}
+                          {entry.content.length > 240 ? "..." : ""}
+                        </div>
+                      )}
+
+                      {/* File / Link Reference */}
                       <div className={styles.fileMetaCard}>
                         <div className={styles.fileIconWrap}>
-                          <FileText size={20} />
+                          {entry.category === "reels" ? (
+                            <PlayCircle size={20} />
+                          ) : (entry.category === "photography" || entry.category === "artworks") ? (
+                            <ImageIcon size={20} />
+                          ) : (
+                            <FileText size={20} />
+                          )}
                         </div>
                         <div className={styles.fileMetaText}>
-                          <strong>{entry.fileName || "Uploaded Creative Masterpiece"}</strong>
-                          <span>{entry.fileSize ? `${(entry.fileSize / (1024 * 1024)).toFixed(2)} MB` : "Attached file"} • Verified</span>
+                          <strong>Entry Code: {entry.entryNumber}</strong>
+                          {entry.mediaUrl ? (
+                            <a
+                              href={entry.mediaUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className={styles.viewMediaLink}
+                            >
+                              <span>
+                                {entry.category === "reels" 
+                                  ? "Watch on Google Drive" 
+                                  : entry.category === "content" 
+                                    ? "Open Attached PDF" 
+                                    : "View High-Res Artwork"}
+                              </span>
+                              <ExternalLink size={12} />
+                            </a>
+                          ) : (
+                            <span>Text Submission Stored in Database</span>
+                          )}
                         </div>
                       </div>
 
                       <div className={styles.entryFooter}>
                         <div className={styles.footerDetail}>
                           <span>Txn Ref (UTR):</span>
-                          <code>{entry.transactionId || "Verified"}</code>
+                          <code>{entry.utrNumber || "Verified"}</code>
                         </div>
                         <div className={styles.footerDetail}>
-                          <span>Reg ID:</span>
-                          <code>{entry.id}</code>
+                          <span>Submitted:</span>
+                          <code>{new Date(entry.submittedAt).toLocaleDateString("en-IN", { month: "short", day: "numeric" })}</code>
                         </div>
                       </div>
 
@@ -275,7 +514,7 @@ export default function ProfilePage() {
                             Roll No: <strong>{currentUser.rollNumber}</strong> • Dept: <strong>{currentUser.department}</strong>
                           </p>
                           <p className={styles.certRecognitionText}>
-                            for active participation & artistic excellence in the category of <strong>{userSubmissions[0]?.category?.toUpperCase() || "CREATIVE EXPRESSION"}</strong> during the festive festival confluence of Durga Puja 2026.
+                            for active participation & artistic excellence in the category of <strong>{displaySubmissions[0]?.category?.toUpperCase() || "CREATIVE EXPRESSION"}</strong> during the festive festival confluence of Durga Puja 2026.
                           </p>
                         </div>
 

@@ -88,6 +88,17 @@ export const submissionSlice = createSlice({
       state.errorMessage = null;
       state.isSubmitting = false;
     },
+    clearSubmissions: (state) => {
+      state.submissions = [];
+      state.successMessage = null;
+      state.errorMessage = null;
+      state.isSubmitting = false;
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.removeItem("navmedha_submissions");
+        } catch {}
+      }
+    },
   },
 });
 
@@ -96,6 +107,7 @@ export const {
   submitSuccess,
   submitFailure,
   resetSubmissionStatus,
+  clearSubmissions,
 } = submissionSlice.actions;
 
 export default submissionSlice.reducer;

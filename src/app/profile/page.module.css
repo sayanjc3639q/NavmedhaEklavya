@@ -312,6 +312,100 @@
   border-radius: 9999px;
 }
 
+.statusBadgeVerified {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+  font-weight: 700;
+  font-size: 0.75rem;
+  padding: 3px 9px;
+  border-radius: 9999px;
+}
+
+.statusBadgeRejected {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+  font-weight: 700;
+  font-size: 0.75rem;
+  padding: 3px 9px;
+  border-radius: 9999px;
+}
+
+.mediaThumbnailWrap {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #fed7aa;
+  background: #000000;
+}
+
+.mediaThumbnail {
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.mediaThumbnail:hover {
+  transform: scale(1.03);
+}
+
+.viewMediaLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #b45309;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.viewMediaLink:hover {
+  color: #78350f;
+  text-decoration: underline;
+}
+
+.contentSnippet {
+  background: #fafaf9;
+  border-left: 3px solid #d97706;
+  padding: 8px 12px;
+  border-radius: 0 8px 8px 0;
+  font-size: 0.82rem;
+  color: #44403c;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.refreshBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid #d4af37;
+  color: #78350f;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.refreshBtn:hover {
+  background: #fef3c7;
+  color: #991b1b;
+}
+
 .submissionTitle {
   font-family: var(--font-cinzel), serif;
   font-size: 1.15rem;
