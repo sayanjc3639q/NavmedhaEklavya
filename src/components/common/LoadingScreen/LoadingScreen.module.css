@@ -1,0 +1,199 @@
+.preloaderWrapper {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  transition: opacity 0.65s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.65s ease;
+  overflow: hidden;
+}
+
+.preloaderFadeOut {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.loaderCenterBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+  max-width: 440px;
+}
+
+/* ─── ICON & HALO GLOW ─── */
+.iconContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.haloGlow {
+  position: absolute;
+  width: 190px;
+  height: 190px;
+  background: radial-gradient(circle, rgba(217, 119, 6, 0.22) 0%, rgba(153, 27, 27, 0.08) 50%, transparent 70%);
+  border-radius: 50%;
+  animation: pulseGlow 2.5s ease-in-out infinite alternate;
+}
+
+@keyframes pulseGlow {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.6;
+  }
+  100% {
+    transform: scale(1.18);
+    opacity: 1;
+  }
+}
+
+.loadingEmblem {
+  position: relative;
+  z-index: 2;
+  width: 145px;
+  height: 145px;
+  object-fit: contain;
+  filter: drop-shadow(0 8px 24px rgba(180, 83, 9, 0.25));
+  animation: floatEmblem 3s ease-in-out infinite;
+}
+
+@keyframes floatEmblem {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* ─── BRANDING TEXT ─── */
+.brandTextBox {
+  margin-bottom: 28px;
+}
+
+.festivalKicker {
+  font-family: var(--font-bengali), serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #991b1b;
+  letter-spacing: 1px;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.brandTitle {
+  font-family: var(--font-cinzel), serif;
+  font-size: 2.2rem;
+  color: #78350f;
+  letter-spacing: 3px;
+  margin-bottom: 6px;
+  line-height: 1.1;
+}
+
+.brandSubtitle {
+  font-size: 0.92rem;
+  color: #6b432a;
+}
+
+/* ─── TRISUL PROGRESS BAR ─── */
+.progressContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.progressBarTrack {
+  position: relative;
+  width: 100%;
+  height: 8px;
+  background: #fdf2dc;
+  border: 1.5px solid #d4af37;
+  border-radius: 9999px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.progressBarFill {
+  height: 100%;
+  background: linear-gradient(90deg, #d97706 0%, #b45309 60%, #991b1b 100%);
+  border-radius: 9999px;
+  transition: width 0.15s ease-out;
+  box-shadow: 0 0 10px rgba(217, 119, 6, 0.5);
+}
+
+/* The Trident icon riding along the progress bar */
+.trishulHead {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -60%);
+  width: 38px;
+  height: 38px;
+  pointer-events: none;
+  transition: left 0.15s ease-out;
+  filter: drop-shadow(0 2px 6px rgba(120, 53, 15, 0.35));
+}
+
+.trishulSvg {
+  width: 100%;
+  height: 100%;
+  animation: trishulWobble 1.5s ease-in-out infinite alternate;
+}
+
+@keyframes trishulWobble {
+  0% {
+    transform: rotate(-3deg);
+  }
+  100% {
+    transform: rotate(3deg);
+  }
+}
+
+.progressMetaRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.84rem;
+  color: #78350f;
+  font-weight: 600;
+  padding: 0 2px;
+}
+
+.loadingStatusText {
+  color: #9a3412;
+  font-weight: 700;
+}
+
+.progressPercent {
+  font-family: monospace;
+  font-weight: 800;
+  font-size: 0.98rem;
+  color: #991b1b;
+}
+
+@media (max-width: 480px) {
+  .brandTitle {
+    font-size: 1.85rem;
+  }
+  
+  .loadingEmblem {
+    width: 120px;
+    height: 120px;
+  }
+
+  .progressBarTrack {
+    height: 7px;
+  }
+
+  .trishulHead {
+    width: 32px;
+    height: 32px;
+  }
+}

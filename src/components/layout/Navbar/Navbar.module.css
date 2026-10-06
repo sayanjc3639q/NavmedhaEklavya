@@ -5,13 +5,31 @@
   right: 0;
   width: 100%;
   z-index: 1000;
+  padding: 16px 0;
+  transition: background 0.45s cubic-bezier(0.16, 1, 0.3, 1), 
+              border-color 0.45s ease, 
+              box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1), 
+              padding 0.35s ease,
+              backdrop-filter 0.45s ease;
+}
+
+/* Initially transparent when on hero */
+.navbarTransparent {
+  background: transparent;
+  border-bottom: 1.5px solid transparent;
+  box-shadow: none;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+/* Slowly appears as user scrolls past hero */
+.navbarScrolled {
   background: rgba(254, 250, 242, 0.95);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1.5px solid rgba(217, 119, 6, 0.3);
   box-shadow: 0 4px 25px rgba(120, 53, 15, 0.08);
-  padding: 12px 0;
-  transition: all 0.3s ease;
+  padding: 11px 0;
 }
 
 .navContainer {
@@ -28,6 +46,26 @@
   display: flex;
   align-items: center;
   flex-shrink: 0;
+}
+
+.brandGroup {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.eklavyaNavLogo {
+  width: auto;
+  height: 38px;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+.brandCross {
+  color: #b45309;
+  font-size: 0.95rem;
+  font-weight: 700;
+  opacity: 0.85;
 }
 
 .navLogoImg {
@@ -74,10 +112,10 @@
 
 .hamburgerBtn {
   display: none;
-  background: rgba(254, 243, 199, 0.5);
-  border: 1.5px solid rgba(217, 119, 6, 0.5);
+  background: transparent;
+  border: none;
   color: #78350f;
-  padding: 8px 10px;
+  padding: 6px;
   border-radius: 8px;
   cursor: pointer;
   align-items: center;
@@ -86,14 +124,13 @@
 }
 
 .hamburgerBtn:hover {
-  background: rgba(217, 119, 6, 0.15);
-  border-color: #991b1b;
+  background: rgba(217, 119, 6, 0.12);
   color: #991b1b;
 }
 
 .hamburgerIcon {
-  width: 26px;
-  height: 26px;
+  width: 28px;
+  height: 28px;
 }
 
 /* Backdrop */

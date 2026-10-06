@@ -75,7 +75,7 @@ export function FlowSection() {
             </div>
             <div className={styles.organizedText}>
               <span className={styles.organizedKicker}>Organised & Powered By</span>
-              <h3 className={styles.organizedTitle}>Eklavya Foundation</h3>
+              <h3 className={styles.organizedTitle}>Eklavya Official</h3>
               <p className={styles.organizedDesc}>
                 Empowering arts, culture, and youth creative potential through community initiatives and digital platforms.
               </p>

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Rozha_One, Cinzel_Decorative, Marcellus, Outfit } from "next/font/google";
+import { Rozha_One, Cinzel_Decorative, Marcellus, Outfit, Noto_Serif_Bengali } from "next/font/google";
 import { ReduxProvider } from "@/redux/provider";
 import "./globals.css";
 
@@ -30,6 +30,13 @@ const outfit = Outfit({
   display: "swap",
 });
 
+const notoBengali = Noto_Serif_Bengali({
+  weight: ["400", "600", "700", "800"],
+  subsets: ["bengali"],
+  variable: "--font-bengali",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "NAVMEDHA | Online Durga Puja Art & Creative Confluence",
   description: "Celebrate the festive spirit of Sharadotsav with NAVMEDHA. Submit your Reels, Photography, Stories & Creative Artworks.",
@@ -37,6 +44,8 @@ export const metadata: Metadata = {
     icon: "/assets/Logo.png",
   },
 };
+
+import { LoadingScreen } from "@/components/common/LoadingScreen/LoadingScreen";
 
 export default function RootLayout({
   children,
@@ -46,10 +55,13 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${rozhaOne.variable} ${cinzel.variable} ${marcellus.variable} ${outfit.variable}`}
+      className={`${rozhaOne.variable} ${cinzel.variable} ${marcellus.variable} ${outfit.variable} ${notoBengali.variable}`}
     >
       <body>
-        <ReduxProvider>{children}</ReduxProvider>
+        <ReduxProvider>
+          <LoadingScreen />
+          {children}
+        </ReduxProvider>
       </body>
     </html>
   );

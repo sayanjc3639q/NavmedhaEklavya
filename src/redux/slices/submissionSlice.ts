@@ -5,21 +5,49 @@ export interface SubmissionPayload {
   fullName: string;
   email: string;
   phone: string;
+  instagramHandle: string;
   title: string;
   description: string;
-  driveLink: string;
+  fileName: string;
+  fileSize: number;
+  fileType: string;
+  fileDataUrl?: string;
+  paymentScreenshotName: string;
+  paymentScreenshotDataUrl?: string;
+  transactionId: string;
+  followedEklavya: boolean;
   agreeToRules: boolean;
+  userId?: string;
+}
+
+export interface SubmissionItem extends SubmissionPayload {
+  id: string;
+  submittedAt: string;
+  status: "Under Review" | "Verified" | "Featured";
+  certificateAvailable: boolean;
 }
 
 interface SubmissionState {
-  submissions: (SubmissionPayload & { id: string; submittedAt: string })[];
+  submissions: SubmissionItem[];
   isSubmitting: boolean;
   successMessage: string | null;
   errorMessage: string | null;
 }
 
+const getInitialSubmissions = (): SubmissionItem[] => {
+  if (typeof window !== "undefined") {
+    try {
+      const saved = localStorage.getItem("navmedha_submissions");
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch {}
+  }
+  return [];
+};
+
 const initialState: SubmissionState = {
-  submissions: [],
+  submissions: getInitialSubmissions(),
   isSubmitting: false,
   successMessage: null,
   errorMessage: null,
@@ -36,11 +64,19 @@ export const submissionSlice = createSlice({
     },
     submitSuccess: (state, action: PayloadAction<SubmissionPayload>) => {
       state.isSubmitting = false;
-      state.submissions.push({
+      const newEntry: SubmissionItem = {
         ...action.payload,
-        id: `NM-${Date.now()}`,
+        id: `NM-${Date.now().toString().slice(-6)}`,
         submittedAt: new Date().toISOString(),
-      });
+        status: "Under Review",
+        certificateAvailable: false,
+      };
+      state.submissions.unshift(newEntry);
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("navmedha_submissions", JSON.stringify(state.submissions));
+        } catch {}
+      }
       state.successMessage = "Your submission has been successfully received for NAVMEDHA 2026!";
     },
     submitFailure: (state, action: PayloadAction<string>) => {

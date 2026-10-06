@@ -42,12 +42,12 @@ export function Footer() {
             <h4>Contact & Support</h4>
             <p>Email: contact@navmedha.org</p>
             <p>Instagram: @navmedha_official</p>
-            <p className={styles.festiveBlessing}>🌸 শারদীয়ার প্রীতি ও শুভেচ্ছা 🌸</p>
+            <p className={`${styles.festiveBlessing} font-bengali`}>🌸 শারদীয়ার প্রীতি ও শুভেচ্ছা 🌸</p>
           </div>
         </div>
 
         <div className={styles.footerBottom}>
-          <p>© 2026 NAVMEDHA. All Rights Reserved. Crafted with devotion for Sharadotsav.</p>
+          <p>© 2026 NAVMEDHA. All Rights Reserved. Rights reserved to Eklavya Official. Crafted with devotion for <span className={`${styles.bengaliHighlight} font-bengali`}>শারদোৎসব</span>.</p>
         </div>
       </div>
     </footer>

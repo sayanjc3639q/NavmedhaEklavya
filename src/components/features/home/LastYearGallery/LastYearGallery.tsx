@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
+import { ScrollReveal } from "@/components/common/ScrollReveal/ScrollReveal";
 import styles from "./LastYearGallery.module.css";
 
 const GALLERY_ITEMS = [
@@ -82,13 +83,15 @@ export function LastYearGallery() {
   return (
     <section id="gallery" className={styles.gallerySection}>
       <div className={styles.container}>
-        <div className={styles.sectionHeaderCenter}>
-          <span className={styles.sectionKicker}>✧ Nostalgia & Glories ✧</span>
-          <h2 className={styles.sectionTitle}>Last Year Prize Distribution</h2>
-          <p className={styles.sectionSubtitle}>
-            A glimpse into the cherished moments, awards ceremony, and radiant smiles of NAVMEDHA winners.
-          </p>
-        </div>
+        <ScrollReveal variant="fade">
+          <div className={styles.sectionHeaderCenter}>
+            <span className={styles.sectionKicker}>✧ Nostalgia & Glories ✧</span>
+            <h2 className={styles.sectionTitle}>Last Year Prize Distribution</h2>
+            <p className={styles.sectionSubtitle}>
+              A glimpse into the cherished moments, awards ceremony, and radiant smiles of NAVMEDHA winners.
+            </p>
+          </div>
+        </ScrollReveal>
 
         {/* Poker Card Deck Container with Mobile Touch Swipe */}
         <div

@@ -75,8 +75,16 @@
   text-align: center;
   padding-top: 24px;
   border-top: 1px solid rgba(254, 243, 199, 0.15);
-  font-size: 0.88rem;
+  font-size: 0.92rem;
   color: #d97706;
+  line-height: 1.6;
+}
+
+.bengaliHighlight {
+  color: #fbbf24;
+  font-weight: 700;
+  font-size: 1.05rem;
+  padding: 0 4px;
 }
 
 @media (max-width: 900px) {

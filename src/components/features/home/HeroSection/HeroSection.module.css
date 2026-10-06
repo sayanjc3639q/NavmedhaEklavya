@@ -1,22 +1,26 @@
 .heroSection {
   position: relative;
-  min-height: 84vh;
+  min-height: 94vh;
+  margin-top: -75px;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  padding: 60px 20px 80px;
+  padding: 110px 20px 80px;
 }
 
 .heroBgWrapper {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 1;
 }
 
 .heroBgImage {
   object-fit: cover;
-  object-position: center;
+  object-position: center top;
 }
 
 .heroOverlay {
@@ -63,8 +67,8 @@
 
 @media (max-width: 680px) {
   .heroSection {
-    min-height: 70vh;
-    padding: 40px 16px 50px;
+    min-height: 82vh;
+    padding: 95px 16px 60px;
   }
 
   .heroSubtitle {

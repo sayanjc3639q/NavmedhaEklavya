@@ -3,11 +3,31 @@
 import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Menu, X, ArrowRight } from "lucide-react";
+import { Menu, X, ArrowRight, User } from "lucide-react";
+import { useAppSelector } from "@/redux/hooks";
 import styles from "./Navbar.module.css";
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const { user } = useAppSelector((state) => state.auth);
+
+  // Track scroll past the hero section (~350px - 500px)
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 220) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+
+    // Check initial scroll
+    handleScroll();
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   // Prevent background scrolling when sidebar is open
   useEffect(() => {
@@ -26,18 +46,28 @@ export function Navbar() {
   };
 
   return (
-    <header className={styles.navbar}>
+    <header className={`${styles.navbar} ${isScrolled ? styles.navbarScrolled : styles.navbarTransparent}`}>
       <div className={styles.navContainer}>
         <Link href="/" className={styles.navBrand} onClick={closeSidebar}>
-          <Image
-            src="/assets/navmedha-logo.png"
-            alt="Navmedha Logo"
-            width={180}
-            height={50}
-            style={{ width: "auto", height: "45px" }}
-            priority
-            className={styles.navLogoImg}
-          />
+          <div className={styles.brandGroup}>
+            <Image
+              src="/assets/eklavyaicon.png"
+              alt="Eklavya Logo"
+              width={42}
+              height={42}
+              className={styles.eklavyaNavLogo}
+            />
+            <span className={styles.brandCross}>✕</span>
+            <Image
+              src="/assets/navmedha-logo.png"
+              alt="Navmedha Logo"
+              width={160}
+              height={45}
+              style={{ width: "auto", height: "40px" }}
+              priority
+              className={styles.navLogoImg}
+            />
+          </div>
         </Link>
 
         {/* Desktop Navigation */}
@@ -47,15 +77,28 @@ export function Navbar() {
           <Link href="/#prizes" className={styles.navLink}>Prizes & MAR</Link>
           <Link href="/#gallery" className={styles.navLink}>Memories</Link>
           <Link href="/#mascots" className={styles.navLink}>Theme</Link>
-          <Link href="/#rules" className={styles.navLink}>Rules</Link>
-          <Link href="/#flow" className={styles.navLink}>Event Flow</Link>
         </nav>
 
-        {/* Desktop Login Button */}
+        {/* Desktop Login / Profile Button */}
         <div className={styles.desktopActions}>
-          <Link href="/#categories" className="hero-btn" style={{ padding: "8px 24px", fontSize: "0.95rem" }}>
-            Login
-          </Link>
+          {user ? (
+            <Link 
+              href="/profile" 
+              className="hero-btn" 
+              style={{ padding: "8px 20px", fontSize: "0.92rem", gap: "8px" }}
+            >
+              <User size={16} />
+              <span>{user.name.split(" ")[0]}&apos;s Profile</span>
+            </Link>
+          ) : (
+            <Link 
+              href="/login" 
+              className="hero-btn" 
+              style={{ padding: "8px 22px", fontSize: "0.95rem" }}
+            >
+              Login
+            </Link>
+          )}
         </div>
 
         {/* Mobile Hamburger Toggle Button */}
@@ -82,13 +125,23 @@ export function Navbar() {
         aria-label="Mobile navigation"
       >
         <div className={styles.sidebarHeader}>
-          <Image
-            src="/assets/navmedha-logo.png"
-            alt="Navmedha Logo"
-            width={140}
-            height={40}
-            style={{ width: "auto", height: "36px" }}
-          />
+          <div className={styles.brandGroup}>
+            <Image
+              src="/assets/eklavyaicon.png"
+              alt="Eklavya Logo"
+              width={34}
+              height={34}
+              className={styles.eklavyaNavLogo}
+            />
+            <span className={styles.brandCross}>✕</span>
+            <Image
+              src="/assets/navmedha-logo.png"
+              alt="Navmedha Logo"
+              width={130}
+              height={36}
+              style={{ width: "auto", height: "32px" }}
+            />
+          </div>
           <button
             onClick={closeSidebar}
             className={styles.closeBtn}
@@ -119,26 +172,36 @@ export function Navbar() {
             <span>Theme & Vahanas</span>
             <ArrowRight size={16} className={styles.linkArrow} />
           </Link>
-          <Link href="/#rules" className={styles.sidebarLink} onClick={closeSidebar}>
-            <span>Rules</span>
-            <ArrowRight size={16} className={styles.linkArrow} />
-          </Link>
-          <Link href="/#flow" className={styles.sidebarLink} onClick={closeSidebar}>
-            <span>Event Flow</span>
-            <ArrowRight size={16} className={styles.linkArrow} />
-          </Link>
+          {user && (
+            <Link href="/profile" className={styles.sidebarLink} onClick={closeSidebar}>
+              <span>My Profile & Certificate</span>
+              <ArrowRight size={16} className={styles.linkArrow} />
+            </Link>
+          )}
         </nav>
 
         <div className={styles.sidebarFooter}>
-          <Link
-            href="/#categories"
-            className="hero-btn"
-            style={{ width: "100%", justifyContent: "center", padding: "12px 24px", fontSize: "1rem" }}
-            onClick={closeSidebar}
-          >
-            Login / Participate
-          </Link>
-          <p className={styles.sidebarCredit}>Powered by Eklavya Foundation</p>
+          {user ? (
+            <Link
+              href="/profile"
+              className="hero-btn"
+              style={{ width: "100%", justifyContent: "center", padding: "12px 24px", fontSize: "1rem", gap: "8px" }}
+              onClick={closeSidebar}
+            >
+              <User size={18} />
+              <span>View My Profile</span>
+            </Link>
+          ) : (
+            <Link
+              href="/login"
+              className="hero-btn"
+              style={{ width: "100%", justifyContent: "center", padding: "12px 24px", fontSize: "1rem" }}
+              onClick={closeSidebar}
+            >
+              Login / Register
+            </Link>
+          )}
+          <p className={styles.sidebarCredit}>Powered by Eklavya Official</p>
         </div>
       </aside>
     </header>

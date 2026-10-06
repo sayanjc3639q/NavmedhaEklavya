@@ -1,0 +1,813 @@
+.profilePage {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.profileSection {
+  flex: 1;
+  padding: 30px 16px 80px;
+}
+
+.container {
+  width: 100%;
+  max-width: 1060px;
+  margin: 0 auto;
+}
+
+/* ─── BANNER ─── */
+.profileBanner {
+  position: relative;
+  background: linear-gradient(135deg, #fffdf8 0%, #fef3c7 100%);
+  border: 1.5px solid #d4af37;
+  border-radius: 18px;
+  padding: 24px 28px;
+  box-shadow: 0 8px 24px rgba(120, 53, 15, 0.08);
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+
+.bannerGlow {
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 180px;
+  height: 180px;
+  background: radial-gradient(circle, rgba(217, 119, 6, 0.2) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.bannerContent {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  flex-wrap: wrap;
+}
+
+.avatarWrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.avatarInitials {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #991b1b 0%, #b45309 100%);
+  color: #ffffff;
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.8rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(153, 27, 27, 0.2);
+  border: 3px solid #fef3c7;
+}
+
+.onlineBadge {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 16px;
+  height: 16px;
+  background: #16a34a;
+  border-radius: 50%;
+  border: 2.5px solid #ffffff;
+}
+
+.userMainInfo {
+  flex: 1;
+  min-width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.userName {
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.6rem;
+  color: #5c1d0c;
+  line-height: 1.2;
+}
+
+.verifiedStudentBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.userMetaLine {
+  font-size: 0.88rem;
+  color: #78350f;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.contactPills {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(217, 119, 6, 0.35);
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 0.8rem;
+  color: #431407;
+}
+
+.bannerActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.logoutBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #ffffff;
+  color: #991b1b;
+  border: 1.5px solid #fca5a5;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.logoutBtn:hover {
+  background: #fee2e2;
+  border-color: #991b1b;
+}
+
+.demoNotice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #fef3c7;
+  border: 1.5px solid #f59e0b;
+  border-radius: 12px;
+  padding: 10px 16px;
+  color: #92400e;
+  font-size: 0.88rem;
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.demoNotice a {
+  color: #991b1b;
+  text-decoration: underline;
+}
+
+/* ─── PREMIUM PILL TABS (CLEAN & BEAUTIFUL) ─── */
+.profileTabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 28px;
+  background: rgba(254, 243, 199, 0.5);
+  padding: 6px;
+  border-radius: 14px;
+  border: 1.5px solid rgba(217, 119, 6, 0.3);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.tabBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #78350f;
+  cursor: pointer;
+  border-radius: 10px;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+  flex: 1;
+}
+
+.tabBtn:hover {
+  color: #991b1b;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.tabActive {
+  background: #991b1b !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(153, 27, 27, 0.3);
+}
+
+/* ─── TAB CONTENT: SUBMISSIONS ─── */
+.tabContent {
+  width: 100%;
+}
+
+.emptyState {
+  background: #fffdf8;
+  border: 2px dashed #d4af37;
+  border-radius: 18px;
+  padding: 44px 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.emptyState h3 {
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.35rem;
+  color: #991b1b;
+}
+
+.emptyState p {
+  font-size: 0.92rem;
+  color: #78350f;
+  max-width: 480px;
+}
+
+.submissionsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.submissionCard {
+  background: #ffffff;
+  border: 1.5px solid #d4af37;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  text-align: left;
+  box-shadow: 0 4px 16px rgba(120, 53, 15, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.submissionCard:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(120, 53, 15, 0.12);
+}
+
+.cardTopRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.categoryBadge {
+  background: #fef3c7;
+  color: #9a3412;
+  font-weight: 800;
+  font-size: 0.75rem;
+  padding: 3px 9px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+}
+
+.statusBadgeReview {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #fef9c3;
+  color: #854d0e;
+  border: 1px solid #fde047;
+  font-weight: 700;
+  font-size: 0.75rem;
+  padding: 3px 9px;
+  border-radius: 9999px;
+}
+
+.submissionTitle {
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.15rem;
+  color: #431407;
+  line-height: 1.3;
+}
+
+.submissionDesc {
+  font-size: 0.85rem;
+  color: #6b432a;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.fileMetaCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fdf6ec;
+  border: 1px solid #fed7aa;
+  border-radius: 10px;
+  padding: 10px 12px;
+}
+
+.fileIconWrap {
+  color: #b45309;
+  flex-shrink: 0;
+}
+
+.fileMetaText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.fileMetaText strong {
+  font-size: 0.85rem;
+  color: #431407;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fileMetaText span {
+  font-size: 0.75rem;
+  color: #78350f;
+}
+
+.entryFooter {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-top: 1px dashed rgba(217, 119, 6, 0.25);
+  border-bottom: 1px dashed rgba(217, 119, 6, 0.25);
+  font-size: 0.8rem;
+}
+
+.footerDetail {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.footerDetail span {
+  color: #78350f;
+}
+
+.footerDetail code {
+  font-weight: 700;
+  color: #991b1b;
+}
+
+.cardActions {
+  margin-top: 2px;
+}
+
+.viewCertBtn {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: #fff7ed;
+  border: 1.5px solid #d97706;
+  color: #9a3412;
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.viewCertBtn:hover {
+  background: #991b1b;
+  color: #ffffff;
+  border-color: #991b1b;
+}
+
+/* ─── TAB CONTENT: RESPONSIVE COMPACT CERTIFICATE PORTAL ─── */
+.certCardSection {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.certStatusBanner {
+  background: #fff7ed;
+  border: 1.5px solid #f59e0b;
+  border-radius: 14px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  text-align: left;
+}
+
+.lockIconWrap {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: #fed7aa;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.lockIcon {
+  color: #c2410c;
+}
+
+.certStatusText h3 {
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.15rem;
+  color: #991b1b;
+  margin-bottom: 3px;
+}
+
+.certStatusText p {
+  font-size: 0.88rem;
+  color: #78350f;
+  line-height: 1.45;
+}
+
+/* Contain and scale certificate neatly so it NEVER overflows or over-enlarges */
+.certPreviewWrapper {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.certPaper {
+  width: 100%;
+  max-width: 680px;
+  background: #fffefb;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e5d5be;
+}
+
+.certBorderOuter {
+  border: 3px solid #b45309;
+  padding: 6px;
+  border-radius: 6px;
+  position: relative;
+}
+
+.certBorderInner {
+  border: 1.5px solid #d4af37;
+  padding: 24px 22px 20px;
+  text-align: center;
+  background: radial-gradient(circle at center, #ffffff 60%, #fffbf0 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.certLogoRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.certCross {
+  color: #b45309;
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.certKicker {
+  font-size: 0.72rem;
+  letter-spacing: 1.5px;
+  font-weight: 800;
+  color: #b45309;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.certTitle {
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.55rem;
+  color: #991b1b;
+  margin-bottom: 12px;
+  line-height: 1.2;
+}
+
+.certBodyText {
+  font-size: 0.88rem;
+  color: #78350f;
+  font-style: italic;
+  margin-bottom: 4px;
+}
+
+.certRecipient {
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.55rem;
+  color: #5c1d0c;
+  border-bottom: 1.5px solid #d4af37;
+  display: inline-block;
+  padding: 0 16px 4px;
+  margin-bottom: 8px;
+}
+
+.certRollMeta {
+  font-size: 0.85rem;
+  color: #78350f;
+  margin-bottom: 10px;
+}
+
+.certRecognitionText {
+  font-size: 0.88rem;
+  color: #431407;
+  max-width: 520px;
+  margin: 0 auto 18px;
+  line-height: 1.5;
+}
+
+.certSignatures {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-end;
+  padding-top: 10px;
+  gap: 12px;
+}
+
+.certSignBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.digitalSign {
+  font-family: 'Brush Script MT', cursive, serif;
+  font-size: 1.2rem;
+  color: #1e3a8a;
+}
+
+.signLine {
+  width: 100px;
+  height: 1.5px;
+  background: #78350f;
+}
+
+.signRole {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #78350f;
+}
+
+.certSealWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.certSeal {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1.5px solid #d4af37;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(212, 175, 55, 0.25);
+}
+
+.sealText {
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: #b45309;
+  letter-spacing: 0.5px;
+}
+
+.certWatermark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-20deg);
+  background: rgba(153, 27, 27, 0.08);
+  border: 1.5px dashed rgba(153, 27, 27, 0.35);
+  padding: 6px 18px;
+  border-radius: 6px;
+  font-weight: 800;
+  font-size: 0.75rem;
+  color: #991b1b;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.certNoteFooter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+  font-size: 0.84rem;
+  color: #78350f;
+  text-align: center;
+}
+
+.noteIcon {
+  color: #16a34a;
+  flex-shrink: 0;
+}
+
+/* ─── TAB CONTENT: ACADEMIC DETAILS ─── */
+.detailsCard {
+  background: #ffffff;
+  border: 1.5px solid #d4af37;
+  border-radius: 16px;
+  padding: 26px;
+  text-align: left;
+  box-shadow: 0 4px 16px rgba(120, 53, 15, 0.06);
+}
+
+.detailsHeader {
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px dashed rgba(217, 119, 6, 0.3);
+}
+
+.detailsHeader h3 {
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.2rem;
+  color: #991b1b;
+  margin-bottom: 3px;
+}
+
+.detailsHeader p {
+  font-size: 0.85rem;
+  color: #78350f;
+}
+
+.infoGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.infoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background: #fdfaf4;
+  border: 1px solid #f5e6cc;
+  padding: 12px 16px;
+  border-radius: 10px;
+}
+
+.infoLabel {
+  font-size: 0.74rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #9a3412;
+}
+
+.infoValue {
+  font-size: 0.98rem;
+  color: #2e1206;
+}
+
+/* ─── RESPONSIVENESS & MOBILE POLISH ─── */
+@media (max-width: 768px) {
+  .profileBanner {
+    padding: 20px 16px;
+  }
+
+  .bannerContent {
+    flex-direction: column;
+    text-align: center;
+    gap: 16px;
+  }
+
+  .userMainInfo {
+    text-align: center;
+    align-items: center;
+  }
+
+  .nameRow {
+    justify-content: center;
+  }
+
+  .contactPills {
+    justify-content: center;
+  }
+
+  .profileTabs {
+    flex-direction: row;
+    gap: 6px;
+    padding: 4px;
+  }
+
+  .tabBtn {
+    padding: 8px 12px;
+    font-size: 0.84rem;
+    gap: 5px;
+  }
+
+  .certPaper {
+    padding: 10px;
+  }
+
+  .certBorderInner {
+    padding: 16px 10px;
+  }
+
+  .certTitle {
+    font-size: 1.25rem;
+  }
+
+  .certRecipient {
+    font-size: 1.25rem;
+    padding: 0 10px 2px;
+  }
+
+  .certRecognitionText {
+    font-size: 0.82rem;
+  }
+
+  .certSignatures {
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 6px;
+  }
+
+  .digitalSign {
+    font-size: 0.95rem;
+  }
+
+  .signLine {
+    width: 65px;
+  }
+
+  .signRole {
+    font-size: 0.65rem;
+  }
+
+  .certSeal {
+    width: 36px;
+    height: 36px;
+  }
+
+  .infoGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .profileTabs {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .tabBtn {
+    width: 100%;
+    justify-content: flex-start;
+    padding: 10px 14px;
+  }
+
+  .certSignatures {
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .signLine {
+    width: 110px;
+  }
+}
