@@ -9,11 +9,10 @@ const GALLERY_ITEMS = [
   { id: 1, img: "/assets/lastyear/1.jpeg", title: "Grand Felicitations", caption: "Honoring the young emerging artists of NAVMEDHA" },
   { id: 2, img: "/assets/lastyear/2.jpeg", title: "Certificate Distribution", caption: "Awarding official certificates & recognition shields" },
   { id: 3, img: "/assets/lastyear/3.jpeg", title: "Joy of Achievement", caption: "Smiles and celebration of creative excellence" },
-  { id: 4, img: "/assets/lastyear/4.jpeg", title: "Prizes & Recognition", caption: "Encouraging young minds through festive hampers" },
-  { id: 5, img: "/assets/lastyear/5.jpeg", title: "Artistic Moments", caption: "Memorable glimpses from the ceremony stage" },
-  { id: 6, img: "/assets/lastyear/6.jpeg", title: "Celebrating Talent", caption: "Jury and organizers felicitating outstanding entries" },
-  { id: 7, img: "/assets/lastyear/7.jpeg", title: "Cherished Memories", caption: "A gathering of devotion, art, and togetherness" },
-  { id: 8, img: "/assets/lastyear/8.jpeg", title: "Festival of Expressions", caption: "Concluding the grand prize distribution ceremony" },
+  { id: 4, img: "/assets/lastyear/5.jpeg", title: "Artistic Moments", caption: "Memorable glimpses from the ceremony stage" },
+  { id: 5, img: "/assets/lastyear/6.jpeg", title: "Celebrating Talent", caption: "Jury and organizers felicitating outstanding entries" },
+  { id: 6, img: "/assets/lastyear/7.jpeg", title: "Cherished Memories", caption: "A gathering of devotion, art, and togetherness" },
+  { id: 7, img: "/assets/lastyear/8.jpeg", title: "Festival of Expressions", caption: "Concluding the grand prize distribution ceremony" },
 ];
 
 export function LastYearGallery() {
