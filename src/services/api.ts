@@ -36,6 +36,8 @@ export interface ApiResponse<T = any> {
   success: boolean;
   message?: string;
   data?: T;
+  token?: string;
+  url?: string; // Upload endpoints return url at top level
 }
 
 /**
@@ -120,20 +122,33 @@ export async function uploadPaymentReceipt(file: File): Promise<ApiResponse<{ ur
   const formData = new FormData();
   formData.append("image", file);
 
-  return fetchApi<{ url: string }>("/api/upload/payment", {
+  return fetchApi<{ url: string }>("/api/upload/navmedha-payment", {
     method: "POST",
     body: formData,
   });
 }
 
 /**
- * Upload creative asset (photo / artwork / PDF)
+ * Upload creative asset (photo / artwork / PDF) → Cloudinary
  */
 export async function uploadCreativeAsset(file: File): Promise<ApiResponse<{ url: string }>> {
   const formData = new FormData();
-  formData.append("image", file);
+  formData.append("file", file);
 
-  return fetchApi<{ url: string }>("/api/upload/donation-proof", {
+  return fetchApi<{ url: string }>("/api/upload/navmedha-media", {
+    method: "POST",
+    body: formData,
+  });
+}
+
+/**
+ * Upload reel video → Google Drive (via backend GDrive service)
+ */
+export async function uploadVideoToDrive(file: File): Promise<ApiResponse<{ url: string }>> {
+  const formData = new FormData();
+  formData.append("video", file);
+
+  return fetchApi<{ url: string }>("/api/upload/navmedha-video", {
     method: "POST",
     body: formData,
   });
@@ -187,3 +202,51 @@ export async function fetchMySubmissions(): Promise<ApiResponse<any>> {
     method: "GET",
   });
 }
+
+/**
+ * Fetch Current Authenticated User from Users collection
+ */
+export async function fetchCurrentUser(): Promise<ApiResponse<any>> {
+  return fetchApi("/api/auth/me", {
+    method: "GET",
+  });
+}
+
+/**
+ * Update User profile (academic details) directly on Users model
+ */
+export async function updateProfileOnServer(payload: {
+  displayName?: string;
+  department?: string;
+  batch?: string;
+  phone?: string;
+  rollNumber?: string;
+  college?: string;
+}): Promise<ApiResponse<any>> {
+  return fetchApi("/api/auth/update-profile", {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
+/**
+ * Verify Google Credential token (in-app Google Sign In)
+ */
+export async function verifyGoogleCredential(credential: string): Promise<ApiResponse<any>> {
+  return fetchApi("/api/auth/google/verify-credential", {
+    method: "POST",
+    body: JSON.stringify({ credential }),
+  });
+}
+
+/**
+ * Dev Helper: Sign in with Email & Password
+ */
+export async function loginWithEmailPassword(email: string, password: string): Promise<ApiResponse<any>> {
+  return fetchApi("/api/sign-in", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
+  });
+}
+
+

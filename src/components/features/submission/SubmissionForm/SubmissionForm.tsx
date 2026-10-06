@@ -25,6 +25,15 @@ import {
 } from "@/redux/slices/submissionSlice";
 import { CategoryConfig } from "@/config/categories";
 import { getLiveConfig } from "@/redux/slices/configSlice";
+import {
+  uploadCreativeAsset,
+  uploadVideoToDrive,
+  uploadPaymentReceipt,
+  submitPhotoEntry,
+  submitArtEntry,
+  submitWritingEntry,
+  submitReelEntry,
+} from "@/services/api";
 import styles from "./SubmissionForm.module.css";
 
 interface Props {
@@ -122,9 +131,18 @@ export function SubmissionForm({ category }: Props) {
     e.preventDefault();
     setStepError(null);
 
-    if (!mediaFile) {
-      setStepError(`Please upload your ${category.title} file before proceeding.`);
-      return;
+    // For writing/content: require text content OR a file
+    // For all other categories: require a file upload
+    if (category.id === "content") {
+      if (!formData.description.trim() && !mediaFile) {
+        setStepError("Please write your content in the text area or upload a PDF/DOCX file.");
+        return;
+      }
+    } else {
+      if (!mediaFile) {
+        setStepError(`Please upload your ${category.title} file before proceeding.`);
+        return;
+      }
     }
 
     if (!formData.followedEklavya) {
@@ -136,14 +154,24 @@ export function SubmissionForm({ category }: Props) {
     window.scrollTo({ top: 400, behavior: "smooth" });
   };
 
-  const handleSubmitFinal = (e: React.FormEvent) => {
+  const handleSubmitFinal = async (e: React.FormEvent) => {
     e.preventDefault();
     setStepError(null);
 
-    if (!mediaFile) {
-      setStepError(`Please upload your ${category.title} file in Step 1.`);
-      setStep(1);
-      return;
+    // For writing/content: text content is required, file is optional
+    // For all other categories: file is required
+    if (category.id === "content") {
+      if (!formData.description.trim() && !mediaFile) {
+        setStepError("Please write your content or upload a document in Step 1.");
+        setStep(1);
+        return;
+      }
+    } else {
+      if (!mediaFile) {
+        setStepError(`Please upload your ${category.title} file in Step 1.`);
+        setStep(1);
+        return;
+      }
     }
 
     if (!paymentScreenshot) {
@@ -166,7 +194,100 @@ export function SubmissionForm({ category }: Props) {
     const currentMedia = mediaFile;
     const currentPayment = paymentScreenshot;
 
-    setTimeout(() => {
+    try {
+      // ── Step A: Upload creative asset ──
+      // Reels go to Google Drive; Writing is optional (text goes to MongoDB)
+      // Everything else goes to Cloudinary
+      let mediaUrl = "";
+
+      if (mediaFile) {
+        const mediaRes = category.id === "reels"
+          ? await uploadVideoToDrive(mediaFile)
+          : await uploadCreativeAsset(mediaFile);
+
+        if (!mediaRes.success || !mediaRes.url) {
+          dispatch(submitFailure(mediaRes.message || "Failed to upload your creative file. Please try again."));
+          return;
+        }
+        mediaUrl = mediaRes.url;
+      }
+
+      // ── Step B: Upload payment screenshot to Cloudinary ──
+      const payRes = await uploadPaymentReceipt(currentPayment);
+      if (!payRes.success || !payRes.url) {
+        dispatch(submitFailure(payRes.message || "Failed to upload payment screenshot. Please try again."));
+        return;
+      }
+      const paymentUrl = payRes.url;
+
+      // ── Step C: Build common participant fields from user profile ──
+      const commonPayload = {
+        name: formData.fullName,
+        email: formData.email,
+        phone: formData.phone,
+        college: user?.collegeName || "Heritage Institute of Technology",
+        department: user?.department || "CSE",
+        year: user?.currentYear || "3rd Year",
+        rollNumber: user?.rollNumber || "",
+        utrNumber: formData.transactionId.trim(),
+        paymentScreenshotUrl: paymentUrl,
+      };
+
+      // ── Step D: Call the right category-specific submit endpoint ──
+      let submitRes;
+
+      switch (category.id) {
+        case "photography":
+          submitRes = await submitPhotoEntry({
+            ...commonPayload,
+            photoUrl: mediaUrl,
+            caption: formData.description,
+          });
+          break;
+
+        case "artworks":
+          submitRes = await submitArtEntry({
+            ...commonPayload,
+            artworkUrl: mediaUrl,
+            titleOfArtwork: formData.title,
+            artType: "Other",
+            description: formData.description,
+          });
+          break;
+
+        case "content":
+          submitRes = await submitWritingEntry({
+            ...commonPayload,
+            titleOfPiece: formData.title,
+            genre: "Other",
+            language: "English",
+            content: formData.description.trim() || undefined,
+            documentPdfUrl: mediaUrl || undefined,
+          });
+          break;
+
+        case "reels":
+          submitRes = await submitReelEntry({
+            ...commonPayload,
+            reelTitle: formData.title,
+            reelGenre: "Other Creative",
+            videoDriveLink: mediaUrl,
+            instagramHandle: formData.instagramHandle,
+            caption: formData.description,
+          });
+          break;
+
+        default:
+          dispatch(submitFailure("Unknown category. Please refresh and try again."));
+          return;
+      }
+
+      if (!submitRes.success) {
+        dispatch(submitFailure(submitRes.message || "Submission failed. Please try again."));
+        return;
+      }
+
+      // ── Step E: Dispatch success to Redux ──
       dispatch(
         submitSuccess({
           category: category.id,
@@ -176,9 +297,9 @@ export function SubmissionForm({ category }: Props) {
           instagramHandle: formData.instagramHandle,
           title: formData.title,
           description: formData.description,
-          fileName: currentMedia.name,
-          fileSize: currentMedia.size,
-          fileType: currentMedia.type,
+          fileName: currentMedia?.name || "text-submission",
+          fileSize: currentMedia?.size || 0,
+          fileType: currentMedia?.type || "text/plain",
           fileDataUrl: mediaPreview || undefined,
           paymentScreenshotName: currentPayment.name,
           paymentScreenshotDataUrl: paymentPreview || undefined,
@@ -188,7 +309,9 @@ export function SubmissionForm({ category }: Props) {
           userId: user?.id,
         })
       );
-    }, 1500);
+    } catch (err: any) {
+      dispatch(submitFailure(err?.message || "An unexpected error occurred. Please check your connection and try again."));
+    }
   };
 
   if (successMessage) {
@@ -357,15 +480,25 @@ export function SubmissionForm({ category }: Props) {
           </div>
 
           <div className={styles.formSectionHeader} style={{ marginTop: "10px" }}>
-            <h3 className={styles.formSectionTitle}>2. Entry & Artwork Details</h3>
-            <p className={styles.formSectionDesc}>Describe the theme and story behind your creation.</p>
+            <h3 className={styles.formSectionTitle}>
+              {category.id === "content" ? "2. Your Written Piece" : "2. Entry & Artwork Details"}
+            </h3>
+            <p className={styles.formSectionDesc}>
+              {category.id === "content"
+                ? "Write your story, essay, or experience below. This text will be your primary submission."
+                : "Describe the theme and story behind your creation."}
+            </p>
           </div>
 
           <div className={styles.formGroup}>
-            <label>Title of Your Masterpiece *</label>
+            <label>
+              {category.id === "content" ? "Title of Your Written Piece *" : "Title of Your Masterpiece *"}
+            </label>
             <input
               type="text"
-              placeholder="e.g. Agomoni: The Divine Radiance of Maa"
+              placeholder={category.id === "content"
+                ? "e.g. Agomoni: Memories of Maa’s Arrival"
+                : "e.g. Agomoni: The Divine Radiance of Maa"}
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               required
@@ -373,19 +506,33 @@ export function SubmissionForm({ category }: Props) {
           </div>
 
           <div className={styles.formGroup}>
-            <label>Artwork Story / Concept Description (Optional)</label>
+            <label>
+              {category.id === "content"
+                ? "Your Written Content * (500–1,500 words)"
+                : "Artwork Story / Concept Description (Optional)"}
+            </label>
             <textarea
-              rows={3}
-              placeholder="Describe the inspiration, techniques, or narrative behind your submission..."
+              rows={category.id === "content" ? 12 : 3}
+              placeholder={category.id === "content"
+                ? "Write your full story, essay, poem, or experience here..."
+                : "Describe the inspiration, techniques, or narrative behind your submission..."}
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              required={category.id === "content"}
             />
+            {category.id === "content" && formData.description.trim() && (
+              <span className={styles.inputHelp}>
+                Word count: ~{formData.description.trim().split(/\s+/).length} words
+              </span>
+            )}
           </div>
 
           {/* Direct File Dropzone */}
           <div className={styles.formGroup}>
             <label>
-              Direct File Upload * ({category.acceptedFormats} • Max {category.maxSizeMB} MB)
+              {category.id === "content"
+                ? `Upload PDF/Document (Optional — ${category.acceptedFormats} • Max ${category.maxSizeMB} MB)`
+                : `Direct File Upload * (${category.acceptedFormats} • Max ${category.maxSizeMB} MB)`}
             </label>
             
             <div

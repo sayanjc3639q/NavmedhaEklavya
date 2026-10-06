@@ -1,4 +1,5 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { fetchCurrentUser, updateProfileOnServer } from "@/services/api";
 
 export interface UserProfile {
   id: string;
@@ -7,9 +8,11 @@ export interface UserProfile {
   avatar?: string;
   rollNumber: string;
   department: string;
-  currentYear: string; // "1st Year" | "2nd Year" | "3rd Year" | "4th Year" | "Postgraduate" | "Other"
+  currentYear: string;
   mobileNumber: string;
   collegeName?: string;
+  role?: string;
+  token?: string;
   isAuthenticated: boolean;
 }
 
@@ -19,6 +22,36 @@ interface AuthState {
   error: string | null;
 }
 
+export const checkAuthSession = createAsyncThunk(
+  "auth/checkAuthSession",
+  async (_, { rejectWithValue }) => {
+    if (typeof window === "undefined") return null;
+    const token = localStorage.getItem("navmedha_token");
+    if (!token) return null;
+
+    const res = await fetchCurrentUser();
+    if (res.success && res.data) {
+      const u = res.data;
+      const profile: UserProfile = {
+        id: u._id,
+        name: u.displayName || u.name,
+        email: u.email,
+        avatar: u.profilePic || u.photo || "",
+        rollNumber: u.rollNumber || "",
+        department: u.department || "",
+        currentYear: u.batch || "1st Year",
+        mobileNumber: u.phone || "",
+        collegeName: u.college || "Heritage Institute of Technology",
+        role: u.role || "user",
+        token: token,
+        isAuthenticated: true,
+      };
+      return profile;
+    }
+    return rejectWithValue(res.message || "Session expired");
+  }
+);
+
 const getInitialUser = (): UserProfile | null => {
   if (typeof window !== "undefined") {
     try {
@@ -26,9 +59,7 @@ const getInitialUser = (): UserProfile | null => {
       if (saved) {
         return JSON.parse(saved);
       }
-    } catch {
-      // fallback
-    }
+    } catch {}
   }
   return null;
 };
@@ -54,6 +85,9 @@ export const authSlice = createSlice({
       if (typeof window !== "undefined") {
         try {
           localStorage.setItem("navmedha_user", JSON.stringify(action.payload));
+          if (action.payload.token) {
+            localStorage.setItem("navmedha_token", action.payload.token);
+          }
         } catch {}
       }
     },
@@ -78,9 +112,39 @@ export const authSlice = createSlice({
       if (typeof window !== "undefined") {
         try {
           localStorage.removeItem("navmedha_user");
+          localStorage.removeItem("navmedha_token");
+          localStorage.removeItem("navmedha_submissions");
         } catch {}
       }
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(checkAuthSession.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(checkAuthSession.fulfilled, (state, action) => {
+        state.isLoading = false;
+        if (action.payload) {
+          state.user = action.payload;
+          if (typeof window !== "undefined") {
+            try {
+              localStorage.setItem("navmedha_user", JSON.stringify(action.payload));
+            } catch {}
+          }
+        }
+      })
+      .addCase(checkAuthSession.rejected, (state) => {
+        state.isLoading = false;
+        // token expired or invalid
+        state.user = null;
+        if (typeof window !== "undefined") {
+          try {
+            localStorage.removeItem("navmedha_token");
+            localStorage.removeItem("navmedha_user");
+          } catch {}
+        }
+      });
   },
 });
 

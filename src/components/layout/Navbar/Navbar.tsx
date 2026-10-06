@@ -4,13 +4,21 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Menu, X, ArrowRight, User } from "lucide-react";
-import { useAppSelector } from "@/redux/hooks";
+import { useAppDispatch, useAppSelector } from "@/redux/hooks";
+import { checkAuthSession } from "@/redux/slices/authSlice";
 import styles from "./Navbar.module.css";
 
 export function Navbar() {
+  const dispatch = useAppDispatch();
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { user } = useAppSelector((state) => state.auth);
+
+  useEffect(() => {
+    setMounted(true);
+    dispatch(checkAuthSession());
+  }, [dispatch]);
 
   // Track scroll past the hero section (~350px - 500px)
   useEffect(() => {
@@ -81,7 +89,7 @@ export function Navbar() {
 
         {/* Desktop Login / Profile Button */}
         <div className={styles.desktopActions}>
-          {user ? (
+          {mounted && user ? (
             <Link 
               href="/profile" 
               className="hero-btn" 
@@ -172,7 +180,7 @@ export function Navbar() {
             <span>Theme & Vahanas</span>
             <ArrowRight size={16} className={styles.linkArrow} />
           </Link>
-          {user && (
+          {mounted && user && (
             <Link href="/profile" className={styles.sidebarLink} onClick={closeSidebar}>
               <span>My Profile & Certificate</span>
               <ArrowRight size={16} className={styles.linkArrow} />
@@ -181,7 +189,7 @@ export function Navbar() {
         </nav>
 
         <div className={styles.sidebarFooter}>
-          {user ? (
+          {mounted && user ? (
             <Link
               href="/profile"
               className="hero-btn"
