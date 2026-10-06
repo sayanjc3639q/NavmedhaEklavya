@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -46,11 +46,11 @@ export default function LoginPage() {
   const [formError, setFormError] = useState<string | null>(null);
 
   // If already logged in, redirect to profile
-  if (user) {
-    if (typeof window !== "undefined") {
+  useEffect(() => {
+    if (user) {
       router.push("/profile");
     }
-  }
+  }, [user, router]);
 
   // Simulate Google Login Popup / Auth Handshake
   const handleGoogleAuth = () => {
