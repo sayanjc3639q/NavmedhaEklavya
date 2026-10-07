@@ -240,18 +240,44 @@
     padding: 0 16px;
   }
 
+  .categoryHero {
+    padding: 24px 0 10px;
+  }
+
+  .heroTitle {
+    font-size: 2rem;
+  }
+
+  .heroSubtitle {
+    font-size: 1.1rem;
+  }
+
+  .heroDescription {
+    font-size: 0.98rem;
+  }
+
+  .submissionSection {
+    padding: 20px 0 50px;
+  }
+
   .formWrapper {
-    background: transparent;
-    border: none;
-    box-shadow: none;
-    padding: 0;
+    background: #fffdf9;
+    border: 1.5px solid #d4af37;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(120, 53, 15, 0.08);
+    padding: 20px 16px;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .sidebarCard {
-    background: transparent;
-    border: none;
-    box-shadow: none;
-    padding: 0;
+    background: #fffdf9;
+    border: 1.5px solid #d4af37;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(120, 53, 15, 0.08);
+    padding: 20px 16px;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .formHeader {
@@ -259,11 +285,19 @@
     margin-bottom: 20px;
   }
 
+  .formHeader h2 {
+    font-size: 1.5rem;
+  }
+
+  .formHeader p {
+    font-size: 0.92rem;
+  }
+
   .heroGrid {
     text-align: center;
   }
 
   .heroIllustration {
-    max-width: 220px;
+    max-width: 200px;
   }
 }

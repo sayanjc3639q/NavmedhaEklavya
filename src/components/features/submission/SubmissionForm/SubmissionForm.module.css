@@ -144,22 +144,33 @@
 .formGroup input,
 .formGroup select,
 .formGroup textarea {
-  padding: 12px 16px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
   border-radius: 10px;
   border: 1.5px solid #d97706;
   background: #ffffff;
   font-family: inherit;
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: #2e1206;
   outline: none;
   transition: all 0.2s ease;
+  white-space: normal;
+  word-break: break-word;
 }
 
 .themeSelect {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
   font-weight: 600;
   color: #78350f;
   background-color: #fffdf9;
   cursor: pointer;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
 }
 
 .formGroup input:focus,
@@ -627,33 +638,124 @@
 @media (max-width: 680px) {
   .formRow {
     grid-template-columns: 1fr;
-  }
-
-  .paymentCard {
-    grid-template-columns: 1fr;
-    text-align: center;
-  }
-
-  .upiSide {
-    text-align: center;
-    align-items: center;
-  }
-
-  .upiValueWrap {
-    flex-direction: column;
-  }
-
-  .stepActionsRow {
-    flex-direction: column;
+    gap: 14px;
   }
 
   .wizardProgress {
     flex-direction: column;
     align-items: flex-start;
+    padding: 12px 14px;
+    gap: 8px;
+  }
+
+  .wizardStep {
+    width: 100%;
   }
 
   .wizardDivider {
     display: none;
+  }
+
+  .wizardStepTitle {
+    font-size: 0.85rem;
+  }
+
+  .dropzone {
+    padding: 16px 12px;
+    min-height: 120px;
+  }
+
+  .dropzoneTitle {
+    font-size: 0.92rem;
+  }
+
+  .dropzoneHint {
+    font-size: 0.78rem;
+  }
+
+  .followBox {
+    padding: 14px 14px;
+  }
+
+  .followHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .followLinkBtn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .paymentCard {
+    grid-template-columns: 1fr;
+    text-align: center;
+    padding: 16px 12px;
+    gap: 16px;
+  }
+
+  .qrFrame {
+    padding: 8px;
+  }
+
+  .qrSvg {
+    width: 120px;
+    height: 120px;
+  }
+
+  .upiSide {
+    text-align: center;
+    align-items: stretch;
+  }
+
+  .feeTag {
+    justify-content: center;
+  }
+
+  .upiBox {
+    padding: 10px 12px;
+  }
+
+  .upiValueWrap {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .upiCode {
+    font-size: 0.95rem;
+    word-break: break-all;
+    text-align: center;
+  }
+
+  .copyBtn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .stepActionsRow {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .stepActionsRow button {
+    width: 100%;
+  }
+
+  .submittedDetails {
+    padding: 14px 16px;
+  }
+
+  .detailRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+
+  .detailRow strong {
+    text-align: left;
+    word-break: break-word;
   }
 }
 
