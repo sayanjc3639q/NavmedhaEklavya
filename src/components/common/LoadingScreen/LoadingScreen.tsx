@@ -87,7 +87,6 @@ export function LoadingScreen() {
       <div className={styles.loaderCenterBox}>
         {/* Festive Loading Icon */}
         <div className={styles.iconContainer}>
-          <div className={styles.haloGlow} />
           <Image
             src="/assets/Loading icon.png"
             alt="NAVMEDHA Festive Emblem"
