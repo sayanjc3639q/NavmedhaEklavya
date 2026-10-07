@@ -1,21 +1,30 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { CATEGORIES_CONFIG } from "@/config/categories";
 import { ScrollReveal } from "@/components/common/ScrollReveal/ScrollReveal";
+import { useAppSelector } from "@/redux/hooks";
 import styles from "./CategoryShowcase.module.css";
 
 export function CategoryShowcase() {
   const categoriesList = Object.values(CATEGORIES_CONFIG);
+  const { data: configData } = useAppSelector((state) => state.config);
+  const isLive = configData?.isLive ?? true;
 
   return (
     <section id="categories" className={styles.categoriesSection}>
       <div className={styles.container}>
         <ScrollReveal variant="fade">
           <div className={styles.sectionHeaderCenter}>
-            <span className={styles.sectionKicker}>✧ Showcase Your Talent ✧</span>
+            <span className={styles.sectionKicker}>
+              {isLive ? "✧ Showcase Your Talent ✧" : "✧ Festival Domains ✧"}
+            </span>
             <h2 className={styles.sectionTitle}>Event Categories</h2>
             <p className={styles.sectionSubtitle}>
-              Choose your creative medium and let your devotion & artistic expression shine.
+              {isLive
+                ? "Choose your creative medium and let your devotion & artistic expression shine."
+                : "Explore the creative domains celebrated during this festive edition."}
             </p>
           </div>
         </ScrollReveal>
@@ -45,8 +54,11 @@ export function CategoryShowcase() {
                     <h3 className={styles.catTitle}>{cat.title}</h3>
                     <span className={styles.catSub}>{cat.subtitle}</span>
                     <p className={styles.catDesc}>{cat.description}</p>
-                    <Link href={`/submission/${cat.id}`} className={styles.catBtn}>
-                      Submit in this Category →
+                    <Link
+                      href={isLive ? `/submission/${cat.id}` : "/#gallery"}
+                      className={styles.catBtn}
+                    >
+                      {isLive ? "Submit in this Category →" : "Showcase Mode • View Memories →"}
                     </Link>
                   </div>
                 </div>

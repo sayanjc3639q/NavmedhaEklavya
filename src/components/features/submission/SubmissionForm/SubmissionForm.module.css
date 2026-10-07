@@ -617,6 +617,66 @@
   justify-content: center;
 }
 
+/* ─── INSTAGRAM FRAMING NOTICE ─── */
+.framingNotice {
+  background: #fffbeb;
+  border: 1.5px solid #f59e0b;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  text-align: left;
+}
+
+.framingNoticeHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #92400e;
+  margin-bottom: 6px;
+}
+
+.framingNoticeIcon {
+  font-size: 1.1rem;
+}
+
+.framingNoticeText {
+  font-size: 0.82rem;
+  color: #78350f;
+  margin: 0 0 8px 0;
+  line-height: 1.4;
+}
+
+.framingList {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 0.8rem;
+  color: #78350f;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  line-height: 1.4;
+}
+
+.framingList strong {
+  color: #451a03;
+}
+
+.dimensionBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #86efac;
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
 @media (max-width: 680px) {
   .formRow {
     grid-template-columns: 1fr;

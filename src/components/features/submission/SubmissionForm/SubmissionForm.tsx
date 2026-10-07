@@ -71,6 +71,13 @@ export function SubmissionForm({ category }: Props) {
   // Direct File Upload State
   const [mediaFile, setMediaFile] = useState<File | null>(null);
   const [mediaPreview, setMediaPreview] = useState<string | null>(null);
+  const [mediaDimensions, setMediaDimensions] = useState<{
+    width: number;
+    height: number;
+    aspectRatio: number;
+    ratioLabel: string;
+    isValidForInstagram: boolean;
+  } | null>(null);
   const [isDraggingMedia, setIsDraggingMedia] = useState(false);
   const mediaInputRef = useRef<HTMLInputElement>(null);
 
@@ -103,14 +110,70 @@ export function SubmissionForm({ category }: Props) {
     }
 
     setStepError(null);
+    setMediaDimensions(null);
     setMediaFile(file);
 
     if (file.type.startsWith("image/")) {
       const reader = new FileReader();
-      reader.onload = (e) => setMediaPreview(e.target?.result as string);
+      reader.onload = (e) => {
+        const resultUrl = e.target?.result as string;
+        setMediaPreview(resultUrl);
+
+        // Aspect Ratio & Dimensions check for Photography & Artworks
+        if (category.id === "photography" || category.id === "artworks") {
+          const img = new window.Image();
+          img.onload = () => {
+            const w = img.naturalWidth;
+            const h = img.naturalHeight;
+            const ratio = w / h; // width / height
+
+            // Instagram Feed limits:
+            // Tallest allowed: 4:5 = 0.80 (tolerance 0.78)
+            // Widest allowed: 1.91:1 = 1.91 (tolerance 1.93)
+            if (ratio < 0.78) {
+              setStepError(
+                `⚠️ Instagram Framing Error: Your image is too tall (${w}×${h}px, vertical ratio ${(h / w).toFixed(2)}:1). Instagram feed only supports up to 4:5 Portrait (0.80). Images taller than 4:5 (like 9:16 mobile story shots) will get cut off at the top and bottom on Instagram. Please crop your photo to 4:5 Portrait (1080×1350px) or 1:1 Square before uploading.`
+              );
+              setMediaFile(null);
+              setMediaPreview(null);
+              setMediaDimensions(null);
+              if (mediaInputRef.current) mediaInputRef.current.value = "";
+              return;
+            }
+
+            if (ratio > 1.93) {
+              setStepError(
+                `⚠️ Instagram Framing Error: Your image is too wide (${w}×${h}px, horizontal ratio ${ratio.toFixed(2)}:1). Instagram feed only supports up to 1.91:1 Landscape. Ultra-wide/panorama photos will get cropped on the sides. Please crop your photo to 16:9 or 1:1 Square before uploading.`
+              );
+              setMediaFile(null);
+              setMediaPreview(null);
+              setMediaDimensions(null);
+              if (mediaInputRef.current) mediaInputRef.current.value = "";
+              return;
+            }
+
+            let label = "1:1 Square";
+            if (Math.abs(ratio - 0.8) <= 0.08) label = "4:5 Portrait (Recommended)";
+            else if (Math.abs(ratio - 1.0) <= 0.08) label = "1:1 Square (Recommended)";
+            else if (ratio < 1.0) label = `${(h / w).toFixed(2)}:1 Vertical`;
+            else if (Math.abs(ratio - 1.77) <= 0.1) label = "16:9 Landscape";
+            else label = `${ratio.toFixed(2)}:1 Landscape`;
+
+            setMediaDimensions({
+              width: w,
+              height: h,
+              aspectRatio: ratio,
+              ratioLabel: label,
+              isValidForInstagram: true,
+            });
+          };
+          img.src = resultUrl;
+        }
+      };
       reader.readAsDataURL(file);
     } else {
       setMediaPreview(null);
+      setMediaDimensions(null);
     }
   };
 
@@ -313,6 +376,85 @@ export function SubmissionForm({ category }: Props) {
       dispatch(submitFailure(err?.message || "An unexpected error occurred. Please check your connection and try again."));
     }
   };
+
+  if (configData && configData.isLive === false) {
+    return (
+      <div className={styles.successContainer}>
+        <div
+          className={styles.successCard}
+          style={{
+            borderColor: "rgba(245, 158, 11, 0.4)",
+            background: "linear-gradient(135deg, rgba(254, 243, 199, 0.3) 0%, rgba(255, 255, 255, 0.95) 100%)",
+          }}
+        >
+          <div className={styles.successIconWrap}>
+            <Image
+              src="/assets/giftsicon.png"
+              alt="Showcase"
+              width={130}
+              height={130}
+              className="floating"
+            />
+          </div>
+          <div
+            style={{
+              display: "inline-block",
+              background: "rgba(217, 119, 6, 0.15)",
+              color: "#b45309",
+              padding: "4px 14px",
+              borderRadius: "999px",
+              fontSize: "0.78rem",
+              fontWeight: 700,
+              textTransform: "uppercase",
+              letterSpacing: "1px",
+              marginBottom: "12px",
+            }}
+          >
+            🔒 Submissions Concluded
+          </div>
+          <h3 className={styles.successTitle} style={{ color: "#78350f" }}>
+            Registrations for {category.title} are Closed
+          </h3>
+          <p className={styles.successMessage} style={{ maxWidth: "560px", margin: "0 auto 24px" }}>
+            The active registration phase for <strong>NAVMEDHA 2026</strong> has officially concluded. The portal is now in <strong>Showcase Mode</strong>. Thank you to all the enthusiastic participants!
+          </p>
+
+          <div
+            style={{
+              background: "rgba(255, 255, 255, 0.85)",
+              border: "1px dashed rgba(217, 119, 6, 0.35)",
+              borderRadius: "12px",
+              padding: "16px",
+              margin: "16px auto 28px",
+              maxWidth: "500px",
+              textAlign: "left",
+              fontSize: "0.88rem",
+              color: "#451a03",
+            }}
+          >
+            <p style={{ margin: "0 0 8px 0", fontWeight: 600 }}>🌟 Already submitted your entry?</p>
+            <p style={{ margin: 0, color: "#78350f", fontSize: "0.82rem", lineHeight: 1.5 }}>
+              You can track your submission status, review your uploaded work, and check your official <strong>Certificate of Appreciation</strong> in your profile.
+            </p>
+          </div>
+
+          <div
+            className={styles.successActions}
+            style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "12px" }}
+          >
+            <Link href="/#gallery" className="hero-btn" style={{ textDecoration: "none" }}>
+              <span>Explore Showcase Gallery</span>
+              <span>✦</span>
+            </Link>
+            <Link href="/profile" className="secondary-btn" style={{ textDecoration: "none" }}>
+              <span>My Profile &amp; Certificates</span>
+              <span>→</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (successMessage) {
     return (
@@ -534,6 +676,30 @@ export function SubmissionForm({ category }: Props) {
                 ? `Upload PDF/Document (Optional — ${category.acceptedFormats} • Max ${category.maxSizeMB} MB)`
                 : `Direct File Upload * (${category.acceptedFormats} • Max ${category.maxSizeMB} MB)`}
             </label>
+
+            {/* Instagram Framing Guidelines Notice for Photography & Artwork */}
+            {(category.id === "photography" || category.id === "artworks") && (
+              <div className={styles.framingNotice}>
+                <div className={styles.framingNoticeHeader}>
+                  <span className={styles.framingNoticeIcon}>📸</span>
+                  <strong>Instagram Framing Guidelines (Feed Fit)</strong>
+                </div>
+                <p className={styles.framingNoticeText}>
+                  To ensure your submission displays without being cropped or having its edges cut on our Instagram showcase:
+                </p>
+                <ul className={styles.framingList}>
+                  <li>
+                    <strong>Preferred Framing:</strong> <strong>4:5 Portrait</strong> (1080 × 1350 px) or <strong>1:1 Square</strong> (1080 × 1080 px).
+                  </li>
+                  <li>
+                    <strong>Allowed Limits:</strong> Aspect ratio must be between <strong>4:5</strong> (vertical) and <strong>1.91:1</strong> (landscape).
+                  </li>
+                  <li>
+                    <strong>⚠️ Disallowed:</strong> Full-screen <strong>9:16 mobile camera shots</strong> are rejected by the portal because Instagram crops and cuts the top & bottom. Please crop your photo to 4:5 or 1:1 before uploading.
+                  </li>
+                </ul>
+              </div>
+            )}
             
             <div
               className={`${styles.dropzone} ${isDraggingMedia ? styles.dropzoneActive : ""} ${mediaFile ? styles.dropzoneFilled : ""}`}
@@ -595,6 +761,14 @@ export function SubmissionForm({ category }: Props) {
                   <div className={styles.fileDetails}>
                     <p className={styles.fileName}>{mediaFile.name}</p>
                     <p className={styles.fileSize}>{(mediaFile.size / (1024 * 1024)).toFixed(2)} MB • Ready for submission</p>
+                    {mediaDimensions && (
+                      <div className={styles.dimensionBadge}>
+                        <Check size={13} />
+                        <span>
+                          {mediaDimensions.width} × {mediaDimensions.height} px • {mediaDimensions.ratioLabel} (Instagram Fit Verified)
+                        </span>
+                      </div>
+                    )}
                   </div>
                   <button
                     type="button"

@@ -36,9 +36,10 @@ export const CATEGORIES_CONFIG: Record<string, CategoryConfig> = {
     description: "Portraits of artisans crafting idols, radiant street lights, night skies, and raw festival emotions frozen in time.",
     guidelines: [
       "Must be an original photograph clicked by you.",
+      "Frame / Aspect Ratio: Between 4:5 (Portrait) and 1.91:1 (Landscape). Recommended: 4:5 (1080×1350px) or 1:1 Square.",
+      "⚠️ Do NOT submit uncropped 9:16 full-screen shots (crop to 4:5 or 1:1 to prevent Instagram cutting the edges).",
       "Basic color grading allowed; no AI generation or heavy composite cloning.",
-      "EXIF data should be preserved if possible.",
-      "Resolution: Min 2000px on long edge.",
+      "Resolution: Min 1080px on short edge (2000px+ recommended for best quality).",
     ],
     acceptedFormats: "JPG, JPEG, PNG",
     maxSizeMB: 50,
