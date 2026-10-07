@@ -19,24 +19,27 @@ export function AboutSection() {
             </div>
             <div className={styles.aboutText}>
               <span className={styles.sectionKicker}>✧ Welcome to the Celebration ✧</span>
-              <h2 className={styles.sectionTitle}>Welcome to NAVMEDHA</h2>
+              <h2 className={styles.sectionTitle}>WELCOME TO NAVMEDHA</h2>
               <p>
-                As the autumn air fills with the fragrant aroma of Shiuli flowers and the majestic reverberation of Dhak, <strong>Navmedha</strong> invites artists, storytellers, photographers, and video creators across the globe to showcase their creative genius.
+                The shiuli has started to fall, and somewhere a dhaki is already warming up. Every year, this season stirs something in us.
               </p>
               <p>
-                Whether you portray Maa Durga through vibrant digital canvas brushstrokes, capture the untold moments of pandal artisans, or pen your most cherished festival memories—Navmedha is your grand stage.
+                <strong>Navmedha</strong> is where those quiet feelings finally find a voice.
+              </p>
+              <p>
+                Whether you capture Maa Durga in a stroke of paint, the sweep of a lens, a fleeting reel, or lines written from the heart. However you carry her presence within you, bring it to life here.
               </p>
               <div className={styles.aboutHighlights}>
                 <div className={styles.highlightItem}>
-                  <strong>🏆 ₹50,000+</strong>
-                  <span>Total Prize Pool & Goodies</span>
+                  <strong>🏆 Trophies & Hampers</strong>
+                  <span>Cash prizes for winners</span>
                 </div>
                 <div className={styles.highlightItem}>
-                  <strong>🌍 Global Entry</strong>
-                  <span>Open to all age groups</span>
+                  <strong>🎓 MAR Points</strong>
+                  <span>For college students</span>
                 </div>
                 <div className={styles.highlightItem}>
-                  <strong>📜 Verified E-Certificates</strong>
+                  <strong>📜 Signed Certificates</strong>
                   <span>For all valid participants</span>
                 </div>
               </div>

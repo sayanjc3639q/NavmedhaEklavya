@@ -65,7 +65,15 @@
   font-size: 1.25rem;
   color: #c2410c;
   font-weight: 700;
-  margin-bottom: 14px;
+  margin-bottom: 8px;
+}
+
+.heroTagline {
+  font-size: 1.05rem;
+  font-style: italic;
+  font-weight: 600;
+  color: #991b1b;
+  margin-bottom: 12px;
 }
 
 .heroDescription {
@@ -112,11 +120,37 @@
 
 .sidebarTitle {
   font-family: var(--font-cinzel), serif;
-  font-size: 1.3rem;
+  font-size: 1.25rem;
   color: #78350f;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
   border-bottom: 1.5px solid #eed8b0;
-  padding-bottom: 12px;
+  padding-bottom: 8px;
+}
+
+.themesInfo {
+  font-size: 0.88rem;
+  color: #c2410c;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.sidebarThemesList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sidebarThemesList li {
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: #431407;
+}
+
+.sidebarThemesList li strong {
+  color: #991b1b;
 }
 
 .guidelinesList {

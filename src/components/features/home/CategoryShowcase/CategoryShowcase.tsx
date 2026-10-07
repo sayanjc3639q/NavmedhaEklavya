@@ -12,10 +12,10 @@ export function CategoryShowcase() {
       <div className={styles.container}>
         <ScrollReveal variant="fade">
           <div className={styles.sectionHeaderCenter}>
-            <span className={styles.sectionKicker}>✧ Showcase Your Talent ✧</span>
+            <span className={styles.sectionKicker}>✧ Express Your Devotion ✧</span>
             <h2 className={styles.sectionTitle}>Event Categories</h2>
             <p className={styles.sectionSubtitle}>
-              Choose your creative medium and let your devotion & artistic expression shine.
+              Some remember Pujo with their eyes, some with their hands, some with words. Find yours.
             </p>
           </div>
         </ScrollReveal>
@@ -41,12 +41,26 @@ export function CategoryShowcase() {
                     />
                   </div>
                   <div className={styles.categoryBody}>
-                    <div className={styles.catBadge}>Category 0{index + 1}</div>
-                    <h3 className={styles.catTitle}>{cat.title}</h3>
+                    <div className={styles.catBadge}>Category {cat.categoryNumber}</div>
+                    <h3 className={styles.catTitle}>{cat.bengaliTitle}</h3>
                     <span className={styles.catSub}>{cat.subtitle}</span>
+                    {cat.tagline && <p className={styles.catTagline}>"{cat.tagline}"</p>}
                     <p className={styles.catDesc}>{cat.description}</p>
+                    
+                    {/* Themes list preview */}
+                    <div className={styles.themesWrap}>
+                      <span className={styles.themesLabel}>Themes:</span>
+                      <ul className={styles.themesList}>
+                        {cat.themes.map((theme, tIdx) => (
+                          <li key={tIdx}>
+                            <strong>{tIdx + 1}. {theme.name}:</strong> <span>{theme.desc}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
                     <Link href={`/submission/${cat.id}`} className={styles.catBtn}>
-                      Submit in this Category →
+                      View Guidelines & Submit Entry →
                     </Link>
                   </div>
                 </div>

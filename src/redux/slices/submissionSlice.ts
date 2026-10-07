@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 export interface SubmissionPayload {
   category: "reels" | "photography" | "content" | "artworks";
+  theme?: string;
   fullName: string;
   email: string;
   phone: string;

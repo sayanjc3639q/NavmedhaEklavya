@@ -44,10 +44,10 @@ export function PrizesSection() {
       <div className={styles.container}>
         <ScrollReveal variant="fade">
           <div className={styles.sectionHeaderCenter}>
-            <span className={styles.sectionKicker}>✧ Rewards & Recognition ✧</span>
+            <span className={styles.sectionKicker}>✧ Because effort deserves to be seen ✧</span>
             <h2 className={styles.sectionTitle}>Prizes, MAR Points & Honors</h2>
             <p className={styles.sectionSubtitle}>
-              Your hard work, devotion, and creativity deserve celebration and academic recognition.
+              Every entry holds our hearts. This is our thank you.
             </p>
           </div>
         </ScrollReveal>
@@ -65,23 +65,27 @@ export function PrizesSection() {
               />
             </div>
             <div className={styles.heroRewardText}>
-              <span className={styles.heroRewardBadge}>🏆 ₹50,000+ Total Prize Pool</span>
+              <span className={styles.heroRewardBadge}>✧ A Season of Gratitude ✧</span>
               <h3 className={styles.heroRewardHeading}>Grand Sharadotsav Accolades</h3>
               <p className={styles.heroRewardDesc}>
-                Participate in your favorite category—Reels, Photography, Content Writing, or Artworks—to compete for top honors, national digital recognition, and prestigious awards curated for the season of Durga Puja.
+                Pick Reels, Photography, Writing or Artwork. The finest work in each will be honoured and shared on social media.
               </p>
               <ul className={styles.rewardBullets}>
                 <li>
                   <CheckCircle2 className={styles.bulletIcon} />
-                  <span>Category Winner Trophies & Cash Grants</span>
+                  <span>Trophies and cash prizes for category winners</span>
                 </li>
                 <li>
                   <CheckCircle2 className={styles.bulletIcon} />
-                  <span>Direct MAR Points eligibility for university activity records</span>
+                  <span>MAR points for college students</span>
                 </li>
                 <li>
                   <CheckCircle2 className={styles.bulletIcon} />
-                  <span>Signed Certificates of Excellence & National feature spotlight</span>
+                  <span>Signed certificates</span>
+                </li>
+                <li>
+                  <CheckCircle2 className={styles.bulletIcon} />
+                  <span>Winners will get Trophies and Hampers</span>
                 </li>
               </ul>
             </div>

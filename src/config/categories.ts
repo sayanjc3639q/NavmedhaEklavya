@@ -1,10 +1,19 @@
+export interface CategoryTheme {
+  name: string;
+  desc: string;
+}
+
 export interface CategoryConfig {
   id: "reels" | "photography" | "content" | "artworks";
+  categoryNumber: string;
   title: string;
+  bengaliTitle: string;
   subtitle: string;
+  tagline?: string;
   icon: string;
   accent: string;
   description: string;
+  themes: CategoryTheme[];
   guidelines: string[];
   acceptedFormats: string;
   maxSizeMB: number;
@@ -13,66 +22,165 @@ export interface CategoryConfig {
 export const CATEGORIES_CONFIG: Record<string, CategoryConfig> = {
   reels: {
     id: "reels",
-    title: "Reels & Motion",
-    subtitle: "Short Videos, Cinematics & Festive Moments",
+    categoryNumber: "01",
+    title: "Reels and Motion",
+    bengaliTitle: "Drishyer Arale",
+    subtitle: "(Reels and Motion)",
     icon: "/assets/reelsmakingicon.png",
     accent: "#b45309",
-    description: "Capture the beats of dhak, the fervor of sindoor khela, pandal hopping vibes or artistic editing in 60-90s reels.",
-    guidelines: [
-      "Duration: 30 to 90 seconds max.",
-      "Aspect Ratio: 9:16 (Vertical format).",
-      "Resolution: 1080p HD or above.",
-      "Original audio/licensed BG music only.",
+    description: "Capture Maa Durga in motion, rhythm, and festive energy through creative short videos.",
+    themes: [
+      {
+        name: "Shaktirupa",
+        desc: "Women's strength and courage inspired by Maa Durga.",
+      },
+      {
+        name: "Utsober rong",
+        desc: "The vibrant visual colors, lights, and fashion of Pujo.",
+      },
+      {
+        name: "Mondoper arale",
+        desc: "Honoring artisans, dhakis, priests, and volunteers.",
+      },
+      {
+        name: "Anuronon",
+        desc: "Visualizing the rhythm of dhaks, conch shells, and chants.",
+      },
+      {
+        name: "Bari fera",
+        desc: "Family gatherings, friendships, and cherished memories.",
+      },
     ],
-    acceptedFormats: "MP4, MOV",
+    guidelines: [
+      "Only one entry on one theme is allowed.",
+      "Reel size should not exceed 150 MB. Videos will be accepted only in MP4 format.",
+      "The reel duration must be maximum of 90 seconds.",
+      "Plagiarism is strictly prohibited. Downloaded reels if found, will be disqualified immediately.",
+    ],
+    acceptedFormats: "MP4 only",
     maxSizeMB: 150,
   },
   photography: {
     id: "photography",
+    categoryNumber: "02",
     title: "Photography",
-    subtitle: "Frames of Devotion, Streets & Lights",
+    bengaliTitle: "Alok Alpona",
+    subtitle: "(Photography)",
+    tagline: "Light, shadow, and silent devotion",
     icon: "/assets/photographyicon.png",
     accent: "#991b1b",
-    description: "Portraits of artisans crafting idols, radiant street lights, night skies, and raw festival emotions frozen in time.",
-    guidelines: [
-      "Must be an original photograph clicked by you.",
-      "Basic color grading allowed; no AI generation or heavy composite cloning.",
-      "EXIF data should be preserved if possible.",
-      "Resolution: Min 2000px on long edge.",
+    description: "An artisan crafting divinity, two sides of Pujo, as the quiet dignity of an old face framed by dhunuchi smoke, or a crowded street illuminated in warm golden light. Freeze the moments that make time stand still.",
+    themes: [
+      {
+        name: "Mayer Karigor",
+        desc: "Artisans crafting the divine idols.",
+      },
+      {
+        name: "Pujor Shaji",
+        desc: "Festive joy, style, and Pujo outfits.",
+      },
+      {
+        name: "Alor Jhalak",
+        desc: "Artistic splendor of pandals and lights.",
+      },
+      {
+        name: "Bishorjon",
+        desc: "The bittersweet emotions of farewell.",
+      },
+      {
+        name: "Praner Spandon",
+        desc: "The soul and rhythm of rituals.",
+      },
     ],
-    acceptedFormats: "JPG, JPEG, PNG",
-    maxSizeMB: 50,
+    guidelines: [
+      "Only one entry on any one theme is allowed.",
+      "Image Size must be under 100 MB.",
+      "Formats accepted are JPEG and PNG only.",
+      "Minimal adjustments or editing is allowed. Raw File may be requested for verification. Refrain from using excessive editing.",
+      "Plagiarism is strictly prohibited. Prioritize originality and creativity.",
+    ],
+    acceptedFormats: "JPEG, PNG",
+    maxSizeMB: 100,
   },
   content: {
     id: "content",
-    title: "Content & Stories",
-    subtitle: "Blogs, Experiences & Nostalgic Tales",
+    categoryNumber: "03",
+    title: "Content and Stories",
+    bengaliTitle: "Shabdo Shakti",
+    subtitle: "(Content and Stories)",
+    tagline: "The aroma of nostalgia in ink",
     icon: "/assets/contentwrittingicon.png",
     accent: "#c2410c",
-    description: "Penned down childhood memories of Puja, original fiction, cultural essays, or heartfelt festival experiences.",
-    guidelines: [
-      "Language: English or Bengali.",
-      "Word count: 500 to 1,500 words.",
-      "Must be 100% original writing (Plagiarism will result in disqualification).",
-      "PDF or Google Docs formatted text allowed.",
+    description: "The unforgettable Pujo of childhood, a bittersweet memory of coming home, or a quiet story waiting to be told. Pen down the emotions that linger long after the immersion.",
+    themes: [
+      {
+        name: "Mondop Kotha",
+        desc: "Pujo prep, para culture, and pandal hopping.",
+      },
+      {
+        name: "Abyakto",
+        desc: "Unspoken emotions conveyed through the eyes.",
+      },
+      {
+        name: "Bidayer Rong",
+        desc: "The bittersweet red of farewell.",
+      },
+      {
+        name: "Akalbodhon",
+        desc: "Awakening life through truth and character.",
+      },
+      {
+        name: "Niranjan",
+        desc: "Life's true essence through love and sacrifice.",
+      },
     ],
-    acceptedFormats: "PDF, DOCX, TXT",
-    maxSizeMB: 20,
+    guidelines: [
+      "Only one entry on any one theme will be allowed.",
+      "Languages allowed are English, Bengali, or Hindi. Word Limit is 300 words.",
+      "Submissions must be in .docx format. File Size should not exceed 10 MB.",
+      "Plagiarism is strictly prohibited. Prioritize originality and creativity.",
+      "Verify grammar, spelling, and punctuation before submitting.",
+    ],
+    acceptedFormats: ".docx format only",
+    maxSizeMB: 10,
   },
   artworks: {
     id: "artworks",
-    title: "Artworks & Sketches",
-    subtitle: "Digital Art, Canvas, Charcoal & Sketches",
+    categoryNumber: "04",
+    title: "Art work and Digital Art",
+    bengaliTitle: "Pandaler Palette",
+    subtitle: "(Art work and Digital Art)",
+    tagline: "Where faith meets color",
     icon: "/assets/artworkicon.png",
     accent: "#78350f",
-    description: "Traditional Alpana interpretations, modern digital vector art, acrylic paintings, or intricate Maa Durga sketches.",
-    guidelines: [
-      "Digital Art, Acrylic, Watercolor, Oil, Charcoal or Pencil Sketches are accepted.",
-      "Upload high-res scan or well-lit flat photograph of physical artworks.",
-      "Include a work-in-progress proof/layer snapshot if requested by jury.",
+    description: "Traditional alpana drawn on wet courtyards, bold strokes of charcoal, or midnight digital creations. Express how Maa Durga takes shape in your mind and on your canvas.",
+    themes: [
+      {
+        name: "Aagaman",
+        desc: "The emotion and transformation of Durga's arrival.",
+      },
+      {
+        name: "Devi",
+        desc: "Women's inherent strength in every role.",
+      },
+      {
+        name: "Mahishasura",
+        desc: "Modern evils like hatred, greed, and corruption.",
+      },
+      {
+        name: "Chokkhudan",
+        desc: "Creative interpretations of Maa Durga's eyes.",
+      },
     ],
-    acceptedFormats: "PNG, JPG, PDF",
-    maxSizeMB: 50,
+    guidelines: [
+      "Only one entry on one theme is allowed.",
+      "File Size allowed is 100 MB maximum.",
+      "Both traditional and digital art forms are allowed. Attach raw files.",
+      "Submissions must be in JPEG or PNG format.",
+      "Plagiarism is strictly prohibited. Participant will be disqualified immediately if found so.",
+    ],
+    acceptedFormats: "JPEG, PNG",
+    maxSizeMB: 100,
   },
 };
 
