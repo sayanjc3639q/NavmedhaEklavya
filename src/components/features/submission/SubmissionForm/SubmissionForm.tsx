@@ -85,8 +85,9 @@ export function SubmissionForm({ category }: Props) {
 
   const UPI_ID = configData?.upiId || "eklavyanavadya@upi";
   const ENTRY_FEE = configData?.isPaid ? (configData?.entryFee ?? 49) : 0;
-  const INSTAGRAM_HANDLE = configData?.instagramPageHandle || "eklavya_official";
-  const INSTAGRAM_URL = `https://www.instagram.com/${INSTAGRAM_HANDLE}`;
+  const rawHandle = configData?.instagramPageHandle || "eklavya_official";
+  const cleanHandle = rawHandle.replace(/^@/, "");
+  const INSTAGRAM_URL = `https://www.instagram.com/${cleanHandle}`;
 
   const handleCopyUpi = () => {
     navigator.clipboard.writeText(UPI_ID);
