@@ -59,9 +59,10 @@ export default async function SubmissionCategoryPage({ params }: PageProps) {
 
           <div className={styles.heroGrid}>
             <div className={styles.heroContent}>
-              <span className={styles.kicker}>✧ Official Category Submission ✧</span>
-              <h1 className={styles.heroTitle}>{category.title}</h1>
+              <span className={styles.kicker}>✧ Category {category.categoryNumber} Submission ✧</span>
+              <h1 className={styles.heroTitle}>{category.bengaliTitle}</h1>
               <p className={styles.heroSubtitle}>{category.subtitle}</p>
+              {category.tagline && <p className={styles.heroTagline}>"{category.tagline}"</p>}
               <p className={styles.heroDescription}>{category.description}</p>
             </div>
 
@@ -85,10 +86,20 @@ export default async function SubmissionCategoryPage({ params }: PageProps) {
       <section className={styles.submissionSection}>
         <div className={styles.container}>
           <div className={styles.submissionLayout}>
-            {/* Left Column: Guidelines & Specs */}
+            {/* Left Column: Themes & Guidelines & Specs */}
             <aside className={styles.guidelinesSidebar}>
               <div className={styles.sidebarCard}>
-                <h3 className={styles.sidebarTitle}>📋 Submission Guidelines</h3>
+                <h3 className={styles.sidebarTitle}>🎨 Category Themes</h3>
+                <p className={styles.themesInfo}>Choose 1 theme for your entry:</p>
+                <ul className={styles.sidebarThemesList}>
+                  {category.themes.map((th, idx) => (
+                    <li key={idx}>
+                      <strong>{idx + 1}. {th.name}:</strong> <span>{th.desc}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                <h3 className={styles.sidebarTitle} style={{ marginTop: "24px" }}>📋 Guidelines</h3>
                 <ul className={styles.guidelinesList}>
                   {category.guidelines.map((item, idx) => (
                     <li key={idx}>
@@ -108,8 +119,8 @@ export default async function SubmissionCategoryPage({ params }: PageProps) {
                     <span>{category.maxSizeMB} MB</span>
                   </div>
                   <div className={styles.specItem}>
-                    <strong>Eligibility:</strong>
-                    <span>Global Entry (All Ages)</span>
+                    <strong>Verification:</strong>
+                    <span>Raw files may be requested</span>
                   </div>
                 </div>
               </div>

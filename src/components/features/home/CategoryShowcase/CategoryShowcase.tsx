@@ -50,9 +50,10 @@ export function CategoryShowcase() {
                     />
                   </div>
                   <div className={styles.categoryBody}>
-                    <div className={styles.catBadge}>Category 0{index + 1}</div>
-                    <h3 className={styles.catTitle}>{cat.title}</h3>
+                    <div className={styles.catBadge}>Category {cat.categoryNumber}</div>
+                    <h3 className={styles.catTitle}>{cat.bengaliTitle}</h3>
                     <span className={styles.catSub}>{cat.subtitle}</span>
+                    {cat.tagline && <p className={styles.catTagline}>"{cat.tagline}"</p>}
                     <p className={styles.catDesc}>{cat.description}</p>
                     <Link
                       href={isLive ? `/submission/${cat.id}` : "/#gallery"}

@@ -12,7 +12,6 @@ import {
   ArrowRight, 
   QrCode, 
   ShieldCheck, 
-  FileText,
   AlertCircle,
   FileCheck2
 } from "lucide-react";
@@ -61,6 +60,7 @@ export function SubmissionForm({ category }: Props) {
     email: user?.email || "",
     phone: user?.mobileNumber || "",
     instagramHandle: "",
+    theme: category.themes[0]?.name || "",
     title: "",
     description: "",
     transactionId: "",
@@ -194,18 +194,14 @@ export function SubmissionForm({ category }: Props) {
     e.preventDefault();
     setStepError(null);
 
-    // For writing/content: require text content OR a file
-    // For all other categories: require a file upload
-    if (category.id === "content") {
-      if (!formData.description.trim() && !mediaFile) {
-        setStepError("Please write your content in the text area or upload a PDF/DOCX file.");
-        return;
-      }
-    } else {
-      if (!mediaFile) {
-        setStepError(`Please upload your ${category.title} file before proceeding.`);
-        return;
-      }
+    if (!formData.theme) {
+      setStepError("Please select a theme for your submission.");
+      return;
+    }
+
+    if (!mediaFile) {
+      setStepError(`Please upload your ${category.title} file before proceeding.`);
+      return;
     }
 
     if (!formData.followedEklavya) {
@@ -221,20 +217,10 @@ export function SubmissionForm({ category }: Props) {
     e.preventDefault();
     setStepError(null);
 
-    // For writing/content: text content is required, file is optional
-    // For all other categories: file is required
-    if (category.id === "content") {
-      if (!formData.description.trim() && !mediaFile) {
-        setStepError("Please write your content or upload a document in Step 1.");
-        setStep(1);
-        return;
-      }
-    } else {
-      if (!mediaFile) {
-        setStepError(`Please upload your ${category.title} file in Step 1.`);
-        setStep(1);
-        return;
-      }
+    if (!mediaFile) {
+      setStepError(`Please upload your ${category.title} file in Step 1.`);
+      setStep(1);
+      return;
     }
 
     if (!paymentScreenshot) {
@@ -259,8 +245,7 @@ export function SubmissionForm({ category }: Props) {
 
     try {
       // ── Step A: Upload creative asset ──
-      // Reels go to Google Drive; Writing is optional (text goes to MongoDB)
-      // Everything else goes to Cloudinary
+      // Reels go to Google Drive; Everything else goes to Cloudinary
       let mediaUrl = "";
 
       if (mediaFile) {
@@ -294,6 +279,7 @@ export function SubmissionForm({ category }: Props) {
         rollNumber: user?.rollNumber || "",
         utrNumber: formData.transactionId.trim(),
         paymentScreenshotUrl: paymentUrl,
+        theme: formData.theme,
       };
 
       // ── Step D: Call the right category-specific submit endpoint ──
@@ -354,15 +340,16 @@ export function SubmissionForm({ category }: Props) {
       dispatch(
         submitSuccess({
           category: category.id,
+          theme: formData.theme,
           fullName: formData.fullName,
           email: formData.email,
           phone: formData.phone,
           instagramHandle: formData.instagramHandle,
           title: formData.title,
           description: formData.description,
-          fileName: currentMedia?.name || "text-submission",
+          fileName: currentMedia?.name || "file-submission",
           fileSize: currentMedia?.size || 0,
-          fileType: currentMedia?.type || "text/plain",
+          fileType: currentMedia?.type || "application/octet-stream",
           fileDataUrl: mediaPreview || undefined,
           paymentScreenshotName: currentPayment.name,
           paymentScreenshotDataUrl: paymentPreview || undefined,
@@ -475,7 +462,11 @@ export function SubmissionForm({ category }: Props) {
           <div className={styles.submittedDetails}>
             <div className={styles.detailRow}>
               <span>Category:</span>
-              <strong>{category.title}</strong>
+              <strong>{category.bengaliTitle} {category.subtitle}</strong>
+            </div>
+            <div className={styles.detailRow}>
+              <span>Selected Theme:</span>
+              <strong style={{ color: "#991b1b" }}>{formData.theme}</strong>
             </div>
             <div className={styles.detailRow}>
               <span>Masterpiece Title:</span>
@@ -509,6 +500,7 @@ export function SubmissionForm({ category }: Props) {
                   email: "",
                   phone: "",
                   instagramHandle: "",
+                  theme: category.themes[0]?.name || "",
                   title: "",
                   description: "",
                   transactionId: "",
@@ -622,14 +614,24 @@ export function SubmissionForm({ category }: Props) {
           </div>
 
           <div className={styles.formSectionHeader} style={{ marginTop: "10px" }}>
-            <h3 className={styles.formSectionTitle}>
-              {category.id === "content" ? "2. Your Written Piece" : "2. Entry & Artwork Details"}
-            </h3>
-            <p className={styles.formSectionDesc}>
-              {category.id === "content"
-                ? "Write your story, essay, or experience below. This text will be your primary submission."
-                : "Describe the theme and story behind your creation."}
-            </p>
+            <h3 className={styles.formSectionTitle}>2. Entry & Artwork Details</h3>
+            <p className={styles.formSectionDesc}>Select your category theme and provide your masterpiece details.</p>
+          </div>
+
+          <div className={styles.formGroup}>
+            <label>Select Category Theme *</label>
+            <select
+              value={formData.theme}
+              onChange={(e) => setFormData({ ...formData, theme: e.target.value })}
+              required
+              className={styles.themeSelect}
+            >
+              {category.themes.map((th, idx) => (
+                <option key={idx} value={th.name}>
+                  {idx + 1}. {th.name} — {th.desc}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className={styles.formGroup}>
@@ -648,33 +650,19 @@ export function SubmissionForm({ category }: Props) {
           </div>
 
           <div className={styles.formGroup}>
-            <label>
-              {category.id === "content"
-                ? "Your Written Content * (500–1,500 words)"
-                : "Artwork Story / Concept Description (Optional)"}
-            </label>
+            <label>Story / Concept Description (Optional)</label>
             <textarea
-              rows={category.id === "content" ? 12 : 3}
-              placeholder={category.id === "content"
-                ? "Write your full story, essay, poem, or experience here..."
-                : "Describe the inspiration, techniques, or narrative behind your submission..."}
+              rows={3}
+              placeholder="Describe the inspiration, techniques, or narrative behind your submission..."
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              required={category.id === "content"}
             />
-            {category.id === "content" && formData.description.trim() && (
-              <span className={styles.inputHelp}>
-                Word count: ~{formData.description.trim().split(/\s+/).length} words
-              </span>
-            )}
           </div>
 
           {/* Direct File Dropzone */}
           <div className={styles.formGroup}>
             <label>
-              {category.id === "content"
-                ? `Upload PDF/Document (Optional — ${category.acceptedFormats} • Max ${category.maxSizeMB} MB)`
-                : `Direct File Upload * (${category.acceptedFormats} • Max ${category.maxSizeMB} MB)`}
+              Direct File Upload * ({category.acceptedFormats} • Max {category.maxSizeMB} MB)
             </label>
 
             {/* Instagram Framing Guidelines Notice for Photography & Artwork */}
@@ -723,12 +711,12 @@ export function SubmissionForm({ category }: Props) {
                 style={{ display: "none" }}
                 accept={
                   category.id === "reels"
-                    ? "video/mp4,video/quicktime,video/*"
+                    ? "video/mp4"
                     : category.id === "photography"
-                    ? "image/jpeg,image/png,image/jpg,image/webp"
+                    ? "image/jpeg,image/png,image/jpg"
                     : category.id === "content"
-                    ? ".pdf,.docx,.doc,.txt"
-                    : "image/*,.pdf"
+                    ? ".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    : "image/jpeg,image/png,image/jpg"
                 }
                 onChange={(e) => {
                   if (e.target.files && e.target.files[0]) {
@@ -746,7 +734,7 @@ export function SubmissionForm({ category }: Props) {
                     Drag & Drop your {category.title} file here, or <span>Browse Files</span>
                   </p>
                   <p className={styles.dropzoneHint}>
-                    Direct photo/video upload — No external links needed. Supported: {category.acceptedFormats} (Max {category.maxSizeMB}MB)
+                    Direct upload — Supported: {category.acceptedFormats} (Max {category.maxSizeMB}MB)
                   </p>
                 </div>
               ) : (
@@ -1076,4 +1064,3 @@ export function SubmissionForm({ category }: Props) {
     </div>
   );
 }
-

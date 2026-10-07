@@ -65,7 +65,15 @@
   font-size: 1.25rem;
   color: #c2410c;
   font-weight: 700;
-  margin-bottom: 14px;
+  margin-bottom: 8px;
+}
+
+.heroTagline {
+  font-size: 1.05rem;
+  font-style: italic;
+  font-weight: 600;
+  color: #991b1b;
+  margin-bottom: 12px;
 }
 
 .heroDescription {
@@ -112,11 +120,37 @@
 
 .sidebarTitle {
   font-family: var(--font-cinzel), serif;
-  font-size: 1.3rem;
+  font-size: 1.25rem;
   color: #78350f;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
   border-bottom: 1.5px solid #eed8b0;
-  padding-bottom: 12px;
+  padding-bottom: 8px;
+}
+
+.themesInfo {
+  font-size: 0.88rem;
+  color: #c2410c;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.sidebarThemesList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sidebarThemesList li {
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: #431407;
+}
+
+.sidebarThemesList li strong {
+  color: #991b1b;
 }
 
 .guidelinesList {
@@ -206,18 +240,44 @@
     padding: 0 16px;
   }
 
+  .categoryHero {
+    padding: 24px 0 10px;
+  }
+
+  .heroTitle {
+    font-size: 2rem;
+  }
+
+  .heroSubtitle {
+    font-size: 1.1rem;
+  }
+
+  .heroDescription {
+    font-size: 0.98rem;
+  }
+
+  .submissionSection {
+    padding: 20px 0 50px;
+  }
+
   .formWrapper {
-    background: transparent;
-    border: none;
-    box-shadow: none;
-    padding: 0;
+    background: #fffdf9;
+    border: 1.5px solid #d4af37;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(120, 53, 15, 0.08);
+    padding: 20px 16px;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .sidebarCard {
-    background: transparent;
-    border: none;
-    box-shadow: none;
-    padding: 0;
+    background: #fffdf9;
+    border: 1.5px solid #d4af37;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(120, 53, 15, 0.08);
+    padding: 20px 16px;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .formHeader {
@@ -225,11 +285,19 @@
     margin-bottom: 20px;
   }
 
+  .formHeader h2 {
+    font-size: 1.5rem;
+  }
+
+  .formHeader p {
+    font-size: 0.92rem;
+  }
+
   .heroGrid {
     text-align: center;
   }
 
   .heroIllustration {
-    max-width: 220px;
+    max-width: 200px;
   }
 }
