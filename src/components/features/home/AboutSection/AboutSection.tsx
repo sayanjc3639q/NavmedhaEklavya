@@ -31,8 +31,8 @@ export function AboutSection() {
               </p>
               <div className={styles.aboutHighlights}>
                 <div className={styles.highlightItem}>
-                  <strong>🏆 Trophies & Hampers</strong>
-                  <span>Cash prizes for winners</span>
+                  <strong>🏆 Trophies &amp; Hampers</strong>
+                  <span>Grand honors for winners</span>
                 </div>
                 <div className={styles.highlightItem}>
                   <strong>🎓 MAR Points</strong>

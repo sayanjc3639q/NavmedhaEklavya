@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Menu, X, ArrowRight, User } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { checkAuthSession } from "@/redux/slices/authSlice";
+import { getLiveConfig } from "@/redux/slices/configSlice";
 import styles from "./Navbar.module.css";
 
 export function Navbar() {
@@ -14,10 +15,29 @@ export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
   const { user } = useAppSelector((state) => state.auth);
+  const { data: configData } = useAppSelector((state) => state.config);
+  const isShowcaseMode = configData?.isLive === false;
 
   useEffect(() => {
     setMounted(true);
     dispatch(checkAuthSession());
+    dispatch(getLiveConfig());
+
+    // Auto re-check config when user switches back to tab or every 30s
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible") {
+        dispatch(getLiveConfig());
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    const interval = setInterval(() => {
+      dispatch(getLiveConfig());
+    }, 30000);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibility);
+      clearInterval(interval);
+    };
   }, [dispatch]);
 
   // Track scroll past the hero section (~350px - 500px)
@@ -87,8 +107,22 @@ export function Navbar() {
           <Link href="/#mascots" className={styles.navLink}>Theme</Link>
         </nav>
 
-        {/* Desktop Login / Profile Button */}
+        {/* Desktop Login / Profile Button & Status Badge */}
         <div className={styles.desktopActions}>
+          {mounted && (
+            <div className={styles.statusIndicatorWrap}>
+              {isShowcaseMode ? (
+                <span className={styles.showcaseBadge} title="NAVMEDHA is currently in Showcase Mode">
+                  <span>✦</span> Showcase Mode
+                </span>
+              ) : (
+                <span className={styles.liveBadge} title="Registrations are actively open">
+                  <span className={styles.pulseDot} /> Live
+                </span>
+              )}
+            </div>
+          )}
+
           {mounted && user ? (
             <Link 
               href="/profile" 
@@ -158,6 +192,20 @@ export function Navbar() {
             <X size={24} />
           </button>
         </div>
+
+        {mounted && (
+          <div className={styles.sidebarStatusWrap}>
+            {isShowcaseMode ? (
+              <span className={styles.showcaseBadge}>
+                <span>✦</span> Showcase Mode Active
+              </span>
+            ) : (
+              <span className={styles.liveBadge}>
+                <span className={styles.pulseDot} /> Registrations Live
+              </span>
+            )}
+          </div>
+        )}
 
         <nav className={styles.sidebarNav}>
           <Link href="/#about" className={styles.sidebarLink} onClick={closeSidebar}>

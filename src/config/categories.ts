@@ -249,7 +249,7 @@ export const TIMELINE_STEPS = [
   {
     step: "04",
     title: "Prizes & Recognition",
-    desc: "Win exciting hampers, digital certificates, cash prizes, and artist spotlights.",
+    desc: "Win exciting hampers, digital certificates, mementos, and artist spotlights.",
     icon: "/assets/giftsicon.png",
   },
 ];

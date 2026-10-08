@@ -6,11 +6,11 @@ import styles from "./PrizesSection.module.css";
 const RECOGNITION_PERKS = [
   {
     icon: Trophy,
-    title: "Cash Awards & Festive Hampers",
+    title: "Trophies & Festive Hampers",
     tag: "Top Winners",
     accent: "#b45309",
     description:
-      "Grand cash prizes for 1st, 2nd & 3rd place winners across all 4 categories, accompanied by exclusive festive gift hampers & memorabilia.",
+      "Grand trophies and honors for 1st, 2nd & 3rd place winners across all 4 categories, accompanied by exclusive festive gift hampers & memorabilia.",
   },
   {
     icon: GraduationCap,
@@ -73,7 +73,7 @@ export function PrizesSection() {
               <ul className={styles.rewardBullets}>
                 <li>
                   <CheckCircle2 className={styles.bulletIcon} />
-                  <span>Trophies and cash prizes for category winners</span>
+                  <span>Trophies and festive hampers for category winners</span>
                 </li>
                 <li>
                   <CheckCircle2 className={styles.bulletIcon} />

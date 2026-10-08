@@ -126,13 +126,8 @@ export default async function SubmissionCategoryPage({ params }: PageProps) {
               </div>
             </aside>
 
-            {/* Right Column: Redux-powered Form */}
+            {/* Right Column: Dynamic Form or Showcase Mode View */}
             <div className={styles.formWrapper}>
-              <div className={styles.formHeader}>
-                <h2>Participant Entry Form</h2>
-                <p>Fill in all the required details to lock your spot in NAVMEDHA 2026.</p>
-              </div>
-
               <SubmissionForm category={category} />
             </div>
           </div>
