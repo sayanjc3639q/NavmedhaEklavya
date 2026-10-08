@@ -249,4 +249,13 @@ export async function loginWithEmailPassword(email: string, password: string): P
   });
 }
 
+/**
+ * Fetch Current User's Issued Navmedha Certificates
+ */
+export async function fetchMyNavmedhaCertificates(): Promise<ApiResponse<any>> {
+  return fetchApi("/api/navmedha/my-certificates", {
+    method: "GET",
+  });
+}
+
 

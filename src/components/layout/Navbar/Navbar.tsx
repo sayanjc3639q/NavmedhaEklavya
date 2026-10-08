@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Menu, X, ArrowRight, User } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { checkAuthSession } from "@/redux/slices/authSlice";
+import { getLiveConfig } from "@/redux/slices/configSlice";
 import styles from "./Navbar.module.css";
 
 export function Navbar() {
@@ -14,10 +15,13 @@ export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
   const { user } = useAppSelector((state) => state.auth);
+  const { data: configData } = useAppSelector((state) => state.config);
+  const isLive = configData?.isLive ?? true;
 
   useEffect(() => {
     setMounted(true);
     dispatch(checkAuthSession());
+    dispatch(getLiveConfig());
   }, [dispatch]);
 
   // Track scroll past the hero section (~350px - 500px)
@@ -83,7 +87,7 @@ export function Navbar() {
           <Link href="/#about" className={styles.navLink}>About</Link>
           <Link href="/#categories" className={styles.navLink}>Categories</Link>
           <Link href="/#prizes" className={styles.navLink}>Prizes & MAR</Link>
-          <Link href="/#gallery" className={styles.navLink}>Memories</Link>
+          <Link href="/#gallery" className={styles.navLink}>{isLive ? "Memories" : "Showcase & Memories"}</Link>
           <Link href="/#mascots" className={styles.navLink}>Theme</Link>
         </nav>
 
@@ -173,7 +177,7 @@ export function Navbar() {
             <ArrowRight size={16} className={styles.linkArrow} />
           </Link>
           <Link href="/#gallery" className={styles.sidebarLink} onClick={closeSidebar}>
-            <span>Memories</span>
+            <span>{isLive ? "Memories" : "Showcase & Memories"}</span>
             <ArrowRight size={16} className={styles.linkArrow} />
           </Link>
           <Link href="/#mascots" className={styles.sidebarLink} onClick={closeSidebar}>
