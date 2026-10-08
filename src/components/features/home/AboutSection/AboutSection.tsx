@@ -32,7 +32,7 @@ export function AboutSection() {
               <div className={styles.aboutHighlights}>
                 <div className={styles.highlightItem}>
                   <strong>🏆 Trophies & Hampers</strong>
-                  <span>Cash prizes for winners</span>
+                  <span>For category winners</span>
                 </div>
                 <div className={styles.highlightItem}>
                   <strong>🎓 MAR Points</strong>
