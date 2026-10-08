@@ -101,10 +101,10 @@ export function SubmissionForm({ category }: Props) {
   const [selectedQrIndex, setSelectedQrIndex] = useState(0);
 
   const activeQr = QR_OPTIONS[selectedQrIndex];
-  const UPI_ID = configData?.upiId || activeQr.upiId;
-  const ENTRY_FEE = configData?.isPaid ? (configData?.entryFee ?? 9) : 0;
-  const rawHandle = configData?.instagramPageHandle || "eklavyaofficial_";
-  const cleanHandle = rawHandle.replace(/^@/, "");
+  const UPI_ID = activeQr.upiId;
+  const ENTRY_FEE = 9;
+  const rawHandle = "eklavyaofficial_";
+  const cleanHandle = "eklavyaofficial_";
   const INSTAGRAM_URL = `https://www.instagram.com/${cleanHandle}`;
 
   const handleCopyUpi = (upiToCopy: string = UPI_ID) => {
