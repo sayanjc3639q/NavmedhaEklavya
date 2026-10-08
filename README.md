@@ -1,4 +1,6 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Navmedha - Eklavya
+
+A web portal for Navmedha Eklavya fest events, registrations, and showcases.
 
 ## Getting Started
 
