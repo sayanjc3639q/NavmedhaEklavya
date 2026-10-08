@@ -85,7 +85,7 @@ export function SubmissionForm({ category }: Props) {
 
   const UPI_ID = configData?.upiId || "eklavyanavadya@upi";
   const ENTRY_FEE = configData?.isPaid ? (configData?.entryFee ?? 49) : 0;
-  const rawHandle = configData?.instagramPageHandle || "eklavya_official";
+  const rawHandle = configData?.instagramPageHandle || "eklavyaofficial_";
   const cleanHandle = rawHandle.replace(/^@/, "");
   const INSTAGRAM_URL = `https://www.instagram.com/${cleanHandle}`;
 
@@ -143,7 +143,7 @@ export function SubmissionForm({ category }: Props) {
     }
 
     if (!formData.followedEklavya) {
-      setStepError("Please follow @eklavya_official on Instagram and check the verification box to proceed.");
+      setStepError(`Please follow @${cleanHandle} on Instagram and check the verification box to proceed.`);
       return;
     }
 
@@ -617,7 +617,7 @@ export function SubmissionForm({ category }: Props) {
                 rel="noopener noreferrer"
                 className={styles.followLinkBtn}
               >
-                Follow @eklavya_official ↗
+                Follow @{cleanHandle} ↗
               </a>
             </div>
             <p className={styles.followDesc}>
@@ -631,7 +631,7 @@ export function SubmissionForm({ category }: Props) {
                 required
               />
               <span className={styles.checkboxText}>
-                <strong>I have followed @eklavya_official on Instagram</strong> and entered my handle above for verification.
+                <strong>I have followed @{cleanHandle} on Instagram</strong> and entered my handle above for verification.
               </span>
             </label>
           </div>
