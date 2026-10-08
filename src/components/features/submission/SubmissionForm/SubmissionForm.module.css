@@ -986,3 +986,173 @@
   }
 }
 
+/* ─── LOGIN REQUIRED GUARD CARD ─── */
+.loginRequiredCard {
+  background: linear-gradient(145deg, #fffbf0, #fef3e2);
+  border: 2px solid #d4af37;
+  border-radius: 18px;
+  padding: 36px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  box-shadow: 0 8px 32px rgba(120, 53, 15, 0.1), 0 2px 8px rgba(212, 175, 55, 0.15);
+  animation: fadeInScale 0.4s ease-out;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.loginRequiredHeader {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.loginRequiredIconWrap {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #991b1b, #7f1d1d);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 24px rgba(153, 27, 27, 0.3);
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 6px 24px rgba(153, 27, 27, 0.3);
+  }
+  50% {
+    box-shadow: 0 6px 32px rgba(153, 27, 27, 0.5), 0 0 48px rgba(212, 175, 55, 0.2);
+  }
+}
+
+.loginRequiredTitle {
+  font-family: "Playfair Display", serif;
+  font-size: 1.7rem;
+  font-weight: 800;
+  color: #431407;
+  margin: 0;
+}
+
+.loginRequiredSubtitle {
+  font-size: 1rem;
+  color: #78350f;
+  line-height: 1.6;
+  max-width: 420px;
+  margin: 0;
+}
+
+.loginRequiredSubtitle strong {
+  color: #991b1b;
+}
+
+.loginRequiredBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: rgba(254, 252, 232, 0.7);
+  border: 1.5px solid #d4af37;
+  border-radius: 14px;
+  padding: 18px 20px;
+}
+
+.loginRequiredBanner svg {
+  color: #991b1b;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.loginRequiredBanner h4 {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #431407;
+  margin: 0 0 4px 0;
+}
+
+.loginRequiredBanner p {
+  font-size: 0.88rem;
+  color: #78350f;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.loginRequiredPerks {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.loginRequiredPerkItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(212, 175, 55, 0.3);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.loginRequiredPerkItem:hover {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: #d4af37;
+  transform: translateX(4px);
+}
+
+.loginRequiredPerkItem svg {
+  color: #991b1b;
+  flex-shrink: 0;
+}
+
+.loginRequiredPerkItem span {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #431407;
+}
+
+.loginRequiredActions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.loginRequiredNote {
+  text-align: center;
+  font-size: 0.85rem;
+  color: #78350f;
+  font-weight: 600;
+  margin: 0;
+  opacity: 0.85;
+}
+
+@media (max-width: 680px) {
+  .loginRequiredCard {
+    padding: 28px 20px;
+  }
+
+  .loginRequiredTitle {
+    font-size: 1.4rem;
+  }
+
+  .loginRequiredBanner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+}
+

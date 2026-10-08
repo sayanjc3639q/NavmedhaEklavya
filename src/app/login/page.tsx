@@ -77,9 +77,10 @@ function LoginForm() {
         collegeName: user.collegeName || prev.collegeName,
       }));
 
-      // If user already has rollNumber and mobileNumber, send directly to profile
+      // If user already has rollNumber and mobileNumber, send directly to destination
+      const targetUrl = searchParams.get("redirect") || "/profile";
       if (user.rollNumber && user.mobileNumber && searchParams.get("step") !== "details") {
-        router.push("/profile");
+        router.push(targetUrl);
       } else {
         setStep("details");
       }
@@ -90,7 +91,12 @@ function LoginForm() {
   const handleGoogleAuth = () => {
     dispatch(loginStart());
     const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-    const returnTo = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
+    const redirectParam = searchParams.get("redirect");
+    const returnTo = typeof window !== "undefined"
+      ? (redirectParam
+          ? `${window.location.origin}/oauth-success?redirect=${encodeURIComponent(redirectParam)}`
+          : `${window.location.origin}/oauth-success`)
+      : "http://localhost:3000/oauth-success";
     window.location.href = `${apiBase}/api/auth/google?returnTo=${encodeURIComponent(returnTo)}`;
   };
 
@@ -124,13 +130,14 @@ function LoginForm() {
             })
           );
 
+          const targetUrl = searchParams.get("redirect") || "/profile";
           if (!u.rollNumber || !u.phone) {
             setStep("details");
           } else {
-            router.push("/profile");
+            router.push(targetUrl);
           }
         } else {
-          router.push("/profile");
+          router.push(searchParams.get("redirect") || "/profile");
         }
       } else {
         setFormError(res.message || "Invalid email or password");
@@ -182,7 +189,8 @@ function LoginForm() {
             collegeName: academicDetails.collegeName,
           })
         );
-        router.push("/profile");
+        const targetUrl = searchParams.get("redirect") || "/profile";
+        router.push(targetUrl);
       } else {
         setFormError(res.message || "Failed to save profile to central server");
       }
@@ -258,14 +266,14 @@ function LoginForm() {
                 borderRadius: "8px",
                 border: "none",
                 fontWeight: 700,
-                fontSize: "0.88rem",
+                fontSize: "0.82rem",
                 cursor: "pointer",
                 background: authMode === "email" ? "#991b1b" : "transparent",
                 color: authMode === "email" ? "#fff" : "#78350f",
                 transition: "all 0.2s ease",
               }}
             >
-              Email &amp; Pass (Dev) 🛠️
+              Email &amp; Pass (Only for Developers of Eklavya) 🛠️
             </button>
           </div>
 
@@ -304,8 +312,26 @@ function LoginForm() {
               <span>{isLoading ? "Redirecting to Google..." : "Continue with Google"}</span>
             </button>
           ) : (
-            /* Dev Email & Password Form */
+            /* Dev Email & Password Form - Only for Developers of Eklavya */
             <form onSubmit={handleDevEmailLogin} style={{ width: "100%", display: "flex", flexDirection: "column", gap: "14px", textAlign: "left" }}>
+              <div
+                style={{
+                  background: "#fef3c7",
+                  border: "1.5px solid #d97706",
+                  borderRadius: "10px",
+                  padding: "10px 14px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "10px",
+                  color: "#92400e",
+                  fontSize: "0.86rem",
+                  fontWeight: 600,
+                }}
+              >
+                <ShieldCheck size={18} style={{ color: "#b45309", flexShrink: 0 }} />
+                <span>Only for Developers of Eklavya. Participants must use Google Sign-In.</span>
+              </div>
+
               <div className={styles.formGroup}>
                 <label>
                   <Mail size={15} /> Registered Email *
@@ -338,12 +364,12 @@ function LoginForm() {
                 className="hero-btn"
                 style={{ width: "100%", marginTop: "6px", opacity: devLoginLoading ? 0.7 : 1 }}
               >
-                <span>{devLoginLoading ? "Verifying Credentials..." : "Sign In to Navmedha (Dev)"}</span>
+                <span>{devLoginLoading ? "Verifying Credentials..." : "Sign In (Only for Developers of Eklavya)"}</span>
                 <ArrowRight size={16} />
               </button>
 
               <p style={{ fontSize: "0.8rem", color: "#78350f", opacity: 0.75, textAlign: "center", marginTop: "2px" }}>
-                * Local dev helper connected to central MongoDB <code>general_user</code> collection.
+                * Only for Developers of Eklavya. Participants should use Google Sign-In to connect certificates and entries.
               </p>
             </form>
           )}
