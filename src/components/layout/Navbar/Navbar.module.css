@@ -107,7 +107,79 @@
 }
 
 .desktopActions {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.statusIndicatorWrap {
+  display: flex;
+  align-items: center;
+}
+
+.showcaseBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1.2px solid rgba(217, 119, 6, 0.5);
+  color: #9a3412;
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  box-shadow: 0 2px 8px rgba(217, 119, 6, 0.1);
+  white-space: nowrap;
+}
+
+.showcaseBadge span {
+  color: #d97706;
+}
+
+.liveBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(22, 101, 52, 0.1);
+  border: 1.2px solid rgba(22, 163, 74, 0.45);
+  color: #166534;
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  white-space: nowrap;
+}
+
+.pulseDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #16a34a;
+  box-shadow: 0 0 8px #16a34a;
+  animation: pulseDotAnim 1.8s infinite;
+}
+
+@keyframes pulseDotAnim {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.4);
+    opacity: 0.5;
+  }
+}
+
+.sidebarStatusWrap {
+  padding: 8px 20px 16px;
+  display: flex;
+  justify-content: flex-start;
+  border-bottom: 1px solid rgba(217, 119, 6, 0.15);
+  margin-bottom: 8px;
 }
 
 .hamburgerBtn {

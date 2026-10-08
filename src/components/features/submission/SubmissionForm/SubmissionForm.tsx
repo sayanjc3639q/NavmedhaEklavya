@@ -13,7 +13,12 @@ import {
   QrCode, 
   ShieldCheck, 
   AlertCircle,
-  FileCheck2
+  FileCheck2,
+  Sparkles,
+  Lock,
+  Trophy,
+  Award,
+  ExternalLink
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import {
@@ -402,8 +407,128 @@ export function SubmissionForm({ category }: Props) {
     );
   }
 
+  // Check if portal is in Showcase Mode or if this category is closed
+  const categoryKey =
+    category.id === "artworks"
+      ? "artwork"
+      : category.id === "content"
+      ? "writing"
+      : category.id;
+
+  const isPortalClosed = configData ? configData.isLive === false : false;
+  const isCategoryDisabled =
+    configData?.categories &&
+    typeof (configData.categories as any)[categoryKey] === "boolean"
+      ? !(configData.categories as any)[categoryKey]
+      : false;
+
+  const isShowcaseActive = isPortalClosed || isCategoryDisabled;
+
+  if (isShowcaseActive) {
+    return (
+      <div className={styles.showcaseCard}>
+        <div className={styles.showcaseHeader}>
+          <div className={styles.showcaseKicker}>
+            <Sparkles size={16} />
+            <span>NAVMEDHA SHOWCASE MODE ACTIVE</span>
+          </div>
+          <h2 className={styles.showcaseTitle}>{category.title} Showcase</h2>
+          <p className={styles.showcaseSubtitle}>
+            {isCategoryDisabled && !isPortalClosed
+              ? `Submissions for ${category.title} are currently closed for this edition. Other categories may still be open.`
+              : "Registrations for NAVMEDHA 2026 are currently closed. The portal is in Showcase Mode celebrating creative excellence!"}
+          </p>
+        </div>
+
+        <div className={styles.showcaseStatusBanner}>
+          <div className={styles.showcaseLockIcon}>
+            <Lock size={22} />
+          </div>
+          <div className={styles.showcaseStatusText}>
+            <h4>Registrations Closed</h4>
+            <p>
+              No new submissions or payment uploads are being accepted right now.
+              Evaluation by the official jury and certificate preparation is underway.
+            </p>
+          </div>
+        </div>
+
+        <div className={styles.showcasePerksGrid}>
+          <div className={styles.showcasePerkItem}>
+            <div className={styles.perkIconWrap}>
+              <Trophy size={20} />
+            </div>
+            <div>
+              <h5>Official Recognition</h5>
+              <p>Top artworks, reels, and writings will be awarded official certificates, trophies, and festive hampers.</p>
+            </div>
+          </div>
+
+          <div className={styles.showcasePerkItem}>
+            <div className={styles.perkIconWrap}>
+              <Award size={20} />
+            </div>
+            <div>
+              <h5>Verified Certificates</h5>
+              <p>Official Eklavya NAVMEDHA digital certificates with QR verification.</p>
+            </div>
+          </div>
+
+          <div className={styles.showcasePerkItem}>
+            <div className={styles.perkIconWrap}>
+              <ExternalLink size={20} />
+            </div>
+            <div>
+              <h5>Featured on Instagram</h5>
+              <p>Curated participant creations are showcased to our 50K+ social community.</p>
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.showcaseNoteBox}>
+          <p>
+            ✦ <strong>Explore Guidelines on the Left:</strong> You can review the official
+            themes, format specifications, and evaluation criteria in the sidebar to see what this category celebrates.
+          </p>
+        </div>
+
+        <div className={styles.showcaseActions}>
+          <Link href="/#categories" className="hero-btn">
+            <span>Explore Other Categories</span>
+            <span>✦</span>
+          </Link>
+          <a
+            href={INSTAGRAM_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="secondary-btn"
+          >
+            <span>Visit @{cleanHandle} on Instagram</span>
+            <ExternalLink size={16} />
+          </a>
+          <Link href="/#gallery" className="secondary-btn">
+            <span>Hall of Memories</span>
+            <span>↓</span>
+          </Link>
+          {user && (
+            <Link href="/profile" className="secondary-btn">
+              <span>My Profile &amp; Submissions</span>
+              <span>→</span>
+            </Link>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.formContainer}>
+      {/* ─── FORM HEADER ─── */}
+      <div className={styles.formHeader}>
+        <h2>Participant Entry Form</h2>
+        <p>Fill in all the required details to lock your spot in NAVMEDHA 2026.</p>
+      </div>
+
       {/* ─── 2-STEP PROGRESS BAR ─── */}
       <div className={styles.wizardProgress}>
         <div className={`${styles.wizardStep} ${step === 1 ? styles.wizardActive : styles.wizardCompleted}`}>

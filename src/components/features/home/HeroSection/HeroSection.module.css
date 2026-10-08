@@ -40,6 +40,65 @@
   align-items: center;
 }
 
+.showcaseBannerBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 18px;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1.5px solid rgba(217, 119, 6, 0.55);
+  border-radius: 9999px;
+  color: #9a3412;
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  margin-bottom: 22px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 15px rgba(217, 119, 6, 0.12);
+}
+
+.showcaseBannerBadge span {
+  color: #d97706;
+}
+
+.liveBannerBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 18px;
+  background: rgba(22, 101, 52, 0.12);
+  border: 1.5px solid rgba(22, 163, 74, 0.45);
+  border-radius: 9999px;
+  color: #166534;
+  font-family: var(--font-cinzel), serif;
+  font-size: 0.84rem;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  margin-bottom: 22px;
+  backdrop-filter: blur(8px);
+}
+
+.pulseDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #16a34a;
+  box-shadow: 0 0 10px #16a34a;
+  animation: pulseDotHero 1.8s infinite;
+}
+
+@keyframes pulseDotHero {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.4);
+    opacity: 0.5;
+  }
+}
+
 .heroLogoMain {
   margin-bottom: 18px;
 }

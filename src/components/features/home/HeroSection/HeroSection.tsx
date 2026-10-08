@@ -1,9 +1,15 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { ScrollReveal } from "@/components/common/ScrollReveal/ScrollReveal";
+import { useAppSelector } from "@/redux/hooks";
 import styles from "./HeroSection.module.css";
 
 export function HeroSection() {
+  const { data: configData } = useAppSelector((state) => state.config);
+  const isShowcaseMode = configData?.isLive === false;
+
   return (
     <section className={styles.heroSection}>
       <div className={styles.heroBgWrapper}>
@@ -20,6 +26,16 @@ export function HeroSection() {
 
       <div className={styles.heroContent}>
         <ScrollReveal variant="scale">
+          {isShowcaseMode ? (
+            <div className={styles.showcaseBannerBadge}>
+              <span>✦</span> NAVMEDHA SHOWCASE MODE ACTIVE <span>✦</span>
+            </div>
+          ) : (
+            <div className={styles.liveBannerBadge}>
+              <span className={styles.pulseDot} /> REGISTRATIONS NOW OPEN FOR NAVMEDHA 2026
+            </div>
+          )}
+
           <div className={styles.heroLogoMain}>
             <Image
               src="/assets/NAVMEDHA 3.png"
@@ -35,21 +51,47 @@ export function HeroSection() {
 
         <ScrollReveal variant="fade" delay={1}>
           <p className={styles.heroSubtitle}>
-            Where Devotion Meets Digital Expression. An exclusive celebration of
-            Art, Reels, Photography, and Storytelling during the divine festival of Durga Puja.
+            {isShowcaseMode ? (
+              <>
+                Where Devotion Meets Digital Expression. An exclusive celebration of
+                Art, Reels, Photography, and Storytelling during the divine festival of Durga Puja.
+                Registrations are currently closed — explore our showcase categories, themes, and festival memories!
+              </>
+            ) : (
+              <>
+                Where Devotion Meets Digital Expression. An exclusive celebration of
+                Art, Reels, Photography, and Storytelling during the divine festival of Durga Puja.
+                Submit your creative entry now!
+              </>
+            )}
           </p>
         </ScrollReveal>
 
         <ScrollReveal variant="fade" delay={2}>
           <div className={styles.heroCtaGroup}>
-            <Link href="/#categories" className="hero-btn">
-              <span>Explore Categories</span>
-              <span>✦</span>
-            </Link>
-            <Link href="/#about" className="secondary-btn">
-              <span>About Navmedha</span>
-              <span>↓</span>
-            </Link>
+            {isShowcaseMode ? (
+              <>
+                <Link href="/#categories" className="hero-btn">
+                  <span>Explore Showcase</span>
+                  <span>✦</span>
+                </Link>
+                <Link href="/#gallery" className="secondary-btn">
+                  <span>Memories &amp; Gallery</span>
+                  <span>↓</span>
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link href="/#categories" className="hero-btn">
+                  <span>Explore &amp; Register</span>
+                  <span>✦</span>
+                </Link>
+                <Link href="/#about" className="secondary-btn">
+                  <span>About Navmedha</span>
+                  <span>↓</span>
+                </Link>
+              </>
+            )}
           </div>
         </ScrollReveal>
       </div>
