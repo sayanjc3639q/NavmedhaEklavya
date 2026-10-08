@@ -24,11 +24,11 @@ const initialState: ConfigState = {
     academicYear: "2026-2027",
     isLive: true,
     isPaid: true,
-    entryFee: 49,
+    entryFee: 9,
     upiId: "eklavyanavadya@upi",
     accountHolderName: "Eklavya Official",
     whatsappCommunityLink: "https://chat.whatsapp.com/eklavya",
-    instagramPageHandle: "eklavya_official",
+    instagramPageHandle: "eklavyaofficial_",
     categories: {
       photography: true,
       artwork: true,

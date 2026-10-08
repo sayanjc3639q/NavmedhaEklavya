@@ -27,7 +27,7 @@ const TIMELINE_STEPS_FLOW = [
   {
     step: "04",
     title: "Prizes & Recognition",
-    desc: "Win exciting hampers, digital certificates, mementos, and artist spotlights.",
+    desc: "Win exciting hampers, digital certificates, trophies, and artist spotlights.",
     icon: Trophy,
     accent: "#78350f",
   },

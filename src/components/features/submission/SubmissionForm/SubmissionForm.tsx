@@ -88,14 +88,32 @@ export function SubmissionForm({ category }: Props) {
   // Local Validation Errors
   const [stepError, setStepError] = useState<string | null>(null);
 
-  const UPI_ID = configData?.upiId || "eklavyanavadya@upi";
-  const ENTRY_FEE = configData?.isPaid ? (configData?.entryFee ?? 49) : 0;
-  const rawHandle = configData?.instagramPageHandle || "eklavya_official";
-  const cleanHandle = rawHandle.replace(/^@/, "");
+  // Payment QR Options State
+  const QR_OPTIONS = [
+    {
+      id: "kousani",
+      name: "Kousani Banerjee",
+      upiId: "ibanerjee150@oksbi",
+      image: "/assets/QRa/qr-kousani.jpeg",
+    },
+    {
+      id: "abhinav",
+      name: "Abhinav Maiti",
+      upiId: "abhinavmaiti01@okaxis",
+      image: "/assets/QRa/qr-abhinav.jpeg",
+    },
+  ];
+  const [selectedQrIndex, setSelectedQrIndex] = useState(0);
+
+  const activeQr = QR_OPTIONS[selectedQrIndex];
+  const UPI_ID = activeQr.upiId;
+  const ENTRY_FEE = 9;
+  const rawHandle = "eklavyaofficial_";
+  const cleanHandle = "eklavyaofficial_";
   const INSTAGRAM_URL = `https://www.instagram.com/${cleanHandle}`;
 
-  const handleCopyUpi = () => {
-    navigator.clipboard.writeText(UPI_ID);
+  const handleCopyUpi = (upiToCopy: string = UPI_ID) => {
+    navigator.clipboard.writeText(upiToCopy);
     setCopiedUpi(true);
     setTimeout(() => setCopiedUpi(false), 2000);
   };
@@ -148,7 +166,7 @@ export function SubmissionForm({ category }: Props) {
     }
 
     if (!formData.followedEklavya) {
-      setStepError("Please follow @eklavya_official on Instagram and check the verification box to proceed.");
+      setStepError(`Please follow @${cleanHandle} on Instagram and check the verification box to proceed.`);
       return;
     }
 
@@ -742,7 +760,7 @@ export function SubmissionForm({ category }: Props) {
                 rel="noopener noreferrer"
                 className={styles.followLinkBtn}
               >
-                Follow @eklavya_official ↗
+                Follow @{cleanHandle} ↗
               </a>
             </div>
             <p className={styles.followDesc}>
@@ -756,7 +774,7 @@ export function SubmissionForm({ category }: Props) {
                 required
               />
               <span className={styles.checkboxText}>
-                <strong>I have followed @eklavya_official on Instagram</strong> and entered my handle above for verification.
+                <strong>I have followed @{cleanHandle} on Instagram</strong> and entered my handle above for verification.
               </span>
             </label>
           </div>
@@ -791,59 +809,28 @@ export function SubmissionForm({ category }: Props) {
           {/* Payment Card with QR & UPI Copy */}
           <div className={styles.paymentCard}>
             <div className={styles.qrSide}>
+              {/* QR Option Tabs */}
+              <div className={styles.qrTabs}>
+                {QR_OPTIONS.map((qr, idx) => (
+                  <button
+                    key={qr.id}
+                    type="button"
+                    className={`${styles.qrTabBtn} ${selectedQrIndex === idx ? styles.qrTabBtnActive : ""}`}
+                    onClick={() => setSelectedQrIndex(idx)}
+                  >
+                    QR {idx + 1}
+                  </button>
+                ))}
+              </div>
+
               <div className={styles.qrFrame}>
-                {/* Visual SVG QR Code with Festive Branding or Live Server QR */}
                 <div className={styles.qrCodeWrapper}>
-                  {configData?.upiQrImageUrl ? (
-                    <img
-                      src={configData.upiQrImageUrl}
-                      alt="UPI Payment QR"
-                      style={{ width: "200px", height: "200px", objectFit: "contain", borderRadius: "12px", background: "#fff" }}
-                    />
-                  ) : (
-                    <svg viewBox="0 0 200 200" className={styles.qrSvg}>
-                    <rect width="200" height="200" fill="#ffffff" rx="12" />
-                    {/* Corner 1 */}
-                    <rect x="15" y="15" width="45" height="45" fill="#78350f" rx="6" />
-                    <rect x="23" y="23" width="29" height="29" fill="#ffffff" rx="3" />
-                    <rect x="29" y="29" width="17" height="17" fill="#991b1b" rx="2" />
-                    {/* Corner 2 */}
-                    <rect x="140" y="15" width="45" height="45" fill="#78350f" rx="6" />
-                    <rect x="148" y="23" width="29" height="29" fill="#ffffff" rx="3" />
-                    <rect x="154" y="29" width="17" height="17" fill="#991b1b" rx="2" />
-                    {/* Corner 3 */}
-                    <rect x="15" y="140" width="45" height="45" fill="#78350f" rx="6" />
-                    <rect x="23" y="148" width="29" height="29" fill="#ffffff" rx="3" />
-                    <rect x="29" y="154" width="17" height="17" fill="#991b1b" rx="2" />
-                    {/* QR Matrix Elements */}
-                    <rect x="70" y="20" width="12" height="12" fill="#78350f" />
-                    <rect x="90" y="20" width="12" height="24" fill="#b45309" />
-                    <rect x="110" y="20" width="16" height="12" fill="#78350f" />
-                    <rect x="70" y="45" width="24" height="12" fill="#991b1b" />
-                    <rect x="105" y="45" width="14" height="20" fill="#78350f" />
-                    <rect x="20" y="70" width="15" height="15" fill="#b45309" />
-                    <rect x="45" y="75" width="15" height="12" fill="#78350f" />
-                    <rect x="70" y="70" width="20" height="20" fill="#991b1b" />
-                    <rect x="100" y="75" width="30" height="12" fill="#78350f" />
-                    <rect x="140" y="70" width="18" height="18" fill="#b45309" />
-                    <rect x="168" y="75" width="15" height="25" fill="#78350f" />
-                    <rect x="20" y="95" width="25" height="14" fill="#78350f" />
-                    <rect x="55" y="95" width="15" height="20" fill="#b45309" />
-                    <rect x="80" y="100" width="15" height="15" fill="#991b1b" />
-                    <rect x="105" y="95" width="20" height="25" fill="#78350f" />
-                    <rect x="135" y="100" width="20" height="12" fill="#b45309" />
-                    <rect x="70" y="130" width="25" height="15" fill="#78350f" />
-                    <rect x="105" y="130" width="15" height="25" fill="#991b1b" />
-                    <rect x="130" y="125" width="25" height="15" fill="#78350f" />
-                    <rect x="165" y="115" width="18" height="20" fill="#b45309" />
-                    <rect x="70" y="155" width="18" height="25" fill="#b45309" />
-                    <rect x="98" y="165" width="28" height="15" fill="#78350f" />
-                    <rect x="135" y="150" width="18" height="30" fill="#991b1b" />
-                    <rect x="160" y="145" width="22" height="15" fill="#78350f" />
-                    <rect x="165" y="168" width="18" height="15" fill="#b45309" />
-                  </svg>
-                  )}
-                  <span className={styles.qrBadge}>Scan with any UPI App</span>
+                  <img
+                    src={activeQr.image}
+                    alt={`${activeQr.name} UPI QR Code`}
+                    className={styles.realQrImage}
+                  />
+                  <span className={styles.qrBadge}>Scan to Pay ₹{ENTRY_FEE}</span>
                 </div>
               </div>
             </div>
@@ -856,13 +843,13 @@ export function SubmissionForm({ category }: Props) {
 
               <div className={styles.upiBox}>
                 <span className={styles.upiLabel}>
-                  Official UPI ID {configData?.accountHolderName ? `(${configData.accountHolderName})` : ""}:
+                  Account Holder: <strong>{activeQr.name}</strong>
                 </span>
                 <div className={styles.upiValueWrap}>
-                  <code className={styles.upiCode}>{UPI_ID}</code>
+                  <code className={styles.upiCode}>{activeQr.upiId}</code>
                   <button
                     type="button"
-                    onClick={handleCopyUpi}
+                    onClick={() => handleCopyUpi(activeQr.upiId)}
                     className={styles.copyBtn}
                     title="Copy UPI ID"
                   >

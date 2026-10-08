@@ -10,7 +10,7 @@ const RECOGNITION_PERKS = [
     tag: "Top Winners",
     accent: "#b45309",
     description:
-      "Grand trophies and honors for 1st, 2nd & 3rd place winners across all 4 categories, accompanied by exclusive festive gift hampers & memorabilia.",
+      "Prestigious trophies for 1st, 2nd & 3rd place winners across all 4 categories, accompanied by exclusive festive gift hampers & memorabilia.",
   },
   {
     icon: GraduationCap,
@@ -73,7 +73,7 @@ export function PrizesSection() {
               <ul className={styles.rewardBullets}>
                 <li>
                   <CheckCircle2 className={styles.bulletIcon} />
-                  <span>Trophies and festive hampers for category winners</span>
+                  <span>Trophies and exclusive festive hampers for category winners</span>
                 </li>
                 <li>
                   <CheckCircle2 className={styles.bulletIcon} />
