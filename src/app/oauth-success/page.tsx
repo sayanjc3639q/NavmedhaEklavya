@@ -45,10 +45,12 @@ function OAuthHandler() {
         );
 
         // If academic details are missing, send them to fill academic details
+        const redirectParam = searchParams.get("redirect");
+        const nextUrl = redirectParam || "/profile";
         if (!u.rollNumber || !u.phone) {
-          router.push("/login?step=details");
+          router.push(`/login?step=details${redirectParam ? `&redirect=${encodeURIComponent(redirectParam)}` : ""}`);
         } else {
-          router.push("/profile");
+          router.push(nextUrl);
         }
       } else {
         router.push("/login?error=fetch_failed");

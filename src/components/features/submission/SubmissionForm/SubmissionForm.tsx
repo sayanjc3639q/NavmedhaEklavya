@@ -424,6 +424,67 @@ export function SubmissionForm({ category }: Props) {
 
   const isShowcaseActive = isPortalClosed || isCategoryDisabled;
 
+  // ── Authentication Guard: Must login before registering ──
+  if (!user && !isShowcaseActive) {
+    return (
+      <div className={styles.loginRequiredCard}>
+        <div className={styles.loginRequiredHeader}>
+          <div className={styles.loginRequiredIconWrap}>
+            <Lock size={40} />
+          </div>
+          <h2 className={styles.loginRequiredTitle}>Login Required</h2>
+          <p className={styles.loginRequiredSubtitle}>
+            You must be logged in to register for <strong>{category.title}</strong> at NAVMEDHA 2026.
+          </p>
+        </div>
+
+        <div className={styles.loginRequiredBanner}>
+          <ShieldCheck size={22} />
+          <div>
+            <h4>Why do I need to login?</h4>
+            <p>
+              Your Eklavya account links your submissions, tracks payment verification,
+              and enables certificate generation with QR verification after results.
+            </p>
+          </div>
+        </div>
+
+        <div className={styles.loginRequiredPerks}>
+          <div className={styles.loginRequiredPerkItem}>
+            <Trophy size={18} />
+            <span>Submit entries & track status</span>
+          </div>
+          <div className={styles.loginRequiredPerkItem}>
+            <Award size={18} />
+            <span>Get verified digital certificates</span>
+          </div>
+          <div className={styles.loginRequiredPerkItem}>
+            <Sparkles size={18} />
+            <span>Featured on our 50K+ Instagram</span>
+          </div>
+        </div>
+
+        <div className={styles.loginRequiredActions}>
+          <Link
+            href={`/login?redirect=${encodeURIComponent(`/submission/${category.id}`)}`}
+            className="hero-btn"
+            style={{ width: "100%", justifyContent: "center", fontSize: "1.05rem" }}
+          >
+            <span>Sign in with Google to Continue</span>
+            <ArrowRight size={18} />
+          </Link>
+          <Link href="/" className="secondary-btn" style={{ width: "100%", justifyContent: "center" }}>
+            <span>Return to Homepage</span>
+          </Link>
+        </div>
+
+        <p className={styles.loginRequiredNote}>
+          ✦ You'll be redirected right back here after signing in.
+        </p>
+      </div>
+    );
+  }
+
   if (isShowcaseActive) {
     return (
       <div className={styles.showcaseCard}>
@@ -498,12 +559,12 @@ export function SubmissionForm({ category }: Props) {
             <span>✦</span>
           </Link>
           <a
-            href={INSTAGRAM_URL}
+            href="https://www.instagram.com/navmedha3.0/"
             target="_blank"
             rel="noopener noreferrer"
             className="secondary-btn"
           >
-            <span>Visit @{cleanHandle} on Instagram</span>
+            <span>Visit @navmedha3.0 on Instagram</span>
             <ExternalLink size={16} />
           </a>
           <Link href="/#gallery" className="secondary-btn">

@@ -28,7 +28,7 @@ const initialState: ConfigState = {
     upiId: "eklavyanavadya@upi",
     accountHolderName: "Eklavya Official",
     whatsappCommunityLink: "https://chat.whatsapp.com/eklavya",
-    instagramPageHandle: "eklavyaofficial_",
+    instagramPageHandle: "navmedha3.0",
     categories: {
       photography: true,
       artwork: true,
