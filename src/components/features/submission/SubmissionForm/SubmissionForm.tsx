@@ -122,7 +122,7 @@ export function SubmissionForm({ category }: Props) {
       name: "Asmit Maity",
       designation: "Chairman",
       upiId: "9153182300-2@naviaxis",
-      image: "/assets/QRa/NaviQR_Asmit  Maity_10102026204511532.png",
+      image: "/assets/QRa/qr-asmit.png",
     },
     {
       id: "kousani",
