@@ -92,11 +92,10 @@ function LoginForm() {
     dispatch(loginStart());
     const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
     const redirectParam = searchParams.get("redirect");
-    const returnTo = typeof window !== "undefined"
-      ? (redirectParam
-          ? `${window.location.origin}/oauth-success?redirect=${encodeURIComponent(redirectParam)}`
-          : `${window.location.origin}/oauth-success`)
-      : "http://localhost:3000/oauth-success";
+    const origin = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
+    const returnTo = redirectParam
+      ? `${origin}?redirect=${encodeURIComponent(redirectParam)}`
+      : origin;
     window.location.href = `${apiBase}/api/auth/google?returnTo=${encodeURIComponent(returnTo)}`;
   };
 
