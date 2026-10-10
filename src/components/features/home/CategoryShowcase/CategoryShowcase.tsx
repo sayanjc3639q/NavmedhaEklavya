@@ -5,6 +5,7 @@ import Link from "next/link";
 import { CATEGORIES_CONFIG } from "@/config/categories";
 import { ScrollReveal } from "@/components/common/ScrollReveal/ScrollReveal";
 import { useAppSelector } from "@/redux/hooks";
+import { ArrowRight, Sparkles } from "lucide-react";
 import styles from "./CategoryShowcase.module.css";
 
 export function CategoryShowcase() {
@@ -74,9 +75,20 @@ export function CategoryShowcase() {
                     </div>
 
                     <Link href={`/submission/${cat.id}`} className={styles.catBtn}>
-                      {isShowcaseMode
-                        ? "Explore Showcase & Guidelines ✦"
-                        : "View Guidelines & Submit Entry →"}
+                      <span className={styles.btnGlowSweep} />
+                      {isShowcaseMode ? (
+                        <>
+                          <Sparkles size={18} className={styles.btnIcon} />
+                          <span>Explore Showcase &amp; Guidelines</span>
+                          <ArrowRight size={18} className={styles.btnArrowIcon} />
+                        </>
+                      ) : (
+                        <>
+                          <span className={styles.btnSparkleTag}>✦</span>
+                          <span>View Guidelines &amp; Submit Entry</span>
+                          <ArrowRight size={18} className={styles.btnArrowIcon} />
+                        </>
+                      )}
                     </Link>
                   </div>
                 </div>
