@@ -13,6 +13,15 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: "/oauth-success/oauth-success",
+        destination: "/oauth-success",
+        permanent: false,
+      },
+    ];
+  },
 };
 
 export default nextConfig;
