@@ -34,7 +34,7 @@ const RECOGNITION_PERKS = [
     tag: "Featured Artists",
     accent: "#78350f",
     description:
-      "Winning artworks, reels, and stories will be permanently showcased on NAVMEDHA digital publications and social media reach of 50K+ audience.",
+      "Winning artworks, reels, and stories will be permanently showcased on NAVMEDHA digital publications and official social media handles.",
   },
 ];
 

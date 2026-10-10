@@ -543,7 +543,7 @@ export function SubmissionForm({ category }: Props) {
           </div>
           <div className={styles.loginRequiredPerkItem}>
             <Sparkles size={18} />
-            <span>Featured on our 50K+ Instagram</span>
+            <span>Featured on Official Instagram</span>
           </div>
         </div>
 
@@ -624,7 +624,7 @@ export function SubmissionForm({ category }: Props) {
             </div>
             <div>
               <h5>Featured on Instagram</h5>
-              <p>Curated participant creations are showcased to our 50K+ social community.</p>
+              <p>Curated participant creations are showcased across our official social channels.</p>
             </div>
           </div>
         </div>

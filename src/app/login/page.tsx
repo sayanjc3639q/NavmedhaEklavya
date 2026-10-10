@@ -31,13 +31,17 @@ function LoginForm() {
   const dispatch = useAppDispatch();
   const { user, isLoading } = useAppSelector((state) => state.auth);
 
-  const initialStep = searchParams.get("step") === "details" || (user && (!user.rollNumber || !user.mobileNumber))
-    ? "details"
-    : "google";
-
-  const [step, setStep] = useState<"google" | "details">(initialStep);
+  const [mounted, setMounted] = useState(false);
+  const [step, setStep] = useState<"google" | "details">("google");
   const [authMode, setAuthMode] = useState<"google" | "email">("google");
   const [isSaving, setIsSaving] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    if (searchParams.get("step") === "details" || (user && (!user.rollNumber || !user.mobileNumber))) {
+      setStep("details");
+    }
+  }, [searchParams, user]);
 
   // Dev email/password login state
   const [devEmail, setDevEmail] = useState("");
@@ -200,6 +204,16 @@ function LoginForm() {
       setIsSaving(false);
     }
   };
+
+  if (!mounted) {
+    return (
+      <div className={styles.loginCard} style={{ minHeight: "360px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ textAlign: "center", color: "#94a3b8" }}>
+          <p style={{ fontSize: "14px", fontWeight: 500 }}>Loading portal access...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.loginCard}>
@@ -481,10 +495,10 @@ function LoginForm() {
                 value={academicDetails.currentYear}
                 onChange={(e) => setAcademicDetails({ ...academicDetails, currentYear: e.target.value })}
               >
-                <option value="1st Year">1st Year (Freshman)</option>
-                <option value="2nd Year">2nd Year (Sophomore)</option>
-                <option value="3rd Year">3rd Year (Junior)</option>
-                <option value="4th Year">4th Year (Senior)</option>
+                <option value="1st Year">1st Year</option>
+                <option value="2nd Year">2nd Year</option>
+                <option value="3rd Year">3rd Year</option>
+                <option value="4th Year">4th Year</option>
                 <option value="Postgraduate">Postgraduate / Masters</option>
                 <option value="School / General">School / General Public</option>
               </select>
