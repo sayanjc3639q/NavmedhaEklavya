@@ -212,7 +212,7 @@ export default function ProfilePage() {
     department: "Computer Science & Engineering",
     currentYear: "3rd Year",
     mobileNumber: "+91 98765 43210",
-    collegeName: "Heritage Institute of Technology",
+    collegeName: "Haldia Institute of Technology",
     isAuthenticated: false,
   };
 
@@ -269,7 +269,7 @@ export default function ProfilePage() {
                   </span>
                 </div>
                 <p className={styles.userMetaLine}>
-                  <span>{currentUser.department}</span> • <span>{currentUser.collegeName || "Heritage Institute of Technology"}</span> • <span>Roll: {currentUser.rollNumber}</span>
+                  <span>{currentUser.department}</span> • <span>{currentUser.collegeName || "Haldia Institute of Technology"}</span> • <span>Roll: {currentUser.rollNumber}</span>
                 </p>
                 <div className={styles.contactPills}>
                   <span className={styles.pill}><Mail size={13} /> {currentUser.email}</span>
@@ -600,7 +600,7 @@ export default function ProfilePage() {
                   </div>
                   <div className={styles.infoItem} style={{ gridColumn: "1 / -1" }}>
                     <span className={styles.infoLabel}>Institution / College:</span>
-                    <strong className={styles.infoValue}>{currentUser.collegeName || "Heritage Institute of Technology"}</strong>
+                    <strong className={styles.infoValue}>{currentUser.collegeName || "Haldia Institute of Technology"}</strong>
                   </div>
                 </div>
               </div>

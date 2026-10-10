@@ -293,7 +293,7 @@ export function SubmissionForm({ category }: Props) {
         name: formData.fullName,
         email: formData.email,
         phone: formData.phone,
-        college: user?.collegeName || "Heritage Institute of Technology",
+        college: user?.collegeName || "Haldia Institute of Technology",
         department: user?.department || "CSE",
         year: user?.currentYear || "3rd Year",
         rollNumber: user?.rollNumber || "",

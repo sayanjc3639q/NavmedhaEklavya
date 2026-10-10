@@ -41,7 +41,7 @@ export const checkAuthSession = createAsyncThunk(
         department: u.department || "",
         currentYear: u.batch || "1st Year",
         mobileNumber: u.phone || "",
-        collegeName: u.college || "Heritage Institute of Technology",
+        collegeName: u.college || "Haldia Institute of Technology",
         role: u.role || "user",
         token: token,
         isAuthenticated: true,

@@ -59,7 +59,7 @@ function LoginForm() {
     department: user?.department || "",
     currentYear: user?.currentYear || "1st Year",
     mobileNumber: user?.mobileNumber || "",
-    collegeName: user?.collegeName || "Heritage Institute of Technology",
+    collegeName: user?.collegeName || "Haldia Institute of Technology",
   });
 
   const [formError, setFormError] = useState<string | null>(null);
@@ -108,7 +108,6 @@ function LoginForm() {
     e.preventDefault();
     setFormError(null);
     setDevLoginLoading(true);
-
     try {
       const res = await loginWithEmailPassword(devEmail, devPassword);
       if (res.success && res.token) {
@@ -126,7 +125,7 @@ function LoginForm() {
               department: u.department || "",
               currentYear: u.batch || "1st Year",
               mobileNumber: u.phone || "",
-              collegeName: u.college || "Heritage Institute of Technology",
+              collegeName: u.college || "Haldia Institute of Technology",
               role: u.role || "user",
               token: res.token,
               isAuthenticated: true,
@@ -510,7 +509,7 @@ function LoginForm() {
             </label>
             <input
               type="text"
-              placeholder="e.g. Heritage Institute of Technology"
+              placeholder="e.g. Haldia Institute of Technology"
               value={academicDetails.collegeName}
               onChange={(e) => setAcademicDetails({ ...academicDetails, collegeName: e.target.value })}
             />
