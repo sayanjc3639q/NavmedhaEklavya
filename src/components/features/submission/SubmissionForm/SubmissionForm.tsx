@@ -18,7 +18,9 @@ import {
   Lock,
   Trophy,
   Award,
-  ExternalLink
+  ExternalLink,
+  PhoneCall,
+  Headphones
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import {
@@ -109,23 +111,32 @@ export function SubmissionForm({ category }: Props) {
   // Payment QR Options State
   const QR_OPTIONS = [
     {
-      id: "kousani",
-      name: "Kousani Banerjee",
-      upiId: "ibanerjee150@oksbi",
-      image: "/assets/QRa/qr-kousani.jpeg",
-    },
-    {
-      id: "abhinav",
+      id: "avinav",
       name: "Abhinav Maiti",
+      designation: "Treasurer",
       upiId: "abhinavmaiti01@okaxis",
       image: "/assets/QRa/qr-abhinav.jpeg",
+    },
+    {
+      id: "asmit",
+      name: "Asmit Maity",
+      designation: "Chairman",
+      upiId: "9153182300-2@naviaxis",
+      image: "/assets/QRa/NaviQR_Asmit  Maity_10102026204511532.png",
+    },
+    {
+      id: "kousani",
+      name: "Kousani Banerjee",
+      designation: "Vice-Chairperson",
+      upiId: "ibanerjee150@oksbi",
+      image: "/assets/QRa/qr-kousani.jpeg",
     },
   ];
   const [selectedQrIndex, setSelectedQrIndex] = useState(0);
 
   const activeQr = QR_OPTIONS[selectedQrIndex];
   const UPI_ID = activeQr.upiId;
-  const ENTRY_FEE = 9;
+  const ENTRY_FEE = 8;
   const rawHandle = "eklavyaofficial_";
   const cleanHandle = "eklavyaofficial_";
   const INSTAGRAM_URL = `https://www.instagram.com/${cleanHandle}`;
@@ -992,7 +1003,7 @@ export function SubmissionForm({ category }: Props) {
 
               <div className={styles.upiBox}>
                 <span className={styles.upiLabel}>
-                  Account Holder: <strong>{activeQr.name}</strong>
+                  Account Holder: <strong>{activeQr.name}</strong> ({activeQr.designation})
                 </span>
                 <div className={styles.upiValueWrap}>
                   <code className={styles.upiCode}>{activeQr.upiId}</code>
@@ -1149,6 +1160,53 @@ export function SubmissionForm({ category }: Props) {
           </div>
         </form>
       )}
+
+      {/* ─── CONTACT & SUPPORT HELPLINE ─── */}
+      <div className={styles.supportCard}>
+        <div className={styles.supportHeader}>
+          <Headphones size={20} className={styles.supportIcon} />
+          <div>
+            <h4 className={styles.supportTitle}>Need Help with Registration or Submission?</h4>
+            <p className={styles.supportSubtitle}>Feel free to reach out to our team members directly via Call or WhatsApp</p>
+          </div>
+        </div>
+
+        <div className={styles.supportGrid}>
+          {/* Technical Issues */}
+          <div className={styles.supportGroup}>
+            <span className={styles.supportGroupBadge}>Technical Support / Issues</span>
+            <div className={styles.contactList}>
+              <a href="tel:+917363932735" className={styles.contactItem}>
+                <PhoneCall size={14} />
+                <span className={styles.contactName}>Sayan:</span>
+                <span className={styles.contactPhone}>+91 73639 32735</span>
+              </a>
+              <a href="tel:+918420478357" className={styles.contactItem}>
+                <PhoneCall size={14} />
+                <span className={styles.contactName}>Priyanshu:</span>
+                <span className={styles.contactPhone}>+91 84204 78357</span>
+              </a>
+            </div>
+          </div>
+
+          {/* Non-Technical Issues */}
+          <div className={styles.supportGroup}>
+            <span className={styles.supportGroupBadge}>Non-Technical Support / Queries</span>
+            <div className={styles.contactList}>
+              <a href="tel:+917439391640" className={styles.contactItem}>
+                <PhoneCall size={14} />
+                <span className={styles.contactName}>Kousani:</span>
+                <span className={styles.contactPhone}>+91 74393 91640</span>
+              </a>
+              <a href="tel:+919733140677" className={styles.contactItem}>
+                <PhoneCall size={14} />
+                <span className={styles.contactName}>Sampriti:</span>
+                <span className={styles.contactPhone}>+91 97331 40677</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

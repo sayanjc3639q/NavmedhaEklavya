@@ -1236,3 +1236,127 @@
   }
 }
 
+/* ─── CONTACT & HELPLINE SECTION ─── */
+.supportCard {
+  margin-top: 32px;
+  background: linear-gradient(135deg, #fffbf2 0%, #fff7ed 100%);
+  border: 1.5px solid rgba(217, 119, 6, 0.4);
+  border-radius: 14px;
+  padding: 20px 24px;
+  box-shadow: 0 4px 18px rgba(180, 83, 9, 0.06);
+  position: relative;
+  overflow: hidden;
+}
+
+.supportCard::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #d97706, #991b1b, #d97706);
+}
+
+.supportHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.supportIcon {
+  color: #991b1b;
+  flex-shrink: 0;
+}
+
+.supportTitle {
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: #431407;
+  margin: 0;
+}
+
+.supportSubtitle {
+  font-size: 0.82rem;
+  color: #78350f;
+  margin: 2px 0 0;
+}
+
+.supportGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.supportGroup {
+  background: #ffffff;
+  border: 1px solid rgba(217, 119, 6, 0.25);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.supportGroupBadge {
+  font-size: 0.76rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #991b1b;
+  background: #fef2f2;
+  padding: 3px 8px;
+  border-radius: 6px;
+  align-self: flex-start;
+  border: 1px solid #fee2e2;
+}
+
+.contactList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.contactItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #451a03;
+  text-decoration: none;
+  font-size: 0.88rem;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  background: #fafaf9;
+}
+
+.contactItem:hover {
+  background: #fef3c7;
+  color: #991b1b;
+  transform: translateX(3px);
+}
+
+.contactName {
+  font-weight: 700;
+  color: #78350f;
+}
+
+.contactPhone {
+  font-family: monospace, inherit;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  color: #991b1b;
+}
+
+@media (max-width: 640px) {
+  .supportGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .supportCard {
+    padding: 16px 14px;
+  }
+}
+
