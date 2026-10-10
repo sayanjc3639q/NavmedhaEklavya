@@ -53,12 +53,12 @@ export const CATEGORIES_CONFIG: Record<string, CategoryConfig> = {
     ],
     guidelines: [
       "Only one entry on one theme is allowed.",
-      "Reel size should not exceed 150 MB. Videos will be accepted only in MP4 format.",
+      "Reel size should not exceed 10 MB. Videos will be accepted only in MP4 format.",
       "The reel duration must be maximum of 90 seconds.",
       "Plagiarism is strictly prohibited. Downloaded reels if found, will be disqualified immediately.",
     ],
     acceptedFormats: "MP4 only",
-    maxSizeMB: 150,
+    maxSizeMB: 10,
   },
   photography: {
     id: "photography",
@@ -94,13 +94,13 @@ export const CATEGORIES_CONFIG: Record<string, CategoryConfig> = {
     ],
     guidelines: [
       "Only one entry on any one theme is allowed.",
-      "Image Size must be under 100 MB.",
+      "Image Size must be under 10 MB.",
       "Formats accepted are JPEG and PNG only.",
       "Minimal adjustments or editing is allowed. Raw File may be requested for verification. Refrain from using excessive editing.",
       "Plagiarism is strictly prohibited. Prioritize originality and creativity.",
     ],
     acceptedFormats: "JPEG, PNG",
-    maxSizeMB: 100,
+    maxSizeMB: 10,
   },
   content: {
     id: "content",
@@ -174,13 +174,13 @@ export const CATEGORIES_CONFIG: Record<string, CategoryConfig> = {
     ],
     guidelines: [
       "Only one entry on one theme is allowed.",
-      "File Size allowed is 100 MB maximum.",
+      "File Size allowed is 10 MB maximum.",
       "Both traditional and digital art forms are allowed. Attach raw files.",
       "Submissions must be in JPEG or PNG format.",
       "Plagiarism is strictly prohibited. Participant will be disqualified immediately if found so.",
     ],
     acceptedFormats: "JPEG, PNG",
-    maxSizeMB: 100,
+    maxSizeMB: 10,
   },
 };
 
