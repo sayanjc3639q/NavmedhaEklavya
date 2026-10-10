@@ -119,9 +119,104 @@
 
 .heroCtaGroup {
   display: flex;
-  gap: 16px;
+  gap: 18px;
   flex-wrap: wrap;
   justify-content: center;
+  align-items: center;
+}
+
+.primaryHeroBtn {
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.prominentRegisterBtn {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #b91c1c 0%, #dc2626 50%, #b45309 100%);
+  color: #ffffff !important;
+  font-size: 1.12rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.8px;
+  padding: 16px 40px !important;
+  border-radius: 9999px;
+  border: 2px solid #fef08a !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  box-shadow: 0 8px 30px rgba(220, 38, 38, 0.45), 0 0 20px rgba(245, 158, 11, 0.35);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: registerPulse 3s infinite ease-in-out;
+}
+
+.prominentRegisterBtn:hover {
+  transform: translateY(-4px) scale(1.04);
+  box-shadow: 0 14px 40px rgba(220, 38, 38, 0.6), 0 0 30px rgba(245, 158, 11, 0.5);
+  background: linear-gradient(135deg, #991b1b 0%, #b91c1c 50%, #d97706 100%);
+}
+
+.btnShimmer {
+  position: absolute;
+  top: -50%;
+  left: -60%;
+  width: 40%;
+  height: 200%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.45) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: rotate(25deg);
+  animation: shimmerAnim 3.5s infinite ease-in-out;
+  pointer-events: none;
+}
+
+@keyframes shimmerAnim {
+  0% {
+    left: -60%;
+  }
+  30%, 100% {
+    left: 140%;
+  }
+}
+
+@keyframes registerPulse {
+  0%, 100% {
+    box-shadow: 0 8px 30px rgba(220, 38, 38, 0.45), 0 0 20px rgba(245, 158, 11, 0.35);
+  }
+  50% {
+    box-shadow: 0 10px 36px rgba(220, 38, 38, 0.65), 0 0 32px rgba(245, 158, 11, 0.55);
+  }
+}
+
+.sparkleIcon {
+  color: #fef08a;
+  animation: sparkleTwinkle 2s infinite ease-in-out;
+}
+
+@keyframes sparkleTwinkle {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.25) rotate(15deg);
+    opacity: 0.85;
+  }
+}
+
+.btnMainText {
+  color: #ffffff;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+.btnArrow {
+  color: #fef08a;
+  font-size: 1.1rem;
 }
 
 @media (max-width: 680px) {
@@ -133,5 +228,11 @@
   .heroSubtitle {
     font-size: 1.05rem;
     margin-bottom: 24px;
+  }
+
+  .prominentRegisterBtn {
+    width: 100%;
+    font-size: 1.02rem !important;
+    padding: 14px 24px !important;
   }
 }

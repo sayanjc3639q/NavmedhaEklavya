@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ScrollReveal } from "@/components/common/ScrollReveal/ScrollReveal";
 import { useAppSelector } from "@/redux/hooks";
+import { Sparkles, ArrowDown } from "lucide-react";
 import styles from "./HeroSection.module.css";
 
 export function HeroSection() {
@@ -71,24 +72,27 @@ export function HeroSection() {
           <div className={styles.heroCtaGroup}>
             {isShowcaseMode ? (
               <>
-                <Link href="/#categories" className="hero-btn">
+                <Link href="/#categories" className={`${styles.primaryHeroBtn} hero-btn`}>
+                  <Sparkles size={18} className={styles.sparkleIcon} />
                   <span>Explore Showcase</span>
                   <span>✦</span>
                 </Link>
                 <Link href="/#gallery" className="secondary-btn">
                   <span>Memories &amp; Gallery</span>
-                  <span>↓</span>
+                  <ArrowDown size={16} />
                 </Link>
               </>
             ) : (
               <>
-                <Link href="/#categories" className="hero-btn">
-                  <span>Explore &amp; Register</span>
-                  <span>✦</span>
+                <Link href="/#categories" className={`${styles.prominentRegisterBtn} ${styles.primaryHeroBtn}`}>
+                  <span className={styles.btnShimmer} />
+                  <Sparkles size={20} className={styles.sparkleIcon} />
+                  <span className={styles.btnMainText}>Register &amp; Submit Entry</span>
+                  <span className={styles.btnArrow}>✦</span>
                 </Link>
                 <Link href="/#about" className="secondary-btn">
                   <span>About Navmedha</span>
-                  <span>↓</span>
+                  <ArrowDown size={16} />
                 </Link>
               </>
             )}
