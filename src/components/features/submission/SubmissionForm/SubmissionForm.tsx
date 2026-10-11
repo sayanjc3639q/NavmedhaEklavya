@@ -161,34 +161,8 @@ export function SubmissionForm({ category }: Props) {
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result as string;
-
-        // For photography and artwork: Validate Instagram aspect ratio (4:5 = 0.80 to 1.91:1)
-        if (category.id === "photography" || category.id === "artworks") {
-          const img = new window.Image();
-          img.onload = () => {
-            const ratio = img.width / img.height;
-            // Strict Meta Instagram feed bounds with small 0.01 tolerance
-            if (ratio < 0.79 || ratio > 1.92) {
-              setMediaFile(null);
-              setMediaPreview(null);
-              if (mediaInputRef.current) mediaInputRef.current.value = "";
-              setStepError(
-                `⚠️ Aspect Ratio Error: Your image is ${img.width}×${img.height} (ratio ${ratio.toFixed(2)}:1). ` +
-                `Instagram requires photos and artworks to have an aspect ratio between 4:5 (0.80 portrait) and 1.91:1 (landscape). ` +
-                `Please crop your image to a standard 4:5 portrait, 1:1 square, or 16:9 landscape before uploading.`
-              );
-              return;
-            }
-
-            setStepError(null);
-            setMediaFile(file);
-            setMediaPreview(result);
-          };
-          img.src = result;
-        } else {
-          setMediaFile(file);
-          setMediaPreview(result);
-        }
+        setMediaFile(file);
+        setMediaPreview(result);
       };
       reader.readAsDataURL(file);
     } else {
@@ -219,7 +193,12 @@ export function SubmissionForm({ category }: Props) {
       return;
     }
 
-    if (!mediaFile) {
+    if (category.id === "content") {
+      if (!mediaFile && !formData.description.trim()) {
+        setStepError("Please either type your piece in the text box or upload a document file.");
+        return;
+      }
+    } else if (!mediaFile) {
       setStepError(`Please upload your ${category.title} file before proceeding.`);
       return;
     }
@@ -237,7 +216,13 @@ export function SubmissionForm({ category }: Props) {
     e.preventDefault();
     setStepError(null);
 
-    if (!mediaFile) {
+    if (category.id === "content") {
+      if (!mediaFile && !formData.description.trim()) {
+        setStepError("Please provide your written piece or document in Step 1.");
+        setStep(1);
+        return;
+      }
+    } else if (!mediaFile) {
       setStepError(`Please upload your ${category.title} file in Step 1.`);
       setStep(1);
       return;
@@ -318,7 +303,7 @@ export function SubmissionForm({ category }: Props) {
           submitRes = await submitArtEntry({
             ...commonPayload,
             artworkUrl: mediaUrl,
-            titleOfArtwork: formData.title,
+            titleOfArtwork: formData.title.trim() || `${formData.theme} Artwork`,
             artType: "Other",
             description: formData.description,
           });
@@ -327,7 +312,7 @@ export function SubmissionForm({ category }: Props) {
         case "content":
           submitRes = await submitWritingEntry({
             ...commonPayload,
-            titleOfPiece: formData.title,
+            titleOfPiece: formData.title.trim() || `${formData.theme} Submission`,
             genre: "Other",
             language: "English",
             content: formData.description.trim() || undefined,
@@ -338,10 +323,10 @@ export function SubmissionForm({ category }: Props) {
         case "reels":
           submitRes = await submitReelEntry({
             ...commonPayload,
-            reelTitle: formData.title,
+            reelTitle: formData.title.trim() || `${formData.theme} Reel`,
             reelGenre: "Other Creative",
             videoDriveLink: mediaUrl,
-            instagramHandle: formData.instagramHandle,
+            instagramHandle: formData.instagramHandle.trim() || undefined,
             caption: formData.description,
           });
           break;
@@ -759,13 +744,12 @@ export function SubmissionForm({ category }: Props) {
               />
             </div>
             <div className={styles.formGroup}>
-              <label>Instagram Handle (@username) *</label>
+              <label>Instagram Handle (@username) <span style={{ fontWeight: 400, opacity: 0.8 }}>(Optional)</span></label>
               <input
                 type="text"
                 placeholder="@your_handle"
                 value={formData.instagramHandle}
                 onChange={(e) => setFormData({ ...formData, instagramHandle: e.target.value })}
-                required
               />
             </div>
           </div>
@@ -793,33 +777,46 @@ export function SubmissionForm({ category }: Props) {
 
           <div className={styles.formGroup}>
             <label>
-              {category.id === "content" ? "Title of Your Written Piece *" : "Title of Your Masterpiece *"}
+              {category.id === "content" ? "Title of Your Written Piece" : "Title of Your Image / Masterpiece"}{" "}
+              <span style={{ fontWeight: 400, opacity: 0.8 }}>(Optional)</span>
             </label>
             <input
               type="text"
               placeholder={category.id === "content"
-                ? "e.g. Agomoni: Memories of Maa’s Arrival"
-                : "e.g. Agomoni: The Divine Radiance of Maa"}
+                ? "e.g. Agomoni: Memories of Maa’s Arrival (Optional)"
+                : "e.g. Agomoni: The Divine Radiance of Maa (Optional)"}
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              required
             />
           </div>
 
           <div className={styles.formGroup}>
-            <label>Story / Concept Description (Optional)</label>
+            <label>
+              {category.id === "content"
+                ? "Write or Paste Your Story / Poem / Article Here (or Upload File Below)"
+                : "Story / Concept Description (Optional)"}
+            </label>
             <textarea
-              rows={3}
-              placeholder="Describe the inspiration, techniques, or narrative behind your submission..."
+              rows={category.id === "content" ? 6 : 3}
+              placeholder={category.id === "content"
+                ? "Type or paste your complete writing piece here, or leave empty if uploading a .docx / .pdf document below..."
+                : "Describe the inspiration, techniques, or narrative behind your submission..."}
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             />
+            {category.id === "content" && (
+              <span className={styles.inputHelp}>
+                You can write your text directly above OR upload your Word (.docx) file below.
+              </span>
+            )}
           </div>
 
           {/* Direct File Dropzone */}
           <div className={styles.formGroup}>
             <label>
-              Direct File Upload * ({category.acceptedFormats} • Max {category.maxSizeMB} MB)
+              {category.id === "content"
+                ? `Upload Document (Optional if typed above • ${category.acceptedFormats} • Max ${category.maxSizeMB} MB)`
+                : `Direct File Upload * (${category.acceptedFormats} • Max ${category.maxSizeMB} MB)`}
             </label>
             
             <div
@@ -869,8 +866,8 @@ export function SubmissionForm({ category }: Props) {
                   <p className={styles.dropzoneHint}>
                     Direct upload — Supported: {category.acceptedFormats} (Max {category.maxSizeMB}MB)
                     {(category.id === "photography" || category.id === "artworks") && (
-                      <span style={{ display: "block", marginTop: "6px", color: "#f59e0b", fontWeight: 600, fontSize: "0.85em" }}>
-                        📐 Instagram Aspect Ratio: Must be between 4:5 (portrait) and 1.91:1 (landscape). 1:1, 4:5, 16:9 recommended.
+                      <span style={{ display: "block", marginTop: "6px", color: "#d97706", fontWeight: 600, fontSize: "0.85em" }}>
+                        ✨ Preferred Frame: 4:5 (Portrait), 1:1 (Square), or 16:9 (Landscape). Any frame size is accepted and will be automatically auto-adapted for display!
                       </span>
                     )}
                   </p>
@@ -1103,17 +1100,22 @@ export function SubmissionForm({ category }: Props) {
 
           {/* Transaction UTR / Ref Number */}
           <div className={styles.formGroup}>
-            <label>UPI Transaction ID / UTR / Reference Number *</label>
+            <label>UPI Reference No / UTR / Transaction ID (12 Digits) *</label>
             <input
               type="text"
-              placeholder="e.g. 428198274918 (12-digit UTR from your UPI receipt)"
+              placeholder="e.g. 428198274918 (12-digit number from payment app)"
               value={formData.transactionId}
               onChange={(e) => setFormData({ ...formData, transactionId: e.target.value })}
               required
             />
-            <span className={styles.inputHelp}>
-              Enter the 12-digit UTR/Ref number visible in your payment receipt for instant auto-matching.
-            </span>
+            <div className={styles.utrGuideBox}>
+              <strong>💡 Where to find your 12-digit UTR / Reference ID:</strong>
+              <ul>
+                <li><strong>Google Pay:</strong> Open payment receipt → Look for <em>"UPI transaction ID"</em> (12 digits).</li>
+                <li><strong>PhonePe:</strong> View payment details → Copy <em>"UTR"</em> number.</li>
+                <li><strong>Paytm:</strong> View order details → Copy <em>"UPI Ref No"</em>.</li>
+              </ul>
+            </div>
           </div>
 
           {/* Final Originality Checkbox */}
@@ -1207,6 +1209,20 @@ export function SubmissionForm({ category }: Props) {
           </div>
         </div>
       </div>
+
+      {/* Floating WhatsApp Help for Instant Student Queries */}
+      <a
+        href="https://wa.me/918420478357?text=Hi%20Eklavya%20Team,%20I%20need%20help%20with%20NAVMEDHA%20registration"
+        target="_blank"
+        rel="noopener noreferrer"
+        className={styles.floatingHelpBtn}
+        title="Need help? Chat with coordinator on WhatsApp"
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+        </svg>
+        <span>Need Help? Chat</span>
+      </a>
     </div>
   );
 }

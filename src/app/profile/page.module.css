@@ -148,6 +148,27 @@
   flex-shrink: 0;
 }
 
+.editProfileBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fef3c7;
+  color: #92400e;
+  border: 1.5px solid #d97706;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.editProfileBtn:hover {
+  background: #fde68a;
+  color: #78350f;
+  border-color: #b45309;
+}
+
 .logoutBtn {
   display: inline-flex;
   align-items: center;
@@ -756,6 +777,14 @@
   border-bottom: 1px dashed rgba(217, 119, 6, 0.3);
 }
 
+.detailsHeaderRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
 .detailsHeader h3 {
   font-family: var(--font-cinzel), serif;
   font-size: 1.2rem;
@@ -766,6 +795,189 @@
 .detailsHeader p {
   font-size: 0.85rem;
   color: #78350f;
+}
+
+.cardEditBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #991b1b;
+  color: #ffffff;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cardEditBtn:hover {
+  background: #7f1d1d;
+  box-shadow: 0 4px 12px rgba(153, 27, 27, 0.25);
+}
+
+/* ─── EDIT PROFILE MODAL ─── */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(46, 18, 6, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.editModal {
+  background: #ffffff;
+  border: 2px solid #d4af37;
+  border-radius: 18px;
+  width: 100%;
+  max-width: 580px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.25);
+  animation: modal-pop 0.25s ease-out;
+  padding: 26px;
+}
+
+@keyframes modal-pop {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px dashed rgba(217, 119, 6, 0.3);
+  padding-bottom: 12px;
+  margin-bottom: 18px;
+}
+
+.modalHeader h3 {
+  font-family: var(--font-cinzel), serif;
+  font-size: 1.3rem;
+  color: #991b1b;
+  margin: 0;
+}
+
+.modalCloseBtn {
+  background: transparent;
+  border: none;
+  color: #78350f;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+.modalCloseBtn:hover {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.modalForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: left;
+}
+
+.modalFormRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.modalFormGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.modalFormGroup label {
+  font-size: 0.86rem;
+  font-weight: 700;
+  color: #5c1d0c;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.modalFormGroup input,
+.modalFormGroup select {
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1.5px solid #d97706;
+  background: #ffffff;
+  font-family: inherit;
+  font-size: 0.92rem;
+  color: #2e1206;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.modalFormGroup input:focus,
+.modalFormGroup select:focus {
+  border-color: #991b1b;
+  box-shadow: 0 0 0 3px rgba(153, 27, 27, 0.15);
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 10px;
+  padding-top: 14px;
+  border-top: 1px dashed rgba(217, 119, 6, 0.3);
+}
+
+.cancelModalBtn {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
+.saveModalBtn {
+  background: #991b1b;
+  color: #ffffff;
+  border: none;
+  padding: 9px 22px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.88rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.saveModalBtn:hover:not(:disabled) {
+  background: #7f1d1d;
+  box-shadow: 0 4px 12px rgba(153, 27, 27, 0.25);
+}
+
+.saveModalBtn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
 }
 
 .infoGrid {
