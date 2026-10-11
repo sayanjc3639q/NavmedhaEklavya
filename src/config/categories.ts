@@ -53,12 +53,12 @@ export const CATEGORIES_CONFIG: Record<string, CategoryConfig> = {
     ],
     guidelines: [
       "Only one entry on one theme is allowed.",
-      "Reel size should not exceed 10 MB. Videos will be accepted only in MP4 format.",
+      "Reel size should not exceed 200 MB. Videos will be accepted only in MP4 format.",
       "The reel duration must be maximum of 90 seconds.",
       "Plagiarism is strictly prohibited. Downloaded reels if found, will be disqualified immediately.",
     ],
     acceptedFormats: "MP4 only",
-    maxSizeMB: 10,
+    maxSizeMB: 200,
   },
   photography: {
     id: "photography",
