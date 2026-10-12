@@ -91,6 +91,7 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
       return {
         success: false,
         message: data?.message || `Request failed with status ${res.status}`,
+        data: data?.data, // Forward entry details on 409 "already submitted" responses
       };
     }
 

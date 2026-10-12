@@ -58,7 +58,11 @@ export function SubmissionForm({ category }: Props) {
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    dispatch(resetSubmissionStatus());
+    return () => {
+      dispatch(resetSubmissionStatus());
+    };
+  }, [dispatch]);
 
   useEffect(() => {
     dispatch(getLiveConfig());
@@ -337,6 +341,33 @@ export function SubmissionForm({ category }: Props) {
       }
 
       if (!submitRes.success) {
+        // If already submitted and server returned existing entry data, show success with existing details
+        if (submitRes.data?.entryNumber) {
+          dispatch(
+            submitSuccess({
+              category: category.id,
+              theme: formData.theme,
+              fullName: formData.fullName,
+              email: formData.email,
+              phone: formData.phone,
+              instagramHandle: formData.instagramHandle,
+              title: formData.title || `${category.title} Entry`,
+              description: formData.description,
+              fileName: currentMedia?.name || "file-submission",
+              fileSize: currentMedia?.size || 0,
+              fileType: currentMedia?.type || "application/octet-stream",
+              fileDataUrl: mediaPreview || undefined,
+              paymentScreenshotName: currentPayment?.name || "payment-receipt",
+              paymentScreenshotDataUrl: paymentPreview || undefined,
+              transactionId: formData.transactionId,
+              followedEklavya: formData.followedEklavya,
+              agreeToRules: formData.agreeToRules,
+              userId: user?.id,
+            })
+          );
+          return;
+        }
+
         dispatch(submitFailure(submitRes.message || "Submission failed. Please try again."));
         return;
       }
