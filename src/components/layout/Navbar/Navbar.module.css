@@ -163,6 +163,74 @@
   animation: pulseDotAnim 1.8s infinite;
 }
 
+.navbarRegisterBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 18px;
+  background: linear-gradient(135deg, #b91c1c 0%, #dc2626 50%, #b45309 100%);
+  color: #ffffff !important;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 800;
+  letter-spacing: 0.4px;
+  border-radius: 9999px;
+  border: 1.5px solid #fef08a;
+  box-shadow: 0 4px 14px rgba(220, 38, 38, 0.4), 0 0 10px rgba(245, 158, 11, 0.25);
+  text-decoration: none;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  white-space: nowrap;
+}
+
+.navbarRegisterBtn:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.6), 0 0 14px rgba(245, 158, 11, 0.4);
+  background: linear-gradient(135deg, #991b1b 0%, #b91c1c 50%, #d97706 100%);
+}
+
+.navBtnSparkle {
+  color: #fef08a;
+  font-size: 0.95rem;
+}
+
+.navbarLoginBtn {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 18px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #78350f !important;
+  background: rgba(254, 243, 199, 0.7);
+  border: 1.2px solid rgba(217, 119, 6, 0.35);
+  border-radius: 9999px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.navbarLoginBtn:hover {
+  background: rgba(254, 243, 199, 1);
+  border-color: #d97706;
+  color: #991b1b !important;
+}
+
+.sidebarRegisterHighlight {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: linear-gradient(135deg, #991b1b 0%, #b91c1c 60%, #b45309 100%);
+  color: #ffffff !important;
+  font-size: 1rem;
+  font-weight: 800;
+  border-radius: 12px;
+  border: 1.5px solid #fef08a;
+  box-shadow: 0 4px 16px rgba(185, 28, 28, 0.35);
+  text-decoration: none;
+  margin-bottom: 8px;
+  animation: registerPulse 3s infinite ease-in-out;
+}
+
 @keyframes pulseDotAnim {
   0%, 100% {
     transform: scale(1);

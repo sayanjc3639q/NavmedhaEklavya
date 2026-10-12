@@ -123,20 +123,30 @@ export function Navbar() {
             </div>
           )}
 
+          {!isShowcaseMode && (
+            <Link
+              href="/#categories"
+              className={styles.navbarRegisterBtn}
+              title="Select category and submit entry"
+            >
+              <span>Register Now (₹8)</span>
+              <span className={styles.navBtnSparkle}>✦</span>
+            </Link>
+          )}
+
           {mounted && user ? (
             <Link 
               href="/profile" 
               className="hero-btn" 
-              style={{ padding: "8px 20px", fontSize: "0.92rem", gap: "8px" }}
+              style={{ padding: "8px 18px", fontSize: "0.88rem", gap: "6px" }}
             >
-              <User size={16} />
-              <span>{user.name.split(" ")[0]}&apos;s Profile</span>
+              <User size={15} />
+              <span>{user.name.split(" ")[0]}</span>
             </Link>
           ) : (
             <Link 
               href="/login" 
-              className="hero-btn" 
-              style={{ padding: "8px 22px", fontSize: "0.95rem" }}
+              className={styles.navbarLoginBtn}
             >
               Login
             </Link>
@@ -208,16 +218,26 @@ export function Navbar() {
         )}
 
         <nav className={styles.sidebarNav}>
+          {!isShowcaseMode && (
+            <Link
+              href="/#categories"
+              className={styles.sidebarRegisterHighlight}
+              onClick={closeSidebar}
+            >
+              <span>🔥 Register / Submit Entry (₹8)</span>
+              <ArrowRight size={18} />
+            </Link>
+          )}
           <Link href="/#about" className={styles.sidebarLink} onClick={closeSidebar}>
             <span>About</span>
             <ArrowRight size={16} className={styles.linkArrow} />
           </Link>
           <Link href="/#categories" className={styles.sidebarLink} onClick={closeSidebar}>
-            <span>Categories</span>
+            <span>Event Categories</span>
             <ArrowRight size={16} className={styles.linkArrow} />
           </Link>
           <Link href="/#prizes" className={styles.sidebarLink} onClick={closeSidebar}>
-            <span>Prizes & MAR</span>
+            <span>Prizes &amp; MAR</span>
             <ArrowRight size={16} className={styles.linkArrow} />
           </Link>
           <Link href="/#gallery" className={styles.sidebarLink} onClick={closeSidebar}>

@@ -41,7 +41,43 @@ export function CategoryShowcase() {
                 <div
                   className={`${styles.categoryRowItem} ${isEven ? styles.categoryRowReverse : ""}`}
                 >
+                  {/* Decorative Festive Durga Puja Fairy Lights along top border */}
+                  <div className={styles.fairyLightsGarland} aria-hidden="true">
+                    <span className={`${styles.lightBulb} ${styles.bulbRed}`} />
+                    <span className={`${styles.lightBulb} ${styles.bulbGold}`} />
+                    <span className={`${styles.lightBulb} ${styles.bulbGreen}`} />
+                    <span className={`${styles.lightBulb} ${styles.bulbOrange}`} />
+                    <span className={`${styles.lightBulb} ${styles.bulbRed}`} />
+                    <span className={`${styles.lightBulb} ${styles.bulbGold}`} />
+                    <span className={`${styles.lightBulb} ${styles.bulbOrange}`} />
+                    <span className={`${styles.lightBulb} ${styles.bulbGreen}`} />
+                    <span className={`${styles.lightBulb} ${styles.bulbGold}`} />
+                    <span className={`${styles.lightBulb} ${styles.bulbRed}`} />
+                  </div>
+
+                  {/* Corner Festive Puja Motifs */}
+                  <div className={styles.cardFestiveDecoration} aria-hidden="true">
+                    <div className={styles.roshogollaCornerBadge} title="Sharodiya Mishti Prem">
+                      <Image
+                        src="/assets/roshogolla-handi.png"
+                        alt="Roshogolla Handi"
+                        width={46}
+                        height={46}
+                        className={styles.roshogollaImg}
+                      />
+                    </div>
+                  </div>
+
                   <div className={styles.categoryIllustrationWrap}>
+                    <div className={styles.diyaGlowAccent} aria-hidden="true">
+                      <Image
+                        src="/assets/festive-diya.png"
+                        alt="Puja Diya"
+                        width={40}
+                        height={40}
+                        className={styles.diyaImg}
+                      />
+                    </div>
                     <Image
                       src={cat.icon}
                       alt={cat.title}
@@ -53,11 +89,12 @@ export function CategoryShowcase() {
                   <div className={styles.categoryBody}>
                     <div className={styles.catBadgeWrap}>
                       <span className={styles.catBadge}>Category {cat.categoryNumber}</span>
+                      <span className={styles.pujaFestiveTag}>🪔 Sharad Utsav</span>
                       {isShowcaseMode && (
                         <span className={styles.catShowcaseBadge}>✦ Showcase Mode</span>
                       )}
                     </div>
-                    <h3 className={styles.catTitle}>{cat.bengaliTitle}</h3>
+                    <h3 className={styles.catTitle}>{cat.title}</h3>
                     <span className={styles.catSub}>{cat.subtitle}</span>
                     {cat.tagline && <p className={styles.catTagline}>"{cat.tagline}"</p>}
                     <p className={styles.catDesc}>{cat.description}</p>
@@ -85,11 +122,16 @@ export function CategoryShowcase() {
                       ) : (
                         <>
                           <span className={styles.btnSparkleTag}>✦</span>
-                          <span>View Guidelines &amp; Submit Entry</span>
+                          <span>Register &amp; Submit Entry (₹8)</span>
                           <ArrowRight size={18} className={styles.btnArrowIcon} />
                         </>
                       )}
                     </Link>
+                    {!isShowcaseMode && (
+                      <p className={styles.catBtnHint}>
+                        ⚡ Click above to open {cat.title} registration form
+                      </p>
+                    )}
                   </div>
                 </div>
               </ScrollReveal>

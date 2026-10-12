@@ -46,6 +46,7 @@ export const metadata: Metadata = {
 };
 
 import { LoadingScreen } from "@/components/common/LoadingScreen/LoadingScreen";
+import { MobileStickyBar } from "@/components/common/MobileStickyBar/MobileStickyBar";
 
 export default function RootLayout({
   children,
@@ -61,6 +62,7 @@ export default function RootLayout({
         <ReduxProvider>
           <LoadingScreen />
           {children}
+          <MobileStickyBar />
         </ReduxProvider>
       </body>
     </html>

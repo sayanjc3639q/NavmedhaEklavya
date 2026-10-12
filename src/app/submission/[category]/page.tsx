@@ -60,7 +60,7 @@ export default async function SubmissionCategoryPage({ params }: PageProps) {
           <div className={styles.heroGrid}>
             <div className={styles.heroContent}>
               <span className={styles.kicker}>✧ Category {category.categoryNumber} Submission ✧</span>
-              <h1 className={styles.heroTitle}>{category.bengaliTitle}</h1>
+              <h1 className={styles.heroTitle}>{category.title}</h1>
               <p className={styles.heroSubtitle}>{category.subtitle}</p>
               {category.tagline && <p className={styles.heroTagline}>"{category.tagline}"</p>}
               <p className={styles.heroDescription}>{category.description}</p>

@@ -388,7 +388,7 @@ export function SubmissionForm({ category }: Props) {
           <div className={styles.submittedDetails}>
             <div className={styles.detailRow}>
               <span>Category:</span>
-              <strong>{category.bengaliTitle} {category.subtitle}</strong>
+              <strong>{category.title} {category.subtitle}</strong>
             </div>
             <div className={styles.detailRow}>
               <span>Selected Theme:</span>
