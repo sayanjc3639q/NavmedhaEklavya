@@ -78,30 +78,72 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  try {
-    const res = await fetch(url, {
-      ...options,
-      headers,
-      credentials: "omit",
-    });
+  // File uploads get a longer timeout (90s) since Cloudinary uploads can be slow
+  const isFileUpload = options.body instanceof FormData;
+  const timeoutMs = isFileUpload ? 90_000 : 60_000;
 
-    const data = await res.json().catch(() => ({}));
+  // Retry config: up to 2 retries for transient failures (Render cold starts, network hiccups)
+  const maxRetries = 2;
 
-    if (!res.ok) {
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      const res = await fetch(url, {
+        ...options,
+        headers,
+        credentials: "omit",
+        signal: controller.signal,
+      });
+
+      clearTimeout(timer);
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        // Don't retry client errors (4xx) — they are intentional responses
+        return {
+          success: false,
+          message: data?.message || `Request failed with status ${res.status}`,
+          data: data?.data, // Forward entry details on 409 "already submitted" responses
+        };
+      }
+
+      return data;
+    } catch (err: any) {
+      clearTimeout(timer);
+
+      const isAbort = err?.name === "AbortError";
+      const isNetworkError = err?.message === "Failed to fetch" || err?.message?.includes("NetworkError");
+      const isRetryable = isAbort || isNetworkError;
+
+      // If we have retries left AND it's a transient error, wait and retry
+      if (isRetryable && attempt < maxRetries) {
+        // Exponential backoff: 1.5s, then 3s
+        const backoffMs = 1500 * Math.pow(2, attempt);
+        console.warn(`[API] Attempt ${attempt + 1} failed (${isAbort ? 'timeout' : 'network'}), retrying in ${backoffMs}ms...`);
+        await new Promise((r) => setTimeout(r, backoffMs));
+        continue;
+      }
+
+      // Final attempt failed — return user-friendly message
+      if (isAbort) {
+        return {
+          success: false,
+          message: "Server is taking too long to respond. The server may be waking up — please wait 30 seconds and try again.",
+        };
+      }
+
       return {
         success: false,
-        message: data?.message || `Request failed with status ${res.status}`,
-        data: data?.data, // Forward entry details on 409 "already submitted" responses
+        message: err?.message || "Network error. Please check your internet connection and try again.",
       };
     }
-
-    return data;
-  } catch (err: any) {
-    return {
-      success: false,
-      message: err?.message || "Network error. Please check your internet connection.",
-    };
   }
+
+  // Fallback (should never reach here)
+  return { success: false, message: "Unexpected error. Please try again." };
 }
 
 // ─── NAVMEDHA API CALLS ──────────────────────────────────────────────────────
