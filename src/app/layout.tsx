@@ -47,6 +47,7 @@ export const metadata: Metadata = {
 
 import { LoadingScreen } from "@/components/common/LoadingScreen/LoadingScreen";
 import { MobileStickyBar } from "@/components/common/MobileStickyBar/MobileStickyBar";
+import { Toaster } from "sonner";
 
 export default function RootLayout({
   children,
@@ -60,6 +61,7 @@ export default function RootLayout({
     >
       <body>
         <ReduxProvider>
+          <Toaster richColors position="top-right" closeButton />
           <LoadingScreen />
           {children}
           <MobileStickyBar />

@@ -22,6 +22,7 @@ import {
   PhoneCall,
   Headphones
 } from "lucide-react";
+import { toast } from "sonner";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import {
   submitStart,
@@ -150,6 +151,7 @@ export function SubmissionForm({ category }: Props) {
   const handleCopyUpi = (upiToCopy: string = UPI_ID) => {
     navigator.clipboard.writeText(upiToCopy);
     setCopiedUpi(true);
+    toast.success("UPI ID copied to clipboard!");
     setTimeout(() => setCopiedUpi(false), 2000);
   };
 
@@ -158,14 +160,19 @@ export function SubmissionForm({ category }: Props) {
     const maxBytes = category.maxSizeMB * 1024 * 1024;
     if (file.size > maxBytes) {
       if (category.id === "reels") {
-        setStepError(`Direct video upload limit is 40 MB. Since your video is larger than 40 MB, please paste your Google Drive link above instead!`);
+        const msg = `Direct video upload limit is 40 MB. Since your video is larger than 40 MB, please paste your Google Drive link above instead!`;
+        setStepError(msg);
+        toast.error(msg, { duration: 5000 });
       } else {
-        setStepError(`File size exceeds limit (${category.maxSizeMB} MB). Please choose a smaller file.`);
+        const msg = `File size exceeds limit (${category.maxSizeMB} MB). Please choose a smaller file.`;
+        setStepError(msg);
+        toast.error(msg);
       }
       return;
     }
 
     setStepError(null);
+    toast.success(`Selected file: ${file.name}`);
 
     if (file.type.startsWith("image/")) {
       const reader = new FileReader();
@@ -183,11 +190,14 @@ export function SubmissionForm({ category }: Props) {
 
   const handlePaymentScreenshotSelect = (file: File) => {
     if (file.size > 15 * 1024 * 1024) {
-      setStepError("Payment screenshot should be under 15 MB.");
+      const msg = "Payment screenshot should be under 15 MB.";
+      setStepError(msg);
+      toast.error(msg);
       return;
     }
     setStepError(null);
     setPaymentScreenshot(file);
+    toast.success(`Payment screenshot selected: ${file.name}`);
 
     const reader = new FileReader();
     reader.onload = (e) => setPaymentPreview(e.target?.result as string);
@@ -199,31 +209,42 @@ export function SubmissionForm({ category }: Props) {
     setStepError(null);
 
     if (!formData.theme) {
-      setStepError("Please select a theme for your submission.");
+      const msg = "Please select a theme for your submission.";
+      setStepError(msg);
+      toast.error(msg);
       return;
     }
 
     if (category.id === "content") {
       if (!mediaFile && !formData.description.trim()) {
-        setStepError("Please either type your piece in the text box or upload a document file.");
+        const msg = "Please either type your piece in the text box or upload a document file.";
+        setStepError(msg);
+        toast.error(msg);
         return;
       }
     } else if (category.id === "reels") {
       if (!formData.gdriveLink.trim() && !mediaFile) {
-        setStepError("Please either paste your Google Drive Video Link OR upload your reel video.");
+        const msg = "Please either paste your Google Drive Video Link OR upload your reel video.";
+        setStepError(msg);
+        toast.error(msg);
         return;
       }
     } else if (!mediaFile) {
-      setStepError(`Please upload your ${category.title} file before proceeding.`);
+      const msg = `Please upload your ${category.title} file before proceeding.`;
+      setStepError(msg);
+      toast.error(msg);
       return;
     }
 
     if (!formData.followedEklavya) {
-      setStepError(`Please follow @${cleanHandle} on Instagram and check the verification box to proceed.`);
+      const msg = `Please follow @${cleanHandle} on Instagram and check the verification box to proceed.`;
+      setStepError(msg);
+      toast.error(msg);
       return;
     }
 
     setStep(2);
+    toast.info("Proceeding to Step 2: Payment & Verification", { duration: 2500 });
     window.scrollTo({ top: 400, behavior: "smooth" });
   };
 
@@ -233,39 +254,52 @@ export function SubmissionForm({ category }: Props) {
 
     if (category.id === "content") {
       if (!mediaFile && !formData.description.trim()) {
-        setStepError("Please provide your written piece or document in Step 1.");
+        const msg = "Please provide your written piece or document in Step 1.";
+        setStepError(msg);
+        toast.error(msg);
         setStep(1);
         return;
       }
     } else if (category.id === "reels") {
       if (!formData.gdriveLink.trim() && !mediaFile) {
-        setStepError("Please provide your Google Drive link or reel video in Step 1.");
+        const msg = "Please provide your Google Drive link or reel video in Step 1.";
+        setStepError(msg);
+        toast.error(msg);
         setStep(1);
         return;
       }
     } else if (!mediaFile) {
-      setStepError(`Please upload your ${category.title} file in Step 1.`);
+      const msg = `Please upload your ${category.title} file in Step 1.`;
+      setStepError(msg);
+      toast.error(msg);
       setStep(1);
       return;
     }
 
     if (!paymentScreenshot) {
-      setStepError("Please upload your payment screenshot / transaction confirmation.");
+      const msg = "Please upload your payment screenshot / transaction confirmation.";
+      setStepError(msg);
+      toast.error(msg);
       return;
     }
 
     if (!formData.transactionId.trim()) {
-      setStepError("Please enter your UPI / Bank Transaction ID (UTR / Reference No).");
+      const msg = "Please enter your UPI / Bank Transaction ID (UTR / Reference No).";
+      setStepError(msg);
+      toast.error(msg);
       return;
     }
 
     if (!formData.agreeToRules) {
-      setStepError("Please confirm agreement to the competition rules and originality guidelines.");
+      const msg = "Please confirm agreement to the competition rules and originality guidelines.";
+      setStepError(msg);
+      toast.error(msg);
       return;
     }
 
     dispatch(submitStart());
     setSubmissionStage("Preparing upload...");
+    toast.loading("Initiating submission...", { id: "sub-toast" });
 
     const currentMedia = mediaFile;
     const currentPayment = paymentScreenshot;
@@ -278,11 +312,11 @@ export function SubmissionForm({ category }: Props) {
         // Direct GDrive link provided by participant - 100% bypasses heavy server memory uploads
         mediaUrl = formData.gdriveLink.trim();
       } else if (mediaFile) {
-        setSubmissionStage(
-          category.id === "reels"
-            ? "Uploading Reel Video (this may take a moment)..."
-            : "Uploading your creative work..."
-        );
+        const stageMsg = category.id === "reels"
+          ? "Uploading Reel Video (this may take a moment)..."
+          : "Uploading your creative work...";
+        setSubmissionStage(stageMsg);
+        toast.loading(stageMsg, { id: "sub-toast" });
 
         const mediaRes = category.id === "reels"
           ? await uploadVideoToDrive(mediaFile)
@@ -291,6 +325,7 @@ export function SubmissionForm({ category }: Props) {
         if (!mediaRes.success || !mediaRes.url) {
           const failMsg = mediaRes.message || "Failed to upload your creative file. Please check file format and try again.";
           setStepError(failMsg);
+          toast.error(failMsg, { id: "sub-toast", duration: 6000 });
           dispatch(submitFailure(failMsg));
           setSubmissionStage("");
           window.scrollTo({ top: 350, behavior: "smooth" });
@@ -301,10 +336,12 @@ export function SubmissionForm({ category }: Props) {
 
       // ── Step B: Upload payment screenshot to Cloudinary ──
       setSubmissionStage("Uploading payment receipt screenshot...");
+      toast.loading("Uploading payment receipt screenshot...", { id: "sub-toast" });
       const payRes = await uploadPaymentReceipt(currentPayment);
       if (!payRes.success || !payRes.url) {
         const failMsg = payRes.message || "Failed to upload payment screenshot. Please try again.";
         setStepError(failMsg);
+        toast.error(failMsg, { id: "sub-toast", duration: 6000 });
         dispatch(submitFailure(failMsg));
         setSubmissionStage("");
         window.scrollTo({ top: 350, behavior: "smooth" });
@@ -314,6 +351,7 @@ export function SubmissionForm({ category }: Props) {
 
       // ── Step C: Build common participant fields from user profile ──
       setSubmissionStage("Securing your entry registration...");
+      toast.loading("Securing your entry registration...", { id: "sub-toast" });
       const commonPayload = {
         name: formData.fullName,
         email: formData.email,
@@ -373,6 +411,7 @@ export function SubmissionForm({ category }: Props) {
 
         default:
           dispatch(submitFailure("Unknown category. Please refresh and try again."));
+          toast.error("Unknown category. Please refresh and try again.", { id: "sub-toast" });
           setSubmissionStage("");
           return;
       }
@@ -380,6 +419,7 @@ export function SubmissionForm({ category }: Props) {
       if (!submitRes.success) {
         // If already submitted and server returned existing entry data, show success with existing details
         if (submitRes.data?.entryNumber) {
+          toast.success(`Found existing submission: ${submitRes.data.entryNumber}`, { id: "sub-toast", duration: 5000 });
           dispatch(
             submitSuccess({
               category: category.id,
@@ -408,6 +448,7 @@ export function SubmissionForm({ category }: Props) {
 
         const failMsg = submitRes.message || "Submission failed. Please check details and try again.";
         setStepError(failMsg);
+        toast.error(failMsg, { id: "sub-toast", duration: 7000 });
         dispatch(submitFailure(failMsg));
         setSubmissionStage("");
         window.scrollTo({ top: 350, behavior: "smooth" });
@@ -416,6 +457,7 @@ export function SubmissionForm({ category }: Props) {
 
       // ── Step E: Dispatch success to Redux ──
       setSubmissionStage("");
+      toast.success("Submission successfully submitted & registered!", { id: "sub-toast", duration: 5000 });
       dispatch(
         submitSuccess({
           category: category.id,
