@@ -53,12 +53,12 @@ export const CATEGORIES_CONFIG: Record<string, CategoryConfig> = {
     ],
     guidelines: [
       "Only one entry on one theme is allowed.",
-      "Reel size should not exceed 200 MB. Videos will be accepted only in MP4 format.",
+      "Direct video upload is up to 40 MB (MP4). For files up to 200 MB, paste your Google Drive link.",
       "The reel duration must be maximum of 90 seconds.",
       "Plagiarism is strictly prohibited. Downloaded reels if found, will be disqualified immediately.",
     ],
-    acceptedFormats: "MP4 only",
-    maxSizeMB: 200,
+    acceptedFormats: "MP4 / Google Drive",
+    maxSizeMB: 40,
   },
   photography: {
     id: "photography",

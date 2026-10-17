@@ -78,9 +78,9 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  // File uploads get a longer timeout (90s) since Cloudinary uploads can be slow
+  // File uploads get a longer timeout (120s) since Cloudinary / Document uploads over mobile 4G can take time
   const isFileUpload = options.body instanceof FormData;
-  const timeoutMs = isFileUpload ? 90_000 : 60_000;
+  const timeoutMs = isFileUpload ? 120_000 : 60_000;
 
   // Retry config: up to 2 retries for transient failures (Render cold starts, network hiccups)
   const maxRetries = 2;
@@ -120,8 +120,8 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
 
       // If we have retries left AND it's a transient error, wait and retry
       if (isRetryable && attempt < maxRetries) {
-        // Exponential backoff: 1.5s, then 3s
-        const backoffMs = 1500 * Math.pow(2, attempt);
+        // Exponential backoff: 2s, then 4s
+        const backoffMs = 2000 * Math.pow(2, attempt);
         console.warn(`[API] Attempt ${attempt + 1} failed (${isAbort ? 'timeout' : 'network'}), retrying in ${backoffMs}ms...`);
         await new Promise((r) => setTimeout(r, backoffMs));
         continue;
@@ -131,13 +131,17 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
       if (isAbort) {
         return {
           success: false,
-          message: "Server is taking too long to respond. The server may be waking up — please wait 30 seconds and try again.",
+          message: isFileUpload
+            ? "Upload timed out. Your network connection might be slow — please check your internet or try compressing your file slightly and re-submit."
+            : "Server is taking too long to respond. The server may be waking up — please wait 30 seconds and try again.",
         };
       }
 
       return {
         success: false,
-        message: err?.message || "Network error. Please check your internet connection and try again.",
+        message: err?.message === "Failed to fetch"
+          ? "Connection interrupted while contacting server. Please check your internet connection and try submitting again."
+          : (err?.message || "Network error. Please check your internet connection and try again."),
       };
     }
   }

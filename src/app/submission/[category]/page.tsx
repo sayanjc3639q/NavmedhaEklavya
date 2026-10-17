@@ -116,7 +116,7 @@ export default async function SubmissionCategoryPage({ params }: PageProps) {
                   </div>
                   <div className={styles.specItem}>
                     <strong>Max File Size:</strong>
-                    <span>{category.maxSizeMB} MB</span>
+                    <span>{category.id === "reels" ? "40 MB (Direct) / 200 MB (Drive)" : `${category.maxSizeMB} MB`}</span>
                   </div>
                   <div className={styles.specItem}>
                     <strong>Verification:</strong>
