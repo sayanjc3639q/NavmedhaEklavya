@@ -92,6 +92,7 @@ export function SubmissionForm({ category }: Props) {
     theme: category.themes[0]?.name || "",
     title: "",
     description: "",
+    gdriveLink: "",
     transactionId: "",
     followedEklavya: false,
     agreeToRules: false,
@@ -111,6 +112,7 @@ export function SubmissionForm({ category }: Props) {
 
   // Local Validation Errors
   const [stepError, setStepError] = useState<string | null>(null);
+  const [submissionStage, setSubmissionStage] = useState<string>("");
 
   // Payment QR Options State
   const QR_OPTIONS = [
@@ -155,7 +157,11 @@ export function SubmissionForm({ category }: Props) {
     // Check max size
     const maxBytes = category.maxSizeMB * 1024 * 1024;
     if (file.size > maxBytes) {
-      setStepError(`File size exceeds limit (${category.maxSizeMB} MB). Please choose a smaller file.`);
+      if (category.id === "reels") {
+        setStepError(`Direct video upload limit is 40 MB. Since your video is larger than 40 MB, please paste your Google Drive link above instead!`);
+      } else {
+        setStepError(`File size exceeds limit (${category.maxSizeMB} MB). Please choose a smaller file.`);
+      }
       return;
     }
 
@@ -202,6 +208,11 @@ export function SubmissionForm({ category }: Props) {
         setStepError("Please either type your piece in the text box or upload a document file.");
         return;
       }
+    } else if (category.id === "reels") {
+      if (!formData.gdriveLink.trim() && !mediaFile) {
+        setStepError("Please either paste your Google Drive Video Link OR upload your reel video.");
+        return;
+      }
     } else if (!mediaFile) {
       setStepError(`Please upload your ${category.title} file before proceeding.`);
       return;
@@ -223,6 +234,12 @@ export function SubmissionForm({ category }: Props) {
     if (category.id === "content") {
       if (!mediaFile && !formData.description.trim()) {
         setStepError("Please provide your written piece or document in Step 1.");
+        setStep(1);
+        return;
+      }
+    } else if (category.id === "reels") {
+      if (!formData.gdriveLink.trim() && !mediaFile) {
+        setStepError("Please provide your Google Drive link or reel video in Step 1.");
         setStep(1);
         return;
       }
@@ -248,36 +265,55 @@ export function SubmissionForm({ category }: Props) {
     }
 
     dispatch(submitStart());
+    setSubmissionStage("Preparing upload...");
 
     const currentMedia = mediaFile;
     const currentPayment = paymentScreenshot;
 
     try {
-      // ── Step A: Upload creative asset ──
-      // Reels go to Google Drive; Everything else goes to Cloudinary
+      // ── Step A: Process creative asset ──
       let mediaUrl = "";
 
-      if (mediaFile) {
+      if (category.id === "reels" && formData.gdriveLink.trim()) {
+        // Direct GDrive link provided by participant - 100% bypasses heavy server memory uploads
+        mediaUrl = formData.gdriveLink.trim();
+      } else if (mediaFile) {
+        setSubmissionStage(
+          category.id === "reels"
+            ? "Uploading Reel Video (this may take a moment)..."
+            : "Uploading your creative work..."
+        );
+
         const mediaRes = category.id === "reels"
           ? await uploadVideoToDrive(mediaFile)
           : await uploadCreativeAsset(mediaFile);
 
         if (!mediaRes.success || !mediaRes.url) {
-          dispatch(submitFailure(mediaRes.message || "Failed to upload your creative file. Please try again."));
+          const failMsg = mediaRes.message || "Failed to upload your creative file. Please check file format and try again.";
+          setStepError(failMsg);
+          dispatch(submitFailure(failMsg));
+          setSubmissionStage("");
+          window.scrollTo({ top: 350, behavior: "smooth" });
           return;
         }
         mediaUrl = mediaRes.url;
       }
 
       // ── Step B: Upload payment screenshot to Cloudinary ──
+      setSubmissionStage("Uploading payment receipt screenshot...");
       const payRes = await uploadPaymentReceipt(currentPayment);
       if (!payRes.success || !payRes.url) {
-        dispatch(submitFailure(payRes.message || "Failed to upload payment screenshot. Please try again."));
+        const failMsg = payRes.message || "Failed to upload payment screenshot. Please try again.";
+        setStepError(failMsg);
+        dispatch(submitFailure(failMsg));
+        setSubmissionStage("");
+        window.scrollTo({ top: 350, behavior: "smooth" });
         return;
       }
       const paymentUrl = payRes.url;
 
       // ── Step C: Build common participant fields from user profile ──
+      setSubmissionStage("Securing your entry registration...");
       const commonPayload = {
         name: formData.fullName,
         email: formData.email,
@@ -337,6 +373,7 @@ export function SubmissionForm({ category }: Props) {
 
         default:
           dispatch(submitFailure("Unknown category. Please refresh and try again."));
+          setSubmissionStage("");
           return;
       }
 
@@ -365,14 +402,20 @@ export function SubmissionForm({ category }: Props) {
               userId: user?.id,
             })
           );
+          setSubmissionStage("");
           return;
         }
 
-        dispatch(submitFailure(submitRes.message || "Submission failed. Please try again."));
+        const failMsg = submitRes.message || "Submission failed. Please check details and try again.";
+        setStepError(failMsg);
+        dispatch(submitFailure(failMsg));
+        setSubmissionStage("");
+        window.scrollTo({ top: 350, behavior: "smooth" });
         return;
       }
 
       // ── Step E: Dispatch success to Redux ──
+      setSubmissionStage("");
       dispatch(
         submitSuccess({
           category: category.id,
@@ -396,7 +439,11 @@ export function SubmissionForm({ category }: Props) {
         })
       );
     } catch (err: any) {
-      dispatch(submitFailure(err?.message || "An unexpected error occurred. Please check your connection and try again."));
+      const errorMsg = err?.message || "An unexpected error occurred. Please check your internet connection and try again.";
+      setStepError(errorMsg);
+      dispatch(submitFailure(errorMsg));
+      setSubmissionStage("");
+      window.scrollTo({ top: 350, behavior: "smooth" });
     }
   };
 
@@ -484,6 +531,7 @@ export function SubmissionForm({ category }: Props) {
                   theme: category.themes[0]?.name || "",
                   title: "",
                   description: "",
+                  gdriveLink: "",
                   transactionId: "",
                   followedEklavya: false,
                   agreeToRules: false,
@@ -842,11 +890,56 @@ export function SubmissionForm({ category }: Props) {
             )}
           </div>
 
+          {/* Google Drive Link Option Specifically for Reels (No upload failures or memory limits) */}
+          {category.id === "reels" && (
+            <div className={styles.formGroup}>
+              <label>
+                Google Drive Video Link (Recommended • 0s Upload Time)
+              </label>
+              <input
+                type="url"
+                placeholder="https://drive.google.com/file/d/... or drive folder link"
+                value={formData.gdriveLink}
+                onChange={(e) => setFormData({ ...formData, gdriveLink: e.target.value })}
+                className={styles.themeSelect}
+              />
+              <div
+                style={{
+                  background: "#fffbeb",
+                  border: "1.5px solid #fcd34d",
+                  borderRadius: "8px",
+                  padding: "10px 14px",
+                  marginTop: "8px",
+                  fontSize: "0.86rem",
+                  lineHeight: "1.6",
+                  color: "#78350f",
+                }}
+              >
+                <div style={{ fontWeight: 700, marginBottom: "4px", color: "#92400e", display: "flex", alignItems: "center", gap: "6px" }}>
+                  <span>⚠️ Important Google Drive Guidelines:</span>
+                </div>
+                <ul style={{ margin: 0, paddingLeft: "18px" }}>
+                  <li>
+                    <strong>Access Permission:</strong> Ensure link access is set to <strong>"Anyone with the link can view"</strong> (General access → Viewer). If the link is private/locked, our judges will not be able to evaluate your reel.
+                  </li>
+                  <li style={{ marginTop: "4px" }}>
+                    <strong style={{ color: "#b91c1c" }}>Rule on Multiple Entries:</strong> More than <strong>1 video/submission file in a link will lead to immediate disqualification</strong>. One registration payment is valid for strictly one reel video.
+                  </li>
+                </ul>
+              </div>
+              <div style={{ textAlign: "center", margin: "10px 0 6px", fontSize: "0.85rem", fontWeight: 700, color: "#78350f" }}>
+                ── OR UPLOAD MP4 DIRECTLY BELOW ──
+              </div>
+            </div>
+          )}
+
           {/* Direct File Dropzone */}
           <div className={styles.formGroup}>
             <label>
               {category.id === "content"
                 ? `Upload Document (Optional if typed above • ${category.acceptedFormats} • Max ${category.maxSizeMB} MB)`
+                : category.id === "reels"
+                ? `Direct Video Upload (MP4 • Max 40 MB if not using GDrive link)`
                 : `Direct File Upload * (${category.acceptedFormats} • Max ${category.maxSizeMB} MB)`}
             </label>
             
@@ -874,10 +967,10 @@ export function SubmissionForm({ category }: Props) {
                   category.id === "reels"
                     ? "video/mp4"
                     : category.id === "photography"
-                    ? "image/jpeg,image/png,image/jpg"
+                    ? "image/jpeg,image/png,image/jpg,image/webp"
                     : category.id === "content"
-                    ? ".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                    : "image/jpeg,image/png,image/jpg"
+                    ? ".docx,.doc,.pdf,.txt,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword,application/pdf,text/plain"
+                    : "image/jpeg,image/png,image/jpg,image/webp"
                 }
                 onChange={(e) => {
                   if (e.target.files && e.target.files[0]) {
@@ -895,7 +988,16 @@ export function SubmissionForm({ category }: Props) {
                     Drag & Drop your {category.title} file here, or <span>Browse Files</span>
                   </p>
                   <p className={styles.dropzoneHint}>
-                    Direct upload — Supported: {category.acceptedFormats} (Max {category.maxSizeMB}MB)
+                    {category.id === "reels" ? (
+                      <>
+                        Direct upload — Supported: MP4 only (Max 40 MB).
+                        <span style={{ display: "block", marginTop: "6px", color: "#b45309", fontWeight: 700, fontSize: "0.9em" }}>
+                          💡 If your video/work is more than 40 MB (up to 200 MB), please use the Google Drive Link field above!
+                        </span>
+                      </>
+                    ) : (
+                      <>Direct upload — Supported: {category.acceptedFormats} (Max {category.maxSizeMB}MB)</>
+                    )}
                     {(category.id === "photography" || category.id === "artworks") && (
                       <span style={{ display: "block", marginTop: "6px", color: "#d97706", fontWeight: 600, fontSize: "0.85em" }}>
                         ✨ Preferred Frame: 4:5 (Portrait), 1:1 (Square), or 16:9 (Landscape). Any frame size is accepted and will be automatically auto-adapted for display!
@@ -1164,6 +1266,14 @@ export function SubmissionForm({ category }: Props) {
             </label>
           </div>
 
+          {/* Live Error Banner Right Above Action Buttons */}
+          {(stepError || errorMessage) && (
+            <div className={styles.errorAlert} style={{ marginTop: "12px", marginBottom: "4px" }}>
+              <AlertCircle size={20} />
+              <span>{stepError || errorMessage}</span>
+            </div>
+          )}
+
           {/* Action Buttons */}
           <div className={styles.stepActionsRow}>
             <button
@@ -1171,6 +1281,7 @@ export function SubmissionForm({ category }: Props) {
               className="secondary-btn"
               onClick={() => setStep(1)}
               style={{ flex: 1 }}
+              disabled={isSubmitting}
             >
               <ArrowLeft size={16} />
               <span>Back to Step 1</span>
@@ -1179,10 +1290,10 @@ export function SubmissionForm({ category }: Props) {
               type="submit"
               disabled={isSubmitting}
               className="hero-btn"
-              style={{ flex: 2, fontSize: "1.05rem", opacity: isSubmitting ? 0.7 : 1 }}
+              style={{ flex: 2, fontSize: "1.05rem", opacity: isSubmitting ? 0.75 : 1 }}
             >
               {isSubmitting ? (
-                <span>Submitting Your Entry...</span>
+                <span>⏳ {submissionStage || "Submitting Your Entry..."}</span>
               ) : (
                 <>
                   <ShieldCheck size={18} />
