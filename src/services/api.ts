@@ -82,8 +82,8 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
   const isFileUpload = options.body instanceof FormData;
   const timeoutMs = isFileUpload ? 120_000 : 60_000;
 
-  // Retry config: up to 2 retries for transient failures (Render cold starts, network hiccups)
-  const maxRetries = 2;
+  // Retry config: up to 3 retries for transient failures (Render restarts, mobile packet drops)
+  const maxRetries = isFileUpload ? 3 : 2;
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     const controller = new AbortController();
@@ -120,8 +120,8 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
 
       // If we have retries left AND it's a transient error, wait and retry
       if (isRetryable && attempt < maxRetries) {
-        // Exponential backoff: 2s, then 4s
-        const backoffMs = 2000 * Math.pow(2, attempt);
+        // Backoff: 2s, 4s, 7s
+        const backoffMs = attempt === 0 ? 2000 : (attempt === 1 ? 4000 : 7000);
         console.warn(`[API] Attempt ${attempt + 1} failed (${isAbort ? 'timeout' : 'network'}), retrying in ${backoffMs}ms...`);
         await new Promise((r) => setTimeout(r, backoffMs));
         continue;
