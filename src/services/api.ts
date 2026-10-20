@@ -132,16 +132,16 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
         return {
           success: false,
           message: isFileUpload
-            ? "Upload timed out. Your network connection might be slow — please check your internet or try compressing your file slightly and re-submit."
-            : "Server is taking too long to respond. The server may be waking up — please wait 30 seconds and try again.",
+            ? "Server is currently experiencing a huge rush of submissions and your upload timed out. Please don't worry — keep your details ready and try submitting again after 15-20 minutes."
+            : "Server is experiencing high traffic right now. Please wait 15-20 minutes and try submitting again.",
         };
       }
 
       return {
         success: false,
         message: err?.message === "Failed to fetch"
-          ? "Connection interrupted while contacting server. Please check your internet connection and try submitting again."
-          : (err?.message || "Network error. Please check your internet connection and try again."),
+          ? "Our submission server is currently experiencing heavy participant rush and high traffic. Please don't worry — your details are safe. Please wait 15-20 minutes and try submitting again!"
+          : (err?.message || "Server is experiencing heavy registration traffic. Please try submitting again after 15-20 minutes."),
       };
     }
   }

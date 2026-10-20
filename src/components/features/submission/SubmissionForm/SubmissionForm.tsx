@@ -170,6 +170,17 @@ export function SubmissionForm({ category }: Props) {
       }
       return;
     }
+    // Strict validation for Artworks and Photography: Images only (No PDF or Docs)
+    if (category.id === "artworks" || category.id === "photography") {
+      const isImg = file.type.startsWith("image/") || Boolean(file.name.match(/\.(jpe?g|png|webp)$/i));
+      if (!isImg) {
+        const msg = `Only JPG, PNG, or WEBP image files are allowed for ${category.title}! PDF files cannot be posted to Instagram.`;
+        setStepError(msg);
+        toast.error(msg, { duration: 6000 });
+        if (mediaInputRef.current) mediaInputRef.current.value = "";
+        return;
+      }
+    }
 
     setStepError(null);
     toast.success(`Selected file: ${file.name}`);
