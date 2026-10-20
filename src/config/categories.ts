@@ -94,13 +94,13 @@ export const CATEGORIES_CONFIG: Record<string, CategoryConfig> = {
     ],
     guidelines: [
       "Only one entry on any one theme is allowed.",
-      "Image Size must be under 10 MB.",
-      "Formats accepted are JPEG and PNG only.",
+      "Image Size must be under 8 MB (Meta/Instagram publishing requirement).",
+      "Formats accepted are JPEG, PNG, and WEBP only.",
       "Minimal adjustments or editing is allowed. Raw File may be requested for verification. Refrain from using excessive editing.",
       "Plagiarism is strictly prohibited. Prioritize originality and creativity.",
     ],
-    acceptedFormats: "JPEG, PNG",
-    maxSizeMB: 10,
+    acceptedFormats: "JPEG, PNG, WEBP",
+    maxSizeMB: 8,
   },
   content: {
     id: "content",
@@ -174,13 +174,13 @@ export const CATEGORIES_CONFIG: Record<string, CategoryConfig> = {
     ],
     guidelines: [
       "Only one entry on one theme is allowed.",
-      "File Size allowed is 10 MB maximum.",
+      "File Size allowed is 8 MB maximum (Meta/Instagram publishing requirement).",
       "Both traditional and digital art forms are allowed. Attach raw files.",
-      "Submissions must be in JPEG or PNG format.",
+      "Submissions must be in JPEG, PNG, or WEBP format. PDFs are not allowed.",
       "Plagiarism is strictly prohibited. Participant will be disqualified immediately if found so.",
     ],
-    acceptedFormats: "JPEG, PNG",
-    maxSizeMB: 10,
+    acceptedFormats: "JPEG, PNG, WEBP",
+    maxSizeMB: 8,
   },
 };
 

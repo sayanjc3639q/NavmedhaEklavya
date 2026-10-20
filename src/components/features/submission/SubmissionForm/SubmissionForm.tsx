@@ -164,10 +164,11 @@ export function SubmissionForm({ category }: Props) {
         setStepError(msg);
         toast.error(msg, { duration: 5000 });
       } else {
-        const msg = `File size exceeds limit (${category.maxSizeMB} MB). Please choose a smaller file.`;
+        const msg = `File size exceeds ${category.maxSizeMB} MB limit! Instagram requires images to be under 8 MB for feed publishing. Please compress or choose a smaller file.`;
         setStepError(msg);
-        toast.error(msg);
+        toast.error(msg, { duration: 6000 });
       }
+      if (mediaInputRef.current) mediaInputRef.current.value = "";
       return;
     }
     // Strict validation for Artworks and Photography: Images only (No PDF or Docs)
