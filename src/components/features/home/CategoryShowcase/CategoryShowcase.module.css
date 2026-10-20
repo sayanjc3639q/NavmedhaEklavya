@@ -41,20 +41,168 @@
 .categoryList {
   display: flex;
   flex-direction: column;
-  gap: 65px;
-  max-width: 1060px;
+  gap: 40px;
+  max-width: 1080px;
   margin: 0 auto;
 }
 
+/* ─── Vibrant Durga Puja Festive Card ─── */
 .categoryRowItem {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 360px 1fr;
   align-items: center;
-  gap: 50px;
-  background: transparent;
-  border: none;
-  padding: 0;
+  gap: 36px;
   position: relative;
+  overflow: hidden;
+  border-radius: 24px;
+  padding: 36px;
+  background: linear-gradient(145deg, #fffdf8 0%, #fef8eb 50%, #fdf2d8 100%);
+  border: 1.8px solid rgba(245, 158, 11, 0.4);
+  box-shadow: 
+    0 10px 30px rgba(120, 53, 15, 0.08),
+    0 2px 8px rgba(180, 83, 9, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.categoryRowItem::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #b91c1c 0%, #f59e0b 50%, #dc2626 100%);
+  opacity: 0.85;
+}
+
+.categoryRowItem:hover {
+  transform: translateY(-4px);
+  border-color: rgba(220, 38, 38, 0.55);
+  box-shadow: 
+    0 18px 45px rgba(185, 28, 28, 0.16),
+    0 4px 16px rgba(245, 158, 11, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 1);
+}
+
+/* ─── Fairy Lights Garland along top edge ─── */
+.fairyLightsGarland {
+  position: absolute;
+  top: 6px;
+  left: 24px;
+  right: 24px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.lightBulb {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.bulbRed {
+  background: #ef4444;
+  box-shadow: 0 0 8px #ef4444, 0 0 16px rgba(239, 68, 68, 0.6);
+  animation: twinkleRed 2s infinite ease-in-out;
+}
+
+.bulbGold {
+  background: #f59e0b;
+  box-shadow: 0 0 8px #f59e0b, 0 0 16px rgba(245, 158, 11, 0.6);
+  animation: twinkleGold 2.4s infinite ease-in-out 0.4s;
+}
+
+.bulbGreen {
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981, 0 0 16px rgba(16, 185, 129, 0.6);
+  animation: twinkleGreen 2.2s infinite ease-in-out 0.8s;
+}
+
+.bulbOrange {
+  background: #f97316;
+  box-shadow: 0 0 8px #f97316, 0 0 16px rgba(249, 115, 22, 0.6);
+  animation: twinkleOrange 2.1s infinite ease-in-out 1.2s;
+}
+
+@keyframes twinkleRed {
+  0%, 100% { opacity: 0.8; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.85); box-shadow: 0 0 4px #ef4444; }
+}
+
+@keyframes twinkleGold {
+  0%, 100% { opacity: 0.9; transform: scale(1.1); }
+  50% { opacity: 0.35; transform: scale(0.9); box-shadow: 0 0 4px #f59e0b; }
+}
+
+@keyframes twinkleGreen {
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.85); box-shadow: 0 0 4px #10b981; }
+}
+
+@keyframes twinkleOrange {
+  0%, 100% { opacity: 0.9; transform: scale(1.05); }
+  50% { opacity: 0.35; transform: scale(0.88); box-shadow: 0 0 4px #f97316; }
+}
+
+/* ─── Corner Festive Motifs (Roshogolla Handi) ─── */
+.cardFestiveDecoration {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  z-index: 3;
+}
+
+.roshogollaCornerBadge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fffef8;
+  border: 1.5px solid rgba(217, 119, 6, 0.45);
+  border-radius: 50%;
+  padding: 4px;
+  box-shadow: 0 4px 12px rgba(180, 83, 9, 0.18);
+  transition: transform 0.3s ease;
+  animation: handiFloat 3.5s infinite ease-in-out;
+}
+
+.roshogollaCornerBadge:hover {
+  transform: rotate(8deg) scale(1.15);
+}
+
+.roshogollaImg {
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+@keyframes handiFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+/* ─── Diya Floating Glow ─── */
+.diyaGlowAccent {
+  position: absolute;
+  bottom: 12px;
+  left: 14px;
+  z-index: 2;
+  filter: drop-shadow(0 4px 12px rgba(245, 158, 11, 0.5));
+  animation: diyaFlicker 2.5s infinite ease-in-out;
+}
+
+.diyaImg {
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+@keyframes diyaFlicker {
+  0%, 100% { transform: scale(1) translateY(0); filter: drop-shadow(0 4px 12px rgba(245, 158, 11, 0.5)); }
+  50% { transform: scale(1.06) translateY(-2px); filter: drop-shadow(0 6px 18px rgba(245, 158, 11, 0.75)); }
 }
 
 .categoryRowReverse {
@@ -69,21 +217,23 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: transparent;
-  padding: 0;
+  background: radial-gradient(circle at center, rgba(254, 240, 138, 0.35) 0%, rgba(253, 230, 138, 0.12) 60%, transparent 75%);
+  padding: 16px;
+  border-radius: 20px;
+  position: relative;
   transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .categoryRowItem:hover .categoryIllustrationWrap {
-  transform: scale(1.04);
+  transform: scale(1.05);
 }
 
 .categoryIllustration {
   object-fit: contain;
   width: 100%;
-  max-width: 320px;
+  max-width: 280px;
   height: auto;
-  filter: drop-shadow(0 10px 25px rgba(120, 53, 15, 0.15));
+  filter: drop-shadow(0 12px 24px rgba(120, 53, 15, 0.2));
 }
 
 .categoryBody {
@@ -99,6 +249,20 @@
   gap: 10px;
   flex-wrap: wrap;
   margin-bottom: 12px;
+}
+
+.pujaFestiveTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #b45309;
+  background: rgba(254, 240, 138, 0.45);
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  padding: 4px 12px;
+  border-radius: 9999px;
+  letter-spacing: 0.5px;
 }
 
 .catBadge {
@@ -225,6 +389,16 @@
   color: #ffffff !important;
 }
 
+.catBtnHint {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #b45309;
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .btnGlowSweep {
   position: absolute;
   top: -50%;
@@ -270,21 +444,35 @@
 }
 
 @media (max-width: 900px) {
+  .categoryList {
+    gap: 28px;
+  }
+
   .categoryRowItem,
   .categoryRowReverse {
     grid-template-columns: 1fr;
     text-align: center;
     direction: ltr;
-    gap: 25px;
+    gap: 20px;
+    padding: 24px 18px;
+    border-radius: 20px;
+  }
+
+  .categoryIllustrationWrap {
+    padding: 10px;
   }
 
   .categoryIllustration {
-    max-width: 250px;
+    max-width: 220px;
   }
 
   .categoryBody {
     align-items: center;
     text-align: center;
+  }
+
+  .catBadgeWrap {
+    justify-content: center;
   }
 
   .catBtn {
@@ -293,5 +481,10 @@
     max-width: 320px;
     justify-content: center;
     padding: 13px 20px;
+  }
+
+  .catBtnHint {
+    justify-content: center;
+    text-align: center;
   }
 }

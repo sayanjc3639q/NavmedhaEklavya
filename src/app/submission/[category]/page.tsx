@@ -60,7 +60,7 @@ export default async function SubmissionCategoryPage({ params }: PageProps) {
           <div className={styles.heroGrid}>
             <div className={styles.heroContent}>
               <span className={styles.kicker}>✧ Category {category.categoryNumber} Submission ✧</span>
-              <h1 className={styles.heroTitle}>{category.bengaliTitle}</h1>
+              <h1 className={styles.heroTitle}>{category.title}</h1>
               <p className={styles.heroSubtitle}>{category.subtitle}</p>
               {category.tagline && <p className={styles.heroTagline}>"{category.tagline}"</p>}
               <p className={styles.heroDescription}>{category.description}</p>
@@ -116,7 +116,7 @@ export default async function SubmissionCategoryPage({ params }: PageProps) {
                   </div>
                   <div className={styles.specItem}>
                     <strong>Max File Size:</strong>
-                    <span>{category.maxSizeMB} MB</span>
+                    <span>{category.id === "reels" ? "40 MB (Direct) / 200 MB (Drive)" : `${category.maxSizeMB} MB`}</span>
                   </div>
                   <div className={styles.specItem}>
                     <strong>Verification:</strong>

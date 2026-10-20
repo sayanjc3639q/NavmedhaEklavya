@@ -186,6 +186,64 @@
   margin-top: 2px;
 }
 
+.utrGuideBox {
+  margin-top: 8px;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.82rem;
+  color: #92400e;
+  line-height: 1.5;
+}
+
+.utrGuideBox strong {
+  color: #78350f;
+}
+
+.utrGuideBox ul {
+  margin: 6px 0 0 16px;
+  padding: 0;
+}
+
+.utrGuideBox li {
+  margin-bottom: 2px;
+}
+
+.floatingHelpBtn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #25d366;
+  color: #ffffff;
+  padding: 12px 18px;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 18px rgba(37, 211, 102, 0.4);
+  z-index: 999;
+  text-decoration: none;
+  transition: all 0.25s ease;
+}
+
+.floatingHelpBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(37, 211, 102, 0.55);
+  color: #ffffff;
+}
+
+@media (max-width: 600px) {
+  .floatingHelpBtn {
+    bottom: 16px;
+    right: 16px;
+    padding: 10px 14px;
+    font-size: 0.82rem;
+  }
+}
+
 /* ─── DRAG & DROP DROPZONE ─── */
 .dropzone {
   border: 2px dashed #d97706;

@@ -22,6 +22,7 @@ import {
   PhoneCall,
   Headphones
 } from "lucide-react";
+import { toast } from "sonner";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import {
   submitStart,
@@ -58,7 +59,11 @@ export function SubmissionForm({ category }: Props) {
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    dispatch(resetSubmissionStatus());
+    return () => {
+      dispatch(resetSubmissionStatus());
+    };
+  }, [dispatch]);
 
   useEffect(() => {
     dispatch(getLiveConfig());
@@ -88,6 +93,7 @@ export function SubmissionForm({ category }: Props) {
     theme: category.themes[0]?.name || "",
     title: "",
     description: "",
+    gdriveLink: "",
     transactionId: "",
     followedEklavya: false,
     agreeToRules: false,
@@ -107,6 +113,7 @@ export function SubmissionForm({ category }: Props) {
 
   // Local Validation Errors
   const [stepError, setStepError] = useState<string | null>(null);
+  const [submissionStage, setSubmissionStage] = useState<string>("");
 
   // Payment QR Options State
   const QR_OPTIONS = [
@@ -144,6 +151,7 @@ export function SubmissionForm({ category }: Props) {
   const handleCopyUpi = (upiToCopy: string = UPI_ID) => {
     navigator.clipboard.writeText(upiToCopy);
     setCopiedUpi(true);
+    toast.success("UPI ID copied to clipboard!");
     setTimeout(() => setCopiedUpi(false), 2000);
   };
 
@@ -151,44 +159,38 @@ export function SubmissionForm({ category }: Props) {
     // Check max size
     const maxBytes = category.maxSizeMB * 1024 * 1024;
     if (file.size > maxBytes) {
-      setStepError(`File size exceeds limit (${category.maxSizeMB} MB). Please choose a smaller file.`);
+      if (category.id === "reels") {
+        const msg = `Direct video upload limit is 40 MB. Since your video is larger than 40 MB, please paste your Google Drive link above instead!`;
+        setStepError(msg);
+        toast.error(msg, { duration: 5000 });
+      } else {
+        const msg = `File size exceeds limit (${category.maxSizeMB} MB). Please choose a smaller file.`;
+        setStepError(msg);
+        toast.error(msg);
+      }
       return;
+    }
+    // Strict validation for Artworks and Photography: Images only (No PDF or Docs)
+    if (category.id === "artworks" || category.id === "photography") {
+      const isImg = file.type.startsWith("image/") || Boolean(file.name.match(/\.(jpe?g|png|webp)$/i));
+      if (!isImg) {
+        const msg = `Only JPG, PNG, or WEBP image files are allowed for ${category.title}! PDF files cannot be posted to Instagram.`;
+        setStepError(msg);
+        toast.error(msg, { duration: 6000 });
+        if (mediaInputRef.current) mediaInputRef.current.value = "";
+        return;
+      }
     }
 
     setStepError(null);
+    toast.success(`Selected file: ${file.name}`);
 
     if (file.type.startsWith("image/")) {
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result as string;
-
-        // For photography and artwork: Validate Instagram aspect ratio (4:5 = 0.80 to 1.91:1)
-        if (category.id === "photography" || category.id === "artworks") {
-          const img = new window.Image();
-          img.onload = () => {
-            const ratio = img.width / img.height;
-            // Strict Meta Instagram feed bounds with small 0.01 tolerance
-            if (ratio < 0.79 || ratio > 1.92) {
-              setMediaFile(null);
-              setMediaPreview(null);
-              if (mediaInputRef.current) mediaInputRef.current.value = "";
-              setStepError(
-                `⚠️ Aspect Ratio Error: Your image is ${img.width}×${img.height} (ratio ${ratio.toFixed(2)}:1). ` +
-                `Instagram requires photos and artworks to have an aspect ratio between 4:5 (0.80 portrait) and 1.91:1 (landscape). ` +
-                `Please crop your image to a standard 4:5 portrait, 1:1 square, or 16:9 landscape before uploading.`
-              );
-              return;
-            }
-
-            setStepError(null);
-            setMediaFile(file);
-            setMediaPreview(result);
-          };
-          img.src = result;
-        } else {
-          setMediaFile(file);
-          setMediaPreview(result);
-        }
+        setMediaFile(file);
+        setMediaPreview(result);
       };
       reader.readAsDataURL(file);
     } else {
@@ -199,11 +201,14 @@ export function SubmissionForm({ category }: Props) {
 
   const handlePaymentScreenshotSelect = (file: File) => {
     if (file.size > 15 * 1024 * 1024) {
-      setStepError("Payment screenshot should be under 15 MB.");
+      const msg = "Payment screenshot should be under 15 MB.";
+      setStepError(msg);
+      toast.error(msg);
       return;
     }
     setStepError(null);
     setPaymentScreenshot(file);
+    toast.success(`Payment screenshot selected: ${file.name}`);
 
     const reader = new FileReader();
     reader.onload = (e) => setPaymentPreview(e.target?.result as string);
@@ -215,21 +220,42 @@ export function SubmissionForm({ category }: Props) {
     setStepError(null);
 
     if (!formData.theme) {
-      setStepError("Please select a theme for your submission.");
+      const msg = "Please select a theme for your submission.";
+      setStepError(msg);
+      toast.error(msg);
       return;
     }
 
-    if (!mediaFile) {
-      setStepError(`Please upload your ${category.title} file before proceeding.`);
+    if (category.id === "content") {
+      if (!mediaFile && !formData.description.trim()) {
+        const msg = "Please either type your piece in the text box or upload a document file.";
+        setStepError(msg);
+        toast.error(msg);
+        return;
+      }
+    } else if (category.id === "reels") {
+      if (!formData.gdriveLink.trim() && !mediaFile) {
+        const msg = "Please either paste your Google Drive Video Link OR upload your reel video.";
+        setStepError(msg);
+        toast.error(msg);
+        return;
+      }
+    } else if (!mediaFile) {
+      const msg = `Please upload your ${category.title} file before proceeding.`;
+      setStepError(msg);
+      toast.error(msg);
       return;
     }
 
     if (!formData.followedEklavya) {
-      setStepError(`Please follow @${cleanHandle} on Instagram and check the verification box to proceed.`);
+      const msg = `Please follow @${cleanHandle} on Instagram and check the verification box to proceed.`;
+      setStepError(msg);
+      toast.error(msg);
       return;
     }
 
     setStep(2);
+    toast.info("Proceeding to Step 2: Payment & Verification", { duration: 2500 });
     window.scrollTo({ top: 400, behavior: "smooth" });
   };
 
@@ -237,58 +263,106 @@ export function SubmissionForm({ category }: Props) {
     e.preventDefault();
     setStepError(null);
 
-    if (!mediaFile) {
-      setStepError(`Please upload your ${category.title} file in Step 1.`);
+    if (category.id === "content") {
+      if (!mediaFile && !formData.description.trim()) {
+        const msg = "Please provide your written piece or document in Step 1.";
+        setStepError(msg);
+        toast.error(msg);
+        setStep(1);
+        return;
+      }
+    } else if (category.id === "reels") {
+      if (!formData.gdriveLink.trim() && !mediaFile) {
+        const msg = "Please provide your Google Drive link or reel video in Step 1.";
+        setStepError(msg);
+        toast.error(msg);
+        setStep(1);
+        return;
+      }
+    } else if (!mediaFile) {
+      const msg = `Please upload your ${category.title} file in Step 1.`;
+      setStepError(msg);
+      toast.error(msg);
       setStep(1);
       return;
     }
 
     if (!paymentScreenshot) {
-      setStepError("Please upload your payment screenshot / transaction confirmation.");
+      const msg = "Please upload your payment screenshot / transaction confirmation.";
+      setStepError(msg);
+      toast.error(msg);
       return;
     }
 
     if (!formData.transactionId.trim()) {
-      setStepError("Please enter your UPI / Bank Transaction ID (UTR / Reference No).");
+      const msg = "Please enter your UPI / Bank Transaction ID (UTR / Reference No).";
+      setStepError(msg);
+      toast.error(msg);
       return;
     }
 
     if (!formData.agreeToRules) {
-      setStepError("Please confirm agreement to the competition rules and originality guidelines.");
+      const msg = "Please confirm agreement to the competition rules and originality guidelines.";
+      setStepError(msg);
+      toast.error(msg);
       return;
     }
 
     dispatch(submitStart());
+    setSubmissionStage("Preparing upload...");
+    toast.loading("Initiating submission...", { id: "sub-toast" });
 
     const currentMedia = mediaFile;
     const currentPayment = paymentScreenshot;
 
     try {
-      // ── Step A: Upload creative asset ──
-      // Reels go to Google Drive; Everything else goes to Cloudinary
+      // ── Step A: Process creative asset ──
       let mediaUrl = "";
 
-      if (mediaFile) {
+      if (category.id === "reels" && formData.gdriveLink.trim()) {
+        // Direct GDrive link provided by participant - 100% bypasses heavy server memory uploads
+        mediaUrl = formData.gdriveLink.trim();
+      } else if (mediaFile) {
+        const stageMsg = category.id === "reels"
+          ? "Uploading Reel Video (this may take a moment)..."
+          : "Uploading your creative work...";
+        setSubmissionStage(stageMsg);
+        toast.loading(stageMsg, { id: "sub-toast" });
+
         const mediaRes = category.id === "reels"
           ? await uploadVideoToDrive(mediaFile)
           : await uploadCreativeAsset(mediaFile);
 
         if (!mediaRes.success || !mediaRes.url) {
-          dispatch(submitFailure(mediaRes.message || "Failed to upload your creative file. Please try again."));
+          const failMsg = mediaRes.message || "Failed to upload your creative file. Please check file format and try again.";
+          setStepError(failMsg);
+          toast.error(failMsg, { id: "sub-toast", duration: 6000 });
+          dispatch(submitFailure(failMsg));
+          setSubmissionStage("");
+          window.scrollTo({ top: 350, behavior: "smooth" });
           return;
         }
         mediaUrl = mediaRes.url;
       }
 
       // ── Step B: Upload payment screenshot to Cloudinary ──
+      setSubmissionStage("Uploading payment receipt screenshot...");
+      toast.loading("Uploading payment receipt screenshot...", { id: "sub-toast" });
       const payRes = await uploadPaymentReceipt(currentPayment);
       if (!payRes.success || !payRes.url) {
-        dispatch(submitFailure(payRes.message || "Failed to upload payment screenshot. Please try again."));
+        const failMsg = payRes.message || "Failed to upload payment screenshot. Please try again.";
+        setStepError(failMsg);
+        toast.error(failMsg, { id: "sub-toast", duration: 6000 });
+        dispatch(submitFailure(failMsg));
+        setSubmissionStage("");
+        window.scrollTo({ top: 350, behavior: "smooth" });
         return;
       }
       const paymentUrl = payRes.url;
 
       // ── Step C: Build common participant fields from user profile ──
+      setSubmissionStage("Securing your entry registration...");
+      toast.loading("Securing your entry registration...", { id: "sub-toast" });
       const commonPayload = {
         name: formData.fullName,
         email: formData.email,
@@ -318,7 +392,7 @@ export function SubmissionForm({ category }: Props) {
           submitRes = await submitArtEntry({
             ...commonPayload,
             artworkUrl: mediaUrl,
-            titleOfArtwork: formData.title,
+            titleOfArtwork: formData.title.trim() || `${formData.theme} Artwork`,
             artType: "Other",
             description: formData.description,
           });
@@ -327,7 +401,7 @@ export function SubmissionForm({ category }: Props) {
         case "content":
           submitRes = await submitWritingEntry({
             ...commonPayload,
-            titleOfPiece: formData.title,
+            titleOfPiece: formData.title.trim() || `${formData.theme} Submission`,
             genre: "Other",
             language: "English",
             content: formData.description.trim() || undefined,
@@ -338,25 +412,63 @@ export function SubmissionForm({ category }: Props) {
         case "reels":
           submitRes = await submitReelEntry({
             ...commonPayload,
-            reelTitle: formData.title,
+            reelTitle: formData.title.trim() || `${formData.theme} Reel`,
             reelGenre: "Other Creative",
             videoDriveLink: mediaUrl,
-            instagramHandle: formData.instagramHandle,
+            instagramHandle: formData.instagramHandle.trim() || undefined,
             caption: formData.description,
           });
           break;
 
         default:
           dispatch(submitFailure("Unknown category. Please refresh and try again."));
+          toast.error("Unknown category. Please refresh and try again.", { id: "sub-toast" });
+          setSubmissionStage("");
           return;
       }
 
       if (!submitRes.success) {
-        dispatch(submitFailure(submitRes.message || "Submission failed. Please try again."));
+        // If already submitted and server returned existing entry data, show success with existing details
+        if (submitRes.data?.entryNumber) {
+          toast.success(`Found existing submission: ${submitRes.data.entryNumber}`, { id: "sub-toast", duration: 5000 });
+          dispatch(
+            submitSuccess({
+              category: category.id,
+              theme: formData.theme,
+              fullName: formData.fullName,
+              email: formData.email,
+              phone: formData.phone,
+              instagramHandle: formData.instagramHandle,
+              title: formData.title || `${category.title} Entry`,
+              description: formData.description,
+              fileName: currentMedia?.name || "file-submission",
+              fileSize: currentMedia?.size || 0,
+              fileType: currentMedia?.type || "application/octet-stream",
+              fileDataUrl: mediaPreview || undefined,
+              paymentScreenshotName: currentPayment?.name || "payment-receipt",
+              paymentScreenshotDataUrl: paymentPreview || undefined,
+              transactionId: formData.transactionId,
+              followedEklavya: formData.followedEklavya,
+              agreeToRules: formData.agreeToRules,
+              userId: user?.id,
+            })
+          );
+          setSubmissionStage("");
+          return;
+        }
+
+        const failMsg = submitRes.message || "Submission failed. Please check details and try again.";
+        setStepError(failMsg);
+        toast.error(failMsg, { id: "sub-toast", duration: 7000 });
+        dispatch(submitFailure(failMsg));
+        setSubmissionStage("");
+        window.scrollTo({ top: 350, behavior: "smooth" });
         return;
       }
 
       // ── Step E: Dispatch success to Redux ──
+      setSubmissionStage("");
+      toast.success("Submission successfully submitted & registered!", { id: "sub-toast", duration: 5000 });
       dispatch(
         submitSuccess({
           category: category.id,
@@ -380,7 +492,11 @@ export function SubmissionForm({ category }: Props) {
         })
       );
     } catch (err: any) {
-      dispatch(submitFailure(err?.message || "An unexpected error occurred. Please check your connection and try again."));
+      const errorMsg = err?.message || "An unexpected error occurred. Please check your internet connection and try again.";
+      setStepError(errorMsg);
+      dispatch(submitFailure(errorMsg));
+      setSubmissionStage("");
+      window.scrollTo({ top: 350, behavior: "smooth" });
     }
   };
 
@@ -403,7 +519,7 @@ export function SubmissionForm({ category }: Props) {
           <div className={styles.submittedDetails}>
             <div className={styles.detailRow}>
               <span>Category:</span>
-              <strong>{category.bengaliTitle} {category.subtitle}</strong>
+              <strong>{category.title} {category.subtitle}</strong>
             </div>
             <div className={styles.detailRow}>
               <span>Selected Theme:</span>
@@ -468,6 +584,7 @@ export function SubmissionForm({ category }: Props) {
                   theme: category.themes[0]?.name || "",
                   title: "",
                   description: "",
+                  gdriveLink: "",
                   transactionId: "",
                   followedEklavya: false,
                   agreeToRules: false,
@@ -759,13 +876,12 @@ export function SubmissionForm({ category }: Props) {
               />
             </div>
             <div className={styles.formGroup}>
-              <label>Instagram Handle (@username) *</label>
+              <label>Instagram Handle (@username) <span style={{ fontWeight: 400, opacity: 0.8 }}>(Optional)</span></label>
               <input
                 type="text"
                 placeholder="@your_handle"
                 value={formData.instagramHandle}
                 onChange={(e) => setFormData({ ...formData, instagramHandle: e.target.value })}
-                required
               />
             </div>
           </div>
@@ -793,33 +909,91 @@ export function SubmissionForm({ category }: Props) {
 
           <div className={styles.formGroup}>
             <label>
-              {category.id === "content" ? "Title of Your Written Piece *" : "Title of Your Masterpiece *"}
+              {category.id === "content" ? "Title of Your Written Piece" : "Title of Your Image / Masterpiece"}{" "}
+              <span style={{ fontWeight: 400, opacity: 0.8 }}>(Optional)</span>
             </label>
             <input
               type="text"
               placeholder={category.id === "content"
-                ? "e.g. Agomoni: Memories of Maa’s Arrival"
-                : "e.g. Agomoni: The Divine Radiance of Maa"}
+                ? "e.g. Agomoni: Memories of Maa’s Arrival (Optional)"
+                : "e.g. Agomoni: The Divine Radiance of Maa (Optional)"}
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              required
             />
           </div>
 
           <div className={styles.formGroup}>
-            <label>Story / Concept Description (Optional)</label>
+            <label>
+              {category.id === "content"
+                ? "Write or Paste Your Story / Poem / Article Here (or Upload File Below)"
+                : "Story / Concept Description (Optional)"}
+            </label>
             <textarea
-              rows={3}
-              placeholder="Describe the inspiration, techniques, or narrative behind your submission..."
+              rows={category.id === "content" ? 6 : 3}
+              placeholder={category.id === "content"
+                ? "Type or paste your complete writing piece here, or leave empty if uploading a .docx / .pdf document below..."
+                : "Describe the inspiration, techniques, or narrative behind your submission..."}
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             />
+            {category.id === "content" && (
+              <span className={styles.inputHelp}>
+                You can write your text directly above OR upload your Word (.docx) file below.
+              </span>
+            )}
           </div>
+
+          {/* Google Drive Link Option Specifically for Reels (No upload failures or memory limits) */}
+          {category.id === "reels" && (
+            <div className={styles.formGroup}>
+              <label>
+                Google Drive Video Link (Recommended • 0s Upload Time)
+              </label>
+              <input
+                type="url"
+                placeholder="https://drive.google.com/file/d/... or drive folder link"
+                value={formData.gdriveLink}
+                onChange={(e) => setFormData({ ...formData, gdriveLink: e.target.value })}
+                className={styles.themeSelect}
+              />
+              <div
+                style={{
+                  background: "#fffbeb",
+                  border: "1.5px solid #fcd34d",
+                  borderRadius: "8px",
+                  padding: "10px 14px",
+                  marginTop: "8px",
+                  fontSize: "0.86rem",
+                  lineHeight: "1.6",
+                  color: "#78350f",
+                }}
+              >
+                <div style={{ fontWeight: 700, marginBottom: "4px", color: "#92400e", display: "flex", alignItems: "center", gap: "6px" }}>
+                  <span>⚠️ Important Google Drive Guidelines:</span>
+                </div>
+                <ul style={{ margin: 0, paddingLeft: "18px" }}>
+                  <li>
+                    <strong>Access Permission:</strong> Ensure link access is set to <strong>"Anyone with the link can view"</strong> (General access → Viewer). If the link is private/locked, our judges will not be able to evaluate your reel.
+                  </li>
+                  <li style={{ marginTop: "4px" }}>
+                    <strong style={{ color: "#b91c1c" }}>Rule on Multiple Entries:</strong> More than <strong>1 video/submission file in a link will lead to immediate disqualification</strong>. One registration payment is valid for strictly one reel video.
+                  </li>
+                </ul>
+              </div>
+              <div style={{ textAlign: "center", margin: "10px 0 6px", fontSize: "0.85rem", fontWeight: 700, color: "#78350f" }}>
+                ── OR UPLOAD MP4 DIRECTLY BELOW ──
+              </div>
+            </div>
+          )}
 
           {/* Direct File Dropzone */}
           <div className={styles.formGroup}>
             <label>
-              Direct File Upload * ({category.acceptedFormats} • Max {category.maxSizeMB} MB)
+              {category.id === "content"
+                ? `Upload Document (Optional if typed above • ${category.acceptedFormats} • Max ${category.maxSizeMB} MB)`
+                : category.id === "reels"
+                ? `Direct Video Upload (MP4 • Max 40 MB if not using GDrive link)`
+                : `Direct File Upload * (${category.acceptedFormats} • Max ${category.maxSizeMB} MB)`}
             </label>
             
             <div
@@ -846,10 +1020,10 @@ export function SubmissionForm({ category }: Props) {
                   category.id === "reels"
                     ? "video/mp4"
                     : category.id === "photography"
-                    ? "image/jpeg,image/png,image/jpg"
+                    ? "image/jpeg,image/png,image/jpg,image/webp"
                     : category.id === "content"
-                    ? ".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                    : "image/jpeg,image/png,image/jpg"
+                    ? ".docx,.doc,.pdf,.txt,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword,application/pdf,text/plain"
+                    : "image/jpeg,image/png,image/jpg,image/webp"
                 }
                 onChange={(e) => {
                   if (e.target.files && e.target.files[0]) {
@@ -867,10 +1041,19 @@ export function SubmissionForm({ category }: Props) {
                     Drag & Drop your {category.title} file here, or <span>Browse Files</span>
                   </p>
                   <p className={styles.dropzoneHint}>
-                    Direct upload — Supported: {category.acceptedFormats} (Max {category.maxSizeMB}MB)
+                    {category.id === "reels" ? (
+                      <>
+                        Direct upload — Supported: MP4 only (Max 40 MB).
+                        <span style={{ display: "block", marginTop: "6px", color: "#b45309", fontWeight: 700, fontSize: "0.9em" }}>
+                          💡 If your video/work is more than 40 MB (up to 200 MB), please use the Google Drive Link field above!
+                        </span>
+                      </>
+                    ) : (
+                      <>Direct upload — Supported: {category.acceptedFormats} (Max {category.maxSizeMB}MB)</>
+                    )}
                     {(category.id === "photography" || category.id === "artworks") && (
-                      <span style={{ display: "block", marginTop: "6px", color: "#f59e0b", fontWeight: 600, fontSize: "0.85em" }}>
-                        📐 Instagram Aspect Ratio: Must be between 4:5 (portrait) and 1.91:1 (landscape). 1:1, 4:5, 16:9 recommended.
+                      <span style={{ display: "block", marginTop: "6px", color: "#d97706", fontWeight: 600, fontSize: "0.85em" }}>
+                        ✨ Preferred Frame: 4:5 (Portrait), 1:1 (Square), or 16:9 (Landscape). Any frame size is accepted and will be automatically auto-adapted for display!
                       </span>
                     )}
                   </p>
@@ -1103,17 +1286,22 @@ export function SubmissionForm({ category }: Props) {
 
           {/* Transaction UTR / Ref Number */}
           <div className={styles.formGroup}>
-            <label>UPI Transaction ID / UTR / Reference Number *</label>
+            <label>UPI Reference No / UTR / Transaction ID (12 Digits) *</label>
             <input
               type="text"
-              placeholder="e.g. 428198274918 (12-digit UTR from your UPI receipt)"
+              placeholder="e.g. 428198274918 (12-digit number from payment app)"
               value={formData.transactionId}
               onChange={(e) => setFormData({ ...formData, transactionId: e.target.value })}
               required
             />
-            <span className={styles.inputHelp}>
-              Enter the 12-digit UTR/Ref number visible in your payment receipt for instant auto-matching.
-            </span>
+            <div className={styles.utrGuideBox}>
+              <strong>💡 Where to find your 12-digit UTR / Reference ID:</strong>
+              <ul>
+                <li><strong>Google Pay:</strong> Open payment receipt → Look for <em>"UPI transaction ID"</em> (12 digits).</li>
+                <li><strong>PhonePe:</strong> View payment details → Copy <em>"UTR"</em> number.</li>
+                <li><strong>Paytm:</strong> View order details → Copy <em>"UPI Ref No"</em>.</li>
+              </ul>
+            </div>
           </div>
 
           {/* Final Originality Checkbox */}
@@ -1131,6 +1319,14 @@ export function SubmissionForm({ category }: Props) {
             </label>
           </div>
 
+          {/* Live Error Banner Right Above Action Buttons */}
+          {(stepError || errorMessage) && (
+            <div className={styles.errorAlert} style={{ marginTop: "12px", marginBottom: "4px" }}>
+              <AlertCircle size={20} />
+              <span>{stepError || errorMessage}</span>
+            </div>
+          )}
+
           {/* Action Buttons */}
           <div className={styles.stepActionsRow}>
             <button
@@ -1138,6 +1334,7 @@ export function SubmissionForm({ category }: Props) {
               className="secondary-btn"
               onClick={() => setStep(1)}
               style={{ flex: 1 }}
+              disabled={isSubmitting}
             >
               <ArrowLeft size={16} />
               <span>Back to Step 1</span>
@@ -1146,10 +1343,10 @@ export function SubmissionForm({ category }: Props) {
               type="submit"
               disabled={isSubmitting}
               className="hero-btn"
-              style={{ flex: 2, fontSize: "1.05rem", opacity: isSubmitting ? 0.7 : 1 }}
+              style={{ flex: 2, fontSize: "1.05rem", opacity: isSubmitting ? 0.75 : 1 }}
             >
               {isSubmitting ? (
-                <span>Submitting Your Entry...</span>
+                <span>⏳ {submissionStage || "Submitting Your Entry..."}</span>
               ) : (
                 <>
                   <ShieldCheck size={18} />
@@ -1207,6 +1404,20 @@ export function SubmissionForm({ category }: Props) {
           </div>
         </div>
       </div>
+
+      {/* Floating WhatsApp Help for Instant Student Queries */}
+      <a
+        href="https://wa.me/918420478357?text=Hi%20Eklavya%20Team,%20I%20need%20help%20with%20NAVMEDHA%20registration"
+        target="_blank"
+        rel="noopener noreferrer"
+        className={styles.floatingHelpBtn}
+        title="Need help? Chat with coordinator on WhatsApp"
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+        </svg>
+        <span>Need Help? Chat</span>
+      </a>
     </div>
   );
 }

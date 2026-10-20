@@ -25,6 +25,24 @@ import { Navbar } from "@/components/layout/Navbar/Navbar";
 import { Footer } from "@/components/layout/Footer/Footer";
 import styles from "./page.module.css";
 
+const DEPARTMENT_OPTIONS = [
+  "CSE",
+  "CSE-DS",
+  "CSE-CS",
+  "CSE-AIML",
+  "ECE",
+  "EE",
+  "CHE",
+  "AEIE",
+  "ME",
+  "IT",
+  "BT",
+  "AGE",
+  "CE",
+  "FT",
+  "Other",
+];
+
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -56,11 +74,12 @@ function LoginForm() {
 
   const [academicDetails, setAcademicDetails] = useState({
     rollNumber: user?.rollNumber || "",
-    department: user?.department || "",
+    department: user?.department || "CSE",
     currentYear: user?.currentYear || "1st Year",
     mobileNumber: user?.mobileNumber || "",
     collegeName: user?.collegeName || "Haldia Institute of Technology",
   });
+  const [customDepartment, setCustomDepartment] = useState("");
 
   const [formError, setFormError] = useState<string | null>(null);
 
@@ -72,14 +91,21 @@ function LoginForm() {
         email: user.email,
         avatar: user.avatar || "",
       });
-      setAcademicDetails((prev) => ({
-        ...prev,
-        rollNumber: user.rollNumber || prev.rollNumber,
-        department: user.department || prev.department,
-        currentYear: user.currentYear || prev.currentYear,
-        mobileNumber: user.mobileNumber || prev.mobileNumber,
-        collegeName: user.collegeName || prev.collegeName,
-      }));
+      setAcademicDetails((prev) => {
+        const deptVal = user.department || prev.department || "CSE";
+        const isKnown = DEPARTMENT_OPTIONS.includes(deptVal);
+        if (!isKnown && deptVal) {
+          setCustomDepartment(deptVal);
+        }
+        return {
+          ...prev,
+          rollNumber: user.rollNumber || prev.rollNumber,
+          department: isKnown ? deptVal : "Other",
+          currentYear: user.currentYear || prev.currentYear,
+          mobileNumber: user.mobileNumber || prev.mobileNumber,
+          collegeName: user.collegeName || prev.collegeName,
+        };
+      });
 
       // If user already has rollNumber and mobileNumber, send directly to destination
       const targetUrl = searchParams.get("redirect") || "/profile";
@@ -159,8 +185,12 @@ function LoginForm() {
       setFormError("Please enter your College / University Roll Number.");
       return;
     }
-    if (!academicDetails.department.trim()) {
-      setFormError("Please specify your Department / Stream (e.g. Computer Science, Arts, etc.)");
+    const finalDepartment = academicDetails.department === "Other"
+      ? (customDepartment.trim() || "Other")
+      : (academicDetails.department.trim() || "Other");
+
+    if (!finalDepartment) {
+      setFormError("Please select or enter your Department.");
       return;
     }
     if (!academicDetails.mobileNumber.trim() || academicDetails.mobileNumber.length < 10) {
@@ -175,7 +205,7 @@ function LoginForm() {
       const res = await updateProfileOnServer({
         displayName: googleData.name,
         rollNumber: academicDetails.rollNumber,
-        department: academicDetails.department,
+        department: finalDepartment,
         batch: academicDetails.currentYear,
         phone: academicDetails.mobileNumber,
         college: academicDetails.collegeName,
@@ -185,7 +215,7 @@ function LoginForm() {
         dispatch(
           updateProfile({
             rollNumber: academicDetails.rollNumber,
-            department: academicDetails.department,
+            department: finalDepartment,
             currentYear: academicDetails.currentYear,
             mobileNumber: academicDetails.mobileNumber,
             collegeName: academicDetails.collegeName,
@@ -448,11 +478,11 @@ function LoginForm() {
           <div className={styles.formRow}>
             <div className={styles.formGroup}>
               <label>
-                <Hash size={16} /> Roll / Student ID No *
+                <Hash size={16} /> College Roll No / Class Roll No *
               </label>
               <input
                 type="text"
-                placeholder="e.g. 12621001045"
+                placeholder="e.g. 23/ECE/107 or Class Roll No"
                 value={academicDetails.rollNumber}
                 onChange={(e) => setAcademicDetails({ ...academicDetails, rollNumber: e.target.value })}
                 required
@@ -477,13 +507,27 @@ function LoginForm() {
               <label>
                 <Building2 size={16} /> Department / Stream *
               </label>
-              <input
-                type="text"
-                placeholder="e.g. CSE, IT, ECE, Other"
+              <select
                 value={academicDetails.department}
                 onChange={(e) => setAcademicDetails({ ...academicDetails, department: e.target.value })}
                 required
-              />
+              >
+                {DEPARTMENT_OPTIONS.map((dept) => (
+                  <option key={dept} value={dept}>
+                    {dept}
+                  </option>
+                ))}
+              </select>
+              {academicDetails.department === "Other" && (
+                <input
+                  type="text"
+                  placeholder="Please specify your department / stream"
+                  value={customDepartment}
+                  onChange={(e) => setCustomDepartment(e.target.value)}
+                  style={{ marginTop: "8px" }}
+                  required
+                />
+              )}
             </div>
             <div className={styles.formGroup}>
               <label>

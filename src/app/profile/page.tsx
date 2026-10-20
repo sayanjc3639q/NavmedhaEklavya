@@ -26,12 +26,14 @@ import {
   Lock,
   RefreshCw,
   PlayCircle,
-  Image as ImageIcon
+  Image as ImageIcon,
+  Edit3,
+  X
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
-import { logout, checkAuthSession } from "@/redux/slices/authSlice";
+import { logout, checkAuthSession, updateProfile } from "@/redux/slices/authSlice";
 import { clearSubmissions } from "@/redux/slices/submissionSlice";
-import { fetchMySubmissions } from "@/services/api";
+import { fetchMySubmissions, updateProfileOnServer } from "@/services/api";
 import { Navbar } from "@/components/layout/Navbar/Navbar";
 import { Footer } from "@/components/layout/Footer/Footer";
 import styles from "./page.module.css";
@@ -52,6 +54,24 @@ interface NormalizedEntry {
   submittedAt: string;
 }
 
+const DEPARTMENT_OPTIONS = [
+  "CSE",
+  "CSE-DS",
+  "CSE-CS",
+  "CSE-AIML",
+  "ECE",
+  "EE",
+  "CHE",
+  "AEIE",
+  "ME",
+  "IT",
+  "BT",
+  "AGE",
+  "CE",
+  "FT",
+  "Other",
+];
+
 export default function ProfilePage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -61,11 +81,104 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState<"submissions" | "certificate" | "details">("submissions");
   const [selectedSubmissionForCert, setSelectedSubmissionForCert] = useState<string | null>(null);
 
+  const [mounted, setMounted] = useState(false);
   const [backendSubmissions, setBackendSubmissions] = useState<NormalizedEntry[]>([]);
   const [isLoadingSubmissions, setIsLoadingSubmissions] = useState(false);
   const [submissionError, setSubmissionError] = useState<string | null>(null);
 
+  // Edit Profile Modal State
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
+  const [editSuccessMsg, setEditSuccessMsg] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({
+    name: "",
+    rollNumber: "",
+    department: "CSE",
+    currentYear: "1st Year",
+    mobileNumber: "",
+    collegeName: "Haldia Institute of Technology",
+  });
+  const [customDept, setCustomDept] = useState("");
+
+  const openEditModal = () => {
+    if (!user) return;
+    const isKnown = DEPARTMENT_OPTIONS.includes(user.department || "");
+    setEditForm({
+      name: user.name || "",
+      rollNumber: user.rollNumber || "",
+      department: isKnown ? (user.department || "CSE") : "Other",
+      currentYear: user.currentYear || "1st Year",
+      mobileNumber: user.mobileNumber || "",
+      collegeName: user.collegeName || "Haldia Institute of Technology",
+    });
+    setCustomDept(!isKnown ? (user.department || "") : "");
+    setEditError(null);
+    setEditSuccessMsg(null);
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setEditError(null);
+    setEditSuccessMsg(null);
+
+    const finalDept = editForm.department === "Other"
+      ? (customDept.trim() || "Other")
+      : (editForm.department.trim() || "Other");
+
+    if (!editForm.name.trim()) {
+      setEditError("Full name is required.");
+      return;
+    }
+    if (!editForm.rollNumber.trim()) {
+      setEditError("Roll number is required.");
+      return;
+    }
+    if (!editForm.mobileNumber.trim() || editForm.mobileNumber.length < 10) {
+      setEditError("Please enter a valid 10-digit mobile number.");
+      return;
+    }
+
+    setIsSavingProfile(true);
+    try {
+      const res = await updateProfileOnServer({
+        displayName: editForm.name.trim(),
+        rollNumber: editForm.rollNumber.trim(),
+        department: finalDept,
+        batch: editForm.currentYear,
+        phone: editForm.mobileNumber.trim(),
+        college: editForm.collegeName.trim(),
+      });
+
+      if (res.success) {
+        dispatch(
+          updateProfile({
+            name: editForm.name.trim(),
+            rollNumber: editForm.rollNumber.trim(),
+            department: finalDept,
+            currentYear: editForm.currentYear,
+            mobileNumber: editForm.mobileNumber.trim(),
+            collegeName: editForm.collegeName.trim(),
+          })
+        );
+        setEditSuccessMsg("Profile updated successfully!");
+        setTimeout(() => {
+          setIsEditModalOpen(false);
+          setEditSuccessMsg(null);
+        }, 1200);
+      } else {
+        setEditError(res.message || "Failed to update profile.");
+      }
+    } catch (err: any) {
+      setEditError(err.message || "Network error while updating profile.");
+    } finally {
+      setIsSavingProfile(false);
+    }
+  };
+
   useEffect(() => {
+    setMounted(true);
     dispatch(checkAuthSession());
   }, [dispatch]);
 
@@ -243,6 +356,24 @@ export default function ProfilePage() {
     }
   };
 
+  if (!mounted) {
+    return (
+      <main className={styles.profilePage}>
+        <Navbar />
+        <section className={styles.profileSection}>
+          <div className={styles.container}>
+            <div style={{ minHeight: "450px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <div style={{ textAlign: "center", color: "#92400e" }}>
+                <p style={{ fontSize: "15px", fontWeight: 600 }}>Loading profile details...</p>
+              </div>
+            </div>
+          </div>
+        </section>
+        <Footer />
+      </main>
+    );
+  }
+
   return (
     <main className={styles.profilePage}>
       <Navbar />
@@ -279,6 +410,10 @@ export default function ProfilePage() {
 
               {user && (
                 <div className={styles.bannerActions}>
+                  <button onClick={openEditModal} className={styles.editProfileBtn} title="Edit Profile Details">
+                    <Edit3 size={15} />
+                    <span>Edit Profile</span>
+                  </button>
                   <button onClick={handleLogout} className={styles.logoutBtn} title="Sign Out">
                     <LogOut size={16} />
                     <span>Sign Out</span>
@@ -569,8 +704,18 @@ export default function ProfilePage() {
             <div className={styles.tabContent}>
               <div className={styles.detailsCard}>
                 <div className={styles.detailsHeader}>
-                  <h3>Student Profile & Institutional Information</h3>
-                  <p>Used for official communications, winner notifications, and certificate issuance.</p>
+                  <div className={styles.detailsHeaderRow}>
+                    <div>
+                      <h3>Student Profile &amp; Institutional Information</h3>
+                      <p>Used for official communications, winner notifications, and certificate issuance.</p>
+                    </div>
+                    {user && (
+                      <button onClick={openEditModal} className={styles.cardEditBtn}>
+                        <Edit3 size={15} />
+                        <span>Edit Details</span>
+                      </button>
+                    )}
+                  </div>
                 </div>
 
                 <div className={styles.infoGrid}>
@@ -608,6 +753,140 @@ export default function ProfilePage() {
           )}
         </div>
       </section>
+
+      {/* ─── EDIT PROFILE MODAL ─── */}
+      {isEditModalOpen && (
+        <div className={styles.modalOverlay} onClick={() => setIsEditModalOpen(false)}>
+          <div className={styles.editModal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalHeader}>
+              <h3>Edit Profile Information</h3>
+              <button
+                type="button"
+                className={styles.modalCloseBtn}
+                onClick={() => setIsEditModalOpen(false)}
+                title="Close"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {editError && (
+              <div style={{ background: "#fee2e2", color: "#991b1b", border: "1px solid #f87171", borderRadius: "8px", padding: "10px 14px", marginBottom: "14px", fontSize: "0.88rem", fontWeight: 600 }}>
+                ⚠️ {editError}
+              </div>
+            )}
+
+            {editSuccessMsg && (
+              <div style={{ background: "#dcfce7", color: "#166534", border: "1px solid #86efac", borderRadius: "8px", padding: "10px 14px", marginBottom: "14px", fontSize: "0.88rem", fontWeight: 600 }}>
+                ✓ {editSuccessMsg}
+              </div>
+            )}
+
+            <form className={styles.modalForm} onSubmit={handleSaveProfile}>
+              <div className={styles.modalFormGroup}>
+                <label><User size={15} /> Full Name *</label>
+                <input
+                  type="text"
+                  value={editForm.name}
+                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                  placeholder="e.g. Priyanshu Singha Roy"
+                  required
+                />
+              </div>
+
+              <div className={styles.modalFormRow}>
+                <div className={styles.modalFormGroup}>
+                  <label><Hash size={15} /> College / Class Roll No *</label>
+                  <input
+                    type="text"
+                    value={editForm.rollNumber}
+                    onChange={(e) => setEditForm({ ...editForm, rollNumber: e.target.value })}
+                    placeholder="e.g. 23/ECE/107"
+                    required
+                  />
+                </div>
+                <div className={styles.modalFormGroup}>
+                  <label><Phone size={15} /> Mobile / WhatsApp No *</label>
+                  <input
+                    type="tel"
+                    value={editForm.mobileNumber}
+                    onChange={(e) => setEditForm({ ...editForm, mobileNumber: e.target.value })}
+                    placeholder="+91 98765 43210"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className={styles.modalFormRow}>
+                <div className={styles.modalFormGroup}>
+                  <label><Building2 size={15} /> Department / Stream *</label>
+                  <select
+                    value={editForm.department}
+                    onChange={(e) => setEditForm({ ...editForm, department: e.target.value })}
+                    required
+                  >
+                    {DEPARTMENT_OPTIONS.map((dept) => (
+                      <option key={dept} value={dept}>{dept}</option>
+                    ))}
+                  </select>
+                  {editForm.department === "Other" && (
+                    <input
+                      type="text"
+                      placeholder="Specify your department"
+                      value={customDept}
+                      onChange={(e) => setCustomDept(e.target.value)}
+                      style={{ marginTop: "6px" }}
+                      required
+                    />
+                  )}
+                </div>
+                <div className={styles.modalFormGroup}>
+                  <label><Calendar size={15} /> Studying Year *</label>
+                  <select
+                    value={editForm.currentYear}
+                    onChange={(e) => setEditForm({ ...editForm, currentYear: e.target.value })}
+                    required
+                  >
+                    <option value="1st Year">1st Year</option>
+                    <option value="2nd Year">2nd Year</option>
+                    <option value="3rd Year">3rd Year</option>
+                    <option value="4th Year">4th Year</option>
+                    <option value="Postgraduate">Postgraduate / Masters</option>
+                    <option value="School / General">School / General Public</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className={styles.modalFormGroup}>
+                <label><GraduationCap size={15} /> College / University / Organization</label>
+                <input
+                  type="text"
+                  value={editForm.collegeName}
+                  onChange={(e) => setEditForm({ ...editForm, collegeName: e.target.value })}
+                  placeholder="e.g. Haldia Institute of Technology"
+                />
+              </div>
+
+              <div className={styles.modalActions}>
+                <button
+                  type="button"
+                  className={styles.cancelModalBtn}
+                  onClick={() => setIsEditModalOpen(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className={styles.saveModalBtn}
+                  disabled={isSavingProfile}
+                >
+                  {isSavingProfile ? "Saving..." : "Save Changes"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </main>

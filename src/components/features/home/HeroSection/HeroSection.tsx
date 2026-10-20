@@ -87,7 +87,7 @@ export function HeroSection() {
                 <Link href="/#categories" className={`${styles.prominentRegisterBtn} ${styles.primaryHeroBtn}`}>
                   <span className={styles.btnShimmer} />
                   <Sparkles size={20} className={styles.sparkleIcon} />
-                  <span className={styles.btnMainText}>Register &amp; Submit Entry</span>
+                  <span className={styles.btnMainText}>Register &amp; Submit (₹8)</span>
                   <span className={styles.btnArrow}>✦</span>
                 </Link>
                 <Link href="/#about" className="secondary-btn">

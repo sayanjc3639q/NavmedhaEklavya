@@ -78,29 +78,76 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  try {
-    const res = await fetch(url, {
-      ...options,
-      headers,
-      credentials: "omit",
-    });
+  // File uploads get a longer timeout (120s) since Cloudinary / Document uploads over mobile 4G can take time
+  const isFileUpload = options.body instanceof FormData;
+  const timeoutMs = isFileUpload ? 120_000 : 60_000;
 
-    const data = await res.json().catch(() => ({}));
+  // Retry config: up to 3 retries for transient failures (Render restarts, mobile packet drops)
+  const maxRetries = isFileUpload ? 3 : 2;
 
-    if (!res.ok) {
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      const res = await fetch(url, {
+        ...options,
+        headers,
+        credentials: "omit",
+        signal: controller.signal,
+      });
+
+      clearTimeout(timer);
+
+      const data = await res.json().catch(() => ({}));
+
+      if (!res.ok) {
+        // Don't retry client errors (4xx) — they are intentional responses
+        return {
+          success: false,
+          message: data?.message || `Request failed with status ${res.status}`,
+          data: data?.data, // Forward entry details on 409 "already submitted" responses
+        };
+      }
+
+      return data;
+    } catch (err: any) {
+      clearTimeout(timer);
+
+      const isAbort = err?.name === "AbortError";
+      const isNetworkError = err?.message === "Failed to fetch" || err?.message?.includes("NetworkError");
+      const isRetryable = isAbort || isNetworkError;
+
+      // If we have retries left AND it's a transient error, wait and retry
+      if (isRetryable && attempt < maxRetries) {
+        // Backoff: 2s, 4s, 7s
+        const backoffMs = attempt === 0 ? 2000 : (attempt === 1 ? 4000 : 7000);
+        console.warn(`[API] Attempt ${attempt + 1} failed (${isAbort ? 'timeout' : 'network'}), retrying in ${backoffMs}ms...`);
+        await new Promise((r) => setTimeout(r, backoffMs));
+        continue;
+      }
+
+      // Final attempt failed — return user-friendly message
+      if (isAbort) {
+        return {
+          success: false,
+          message: isFileUpload
+            ? "Server is currently experiencing a huge rush of submissions and your upload timed out. Please don't worry — keep your details ready and try submitting again after 15-20 minutes."
+            : "Server is experiencing high traffic right now. Please wait 15-20 minutes and try submitting again.",
+        };
+      }
+
       return {
         success: false,
-        message: data?.message || `Request failed with status ${res.status}`,
+        message: err?.message === "Failed to fetch"
+          ? "Our submission server is currently experiencing heavy participant rush and high traffic. Please don't worry — your details are safe. Please wait 15-20 minutes and try submitting again!"
+          : (err?.message || "Server is experiencing heavy registration traffic. Please try submitting again after 15-20 minutes."),
       };
     }
-
-    return data;
-  } catch (err: any) {
-    return {
-      success: false,
-      message: err?.message || "Network error. Please check your internet connection.",
-    };
   }
+
+  // Fallback (should never reach here)
+  return { success: false, message: "Unexpected error. Please try again." };
 }
 
 // ─── NAVMEDHA API CALLS ──────────────────────────────────────────────────────
