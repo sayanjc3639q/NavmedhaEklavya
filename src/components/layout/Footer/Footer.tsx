@@ -39,9 +39,44 @@ export function Footer() {
             </ul>
           </div>
           <div className={styles.footerCol}>
-            <h4>Contact & Support</h4>
-            <p>Email: contact@navmedha.org</p>
-            <p>Instagram: @navmedha_official</p>
+            <h4>Helpline & Support</h4>
+            <div className={styles.supportSection}>
+              <span className={styles.supportLabel}>Technical Support</span>
+              <div className={styles.helplineList}>
+                <a href="tel:+917363932735" className={styles.helplineLink}>
+                  <span>Sayan:</span> +91 73639 32735
+                </a>
+                <a href="tel:+918420478357" className={styles.helplineLink}>
+                  <span>Priyanshu:</span> +91 84204 78357
+                </a>
+              </div>
+            </div>
+
+            <div className={styles.supportSection}>
+              <span className={styles.supportLabel}>Non-Technical Support</span>
+              <div className={styles.helplineList}>
+                <a href="tel:+917439391640" className={styles.helplineLink}>
+                  <span>Kousani:</span> +91 74393 91640
+                </a>
+                <a href="tel:+919733140677" className={styles.helplineLink}>
+                  <span>Sampriti:</span> +91 97331 40677
+                </a>
+              </div>
+            </div>
+
+            <div className={styles.socialInfo}>
+              <p>
+                Instagram:{" "}
+                <a
+                  href="https://www.instagram.com/navmedha3.0/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.instagramLink}
+                >
+                  @navmedha3.0
+                </a>
+              </p>
+            </div>
             <p className={`${styles.festiveBlessing} font-bengali`}>🌸 শারদীয়ার প্রীতি ও শুভেচ্ছা 🌸</p>
           </div>
         </div>

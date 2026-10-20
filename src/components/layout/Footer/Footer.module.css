@@ -64,6 +64,68 @@
   margin-bottom: 6px;
 }
 
+.supportSection {
+  margin-bottom: 14px;
+}
+
+.supportLabel {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #fbbf24;
+  margin-bottom: 6px;
+}
+
+.helplineList {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.helplineLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.9rem !important;
+  color: #fef08a !important;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.helplineLink span {
+  font-weight: 600;
+  color: #fde047;
+}
+
+.helplineLink:hover {
+  color: #ffffff !important;
+  transform: translateX(3px);
+}
+
+.socialInfo {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed rgba(254, 243, 199, 0.2);
+}
+
+.socialInfo p {
+  margin-bottom: 0;
+  font-size: 0.92rem;
+}
+
+.instagramLink {
+  color: #fbbf24 !important;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.instagramLink:hover {
+  color: #ffffff !important;
+}
+
 .festiveBlessing {
   margin-top: 14px;
   font-weight: bold;
