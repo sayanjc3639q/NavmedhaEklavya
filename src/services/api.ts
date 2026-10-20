@@ -3,7 +3,23 @@
  * Centralized HTTP client for interacting with the Eklavya backend.
  */
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const PRIMARY_API = process.env.NEXT_PUBLIC_API_URL || "https://api.eklavyahithaldia.in";
+const SECONDARY_API = process.env.NEXT_PUBLIC_API_URL_SECONDARY || "https://api2.eklavyahithaldia.in";
+
+// In production, balance traffic across both Render instances (api & api2)
+const API_NODES = (PRIMARY_API.includes("localhost") || PRIMARY_API.includes("127.0.0.1"))
+  ? [PRIMARY_API]
+  : [PRIMARY_API, SECONDARY_API];
+
+let currentHostIndex = Math.floor(Math.random() * API_NODES.length);
+
+function getNextApiHost(failedCurrent: boolean = false): string {
+  if (failedCurrent && API_NODES.length > 1) {
+    currentHostIndex = (currentHostIndex + 1) % API_NODES.length;
+    console.warn(`[API Load Balancer] Failing over to healthy node: ${API_NODES[currentHostIndex]}`);
+  }
+  return API_NODES[currentHostIndex];
+}
 
 export interface NavmedhaConfigData {
   editionName: string;
@@ -62,7 +78,6 @@ export function getAuthToken(): string | null {
  * Common fetch helper with credentials and headers
  */
 async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> {
-  const url = `${API_BASE}${endpoint}`;
   const token = getAuthToken();
 
   const headers: Record<string, string> = {
@@ -82,10 +97,14 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
   const isFileUpload = options.body instanceof FormData;
   const timeoutMs = isFileUpload ? 120_000 : 60_000;
 
-  // Retry config: up to 3 retries for transient failures (Render restarts, mobile packet drops)
+  // Retry config: up to 3 retries across both server nodes (api and api2)
   const maxRetries = isFileUpload ? 3 : 2;
 
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    // Pick current host or failover to the other node on retry
+    const baseHost = getNextApiHost(attempt > 0);
+    const url = `${baseHost}${endpoint}`;
+
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -102,6 +121,13 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
       const data = await res.json().catch(() => ({}));
 
       if (!res.ok) {
+        // If server returned 502/503/504 (Render restarting), treat as retryable on other server
+        if (res.status >= 502 && res.status <= 504 && attempt < maxRetries) {
+          console.warn(`[API] Host ${baseHost} returned ${res.status}, failing over to backup node...`);
+          await new Promise((r) => setTimeout(r, 1500));
+          continue;
+        }
+
         // Don't retry client errors (4xx) — they are intentional responses
         return {
           success: false,
@@ -118,11 +144,11 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
       const isNetworkError = err?.message === "Failed to fetch" || err?.message?.includes("NetworkError");
       const isRetryable = isAbort || isNetworkError;
 
-      // If we have retries left AND it's a transient error, wait and retry
+      // If we have retries left AND it's a transient error, failover to next node and retry
       if (isRetryable && attempt < maxRetries) {
-        // Backoff: 2s, 4s, 7s
-        const backoffMs = attempt === 0 ? 2000 : (attempt === 1 ? 4000 : 7000);
-        console.warn(`[API] Attempt ${attempt + 1} failed (${isAbort ? 'timeout' : 'network'}), retrying in ${backoffMs}ms...`);
+        // Backoff: 1.5s, 3s, 5s
+        const backoffMs = attempt === 0 ? 1500 : (attempt === 1 ? 3000 : 5000);
+        console.warn(`[API] Attempt ${attempt + 1} failed on ${baseHost} (${isAbort ? 'timeout' : 'network'}), failing over in ${backoffMs}ms...`);
         await new Promise((r) => setTimeout(r, backoffMs));
         continue;
       }
