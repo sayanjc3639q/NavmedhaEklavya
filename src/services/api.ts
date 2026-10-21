@@ -3,6 +3,8 @@
  * Centralized HTTP client for interacting with the Eklavya backend.
  */
 
+import { compressImageClient } from "./imageCompressor";
+
 const PRIMARY_API = process.env.NEXT_PUBLIC_API_URL || "https://api.eklavyahithaldia.in";
 const SECONDARY_API = process.env.NEXT_PUBLIC_API_URL_SECONDARY || "https://api2.eklavyahithaldia.in";
 
@@ -158,16 +160,16 @@ async function fetchApi<T>(endpoint: string, options: RequestInit = {}): Promise
         return {
           success: false,
           message: isFileUpload
-            ? "Server is currently experiencing a huge rush of submissions and your upload timed out. Please don't worry — keep your details ready and try submitting again after 15-20 minutes."
-            : "Server is experiencing high traffic right now. Please wait 15-20 minutes and try submitting again.",
+            ? "Your upload timed out due to slow mobile internet. Please check your data connection, ensure the image is under 8 MB, and click submit again."
+            : "Connection timed out. Please check your internet connection and try submitting again in a moment.",
         };
       }
 
       return {
         success: false,
         message: err?.message === "Failed to fetch"
-          ? "Our submission server is currently experiencing heavy participant rush and high traffic. Please don't worry — your details are safe. Please wait 15-20 minutes and try submitting again!"
-          : (err?.message || "Server is experiencing heavy registration traffic. Please try submitting again after 15-20 minutes."),
+          ? "Network connection issue detected. Please check your mobile internet or Wi-Fi and tap Submit again — your entered details are safe!"
+          : (err?.message || "Server connection was interrupted. Please check your internet and tap Submit again."),
       };
     }
   }
@@ -189,11 +191,13 @@ export async function fetchNavmedhaConfig(): Promise<ApiResponse<NavmedhaConfigD
 }
 
 /**
- * Upload payment screenshot
+ * Upload payment receipt screenshot → Cloudinary
  */
 export async function uploadPaymentReceipt(file: File): Promise<ApiResponse<{ url: string }>> {
+  // Pre-compress payment screenshot so mobile camera uploads (often 3-10 MB) shrink to ~200-400 KB instantly
+  const optimizedFile = await compressImageClient(file, { maxWidth: 1600, maxHeight: 1600, quality: 0.8 });
   const formData = new FormData();
-  formData.append("image", file);
+  formData.append("image", optimizedFile);
 
   return fetchApi<{ url: string }>("/api/upload/navmedha-payment", {
     method: "POST",
@@ -205,8 +209,10 @@ export async function uploadPaymentReceipt(file: File): Promise<ApiResponse<{ ur
  * Upload creative asset (photo / artwork / PDF) → Cloudinary
  */
 export async function uploadCreativeAsset(file: File): Promise<ApiResponse<{ url: string }>> {
+  // Pre-compress image files (Photography/Artworks) to fit under Meta limits and transmit within 1-2 seconds
+  const optimizedFile = await compressImageClient(file, { maxWidth: 2048, maxHeight: 2048, quality: 0.85 });
   const formData = new FormData();
-  formData.append("file", file);
+  formData.append("file", optimizedFile);
 
   return fetchApi<{ url: string }>("/api/upload/navmedha-media", {
     method: "POST",
