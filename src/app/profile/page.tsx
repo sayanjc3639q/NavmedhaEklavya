@@ -32,8 +32,7 @@ import {
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { logout, checkAuthSession, updateProfile } from "@/redux/slices/authSlice";
-import { clearSubmissions } from "@/redux/slices/submissionSlice";
-import { fetchMySubmissions, updateProfileOnServer } from "@/services/api";
+import { fetchMySubmissions, updateProfileOnServer, getMyNavmedhaCertificates } from "@/services/api";
 import { Navbar } from "@/components/layout/Navbar/Navbar";
 import { Footer } from "@/components/layout/Footer/Footer";
 import styles from "./page.module.css";
@@ -85,6 +84,8 @@ export default function ProfilePage() {
   const [backendSubmissions, setBackendSubmissions] = useState<NormalizedEntry[]>([]);
   const [isLoadingSubmissions, setIsLoadingSubmissions] = useState(false);
   const [submissionError, setSubmissionError] = useState<string | null>(null);
+  const [issuedCertificates, setIssuedCertificates] = useState<any[]>([]);
+  const [isLoadingCertificates, setIsLoadingCertificates] = useState(false);
 
   // Edit Profile Modal State
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -284,9 +285,25 @@ export default function ProfilePage() {
     }
   }, [user]);
 
+  const loadCertificates = useCallback(async () => {
+    if (!user) return;
+    setIsLoadingCertificates(true);
+    try {
+      const res = await getMyNavmedhaCertificates();
+      if (res.success && Array.isArray(res.data)) {
+        setIssuedCertificates(res.data);
+      }
+    } catch (err) {
+      console.warn("Could not fetch Navmedha certificates:", err);
+    } finally {
+      setIsLoadingCertificates(false);
+    }
+  }, [user]);
+
   useEffect(() => {
     loadSubmissions();
-  }, [loadSubmissions]);
+    loadCertificates();
+  }, [loadSubmissions, loadCertificates]);
 
   // If user is not logged in, show prompt or sample login view
   const handleLogout = () => {
@@ -603,97 +620,250 @@ export default function ProfilePage() {
           ══════════════════════════════════════════════════ */}
           {activeTab === "certificate" && (
             <div className={styles.tabContent}>
-              <div className={styles.certCardSection}>
-                <div className={styles.certStatusBanner}>
-                  <div className={styles.lockIconWrap}>
-                    <Lock size={28} className={styles.lockIcon} />
-                  </div>
-                  <div className={styles.certStatusText}>
-                    <h3>Certificate Unlocks After Festival Finale</h3>
-                    <p>
-                      Official <strong>QR-Verifiable Certificates of Appreciation</strong> issued by <strong>Eklavya Official ✕ NAVMEDHA</strong> will be published and available for high-res download once the grand Sharadotsav voting and jury curation concludes on <strong>October 30, 2026</strong>.
-                    </p>
-                  </div>
+              {/* ── Loading skeleton while certificates are being fetched ── */}
+              {isLoadingCertificates && (
+                <div className={styles.certCardSection} style={{ textAlign: "center", padding: "3rem 1rem" }}>
+                  <RefreshCw size={28} style={{ animation: "spin 1s linear infinite", color: "var(--accent-primary, #a855f7)", marginBottom: "0.75rem" }} />
+                  <p style={{ color: "var(--text-secondary, #94a3b8)", fontSize: "0.95rem" }}>Loading your certificates…</p>
                 </div>
+              )}
 
-                {/* Interactive Certificate Mock Preview */}
-                <div className={styles.certPreviewWrapper}>
-                  <div className={styles.certPaper}>
-                    <div className={styles.certBorderOuter}>
-                      <div className={styles.certBorderInner}>
-                        <div className={styles.certHeader}>
-                          <div className={styles.certLogoRow}>
-                            <Image
-                              src="/assets/eklavyaicon.png"
-                              alt="Eklavya"
-                              width={48}
-                              height={48}
-                            />
-                            <span className={styles.certCross}>✕</span>
-                            <Image
-                              src="/assets/navmedha-logo.png"
-                              alt="Navmedha"
-                              width={150}
-                              height={40}
-                              style={{ width: "auto", height: "34px" }}
-                            />
+              {/* ── Live Issued Certificates ── */}
+              {!isLoadingCertificates && issuedCertificates.length > 0 && (
+                <div className={styles.certCardSection}>
+                  <div className={styles.certStatusBanner} style={{ background: "linear-gradient(135deg, rgba(34,197,94,0.12), rgba(16,185,129,0.08))", borderColor: "rgba(34,197,94,0.3)" }}>
+                    <div className={styles.lockIconWrap} style={{ background: "rgba(34,197,94,0.15)" }}>
+                      <CheckCircle size={28} style={{ color: "#22c55e" }} />
+                    </div>
+                    <div className={styles.certStatusText}>
+                      <h3 style={{ color: "#22c55e" }}>🎉 Your Certificates Are Ready!</h3>
+                      <p>
+                        Official <strong>QR-Verifiable Certificates of Appreciation</strong> issued by <strong>Eklavya Official ✕ NAVMEDHA</strong> are now available for high-res download.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Certificate cards grid */}
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "1.25rem", marginTop: "1.5rem" }}>
+                    {issuedCertificates.map((cert: any, idx: number) => {
+                      const reg = cert.registration || {};
+                      const categoryLabel =
+                        cert.registrationModel === "navmedha_photos" ? "Photography" :
+                        cert.registrationModel === "navmedha_artwork" ? "Artwork" :
+                        cert.registrationModel === "navmedha_writing" ? "Writing & Poetry" :
+                        cert.registrationModel === "navmedha_reel" ? "Reel / Short Video" :
+                        "Participation";
+                      const entryTitle =
+                        reg.caption || reg.titleOfArtwork || reg.titleOfPiece || reg.reelTitle || categoryLabel;
+
+                      return (
+                        <div
+                          key={cert._id || idx}
+                          style={{
+                            background: "linear-gradient(135deg, rgba(168,85,247,0.06), rgba(59,130,246,0.05))",
+                            border: "1px solid rgba(168,85,247,0.18)",
+                            borderRadius: "1rem",
+                            padding: "1.5rem",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: "0.75rem",
+                            transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                          }}
+                          onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(-3px)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 8px 32px rgba(168,85,247,0.15)"; }}
+                          onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "none"; }}
+                        >
+                          {/* Category badge */}
+                          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                            <span style={{
+                              fontSize: "0.7rem",
+                              fontWeight: 700,
+                              textTransform: "uppercase",
+                              letterSpacing: "0.08em",
+                              padding: "0.25rem 0.6rem",
+                              borderRadius: "999px",
+                              background: "rgba(168,85,247,0.15)",
+                              color: "#c084fc",
+                            }}>{categoryLabel}</span>
+                            <span style={{ fontSize: "0.7rem", color: "var(--text-muted, #64748b)" }}>
+                              {cert.verification_code ? `#${cert.verification_code.slice(0, 8).toUpperCase()}` : ""}
+                            </span>
                           </div>
-                          <span className={styles.certKicker}>NAVMEDHA 2026 • SHARADOTSAV ART CONFLUENCE</span>
-                          <h2 className={styles.certTitle}>Certificate of Appreciation</h2>
-                        </div>
 
-                        <div className={styles.certBody}>
-                          <p className={styles.certBodyText}>This is proudly presented to</p>
-                          <h3 className={styles.certRecipient}>{currentUser.name}</h3>
-                          <p className={styles.certRollMeta}>
-                            Roll No: <strong>{currentUser.rollNumber}</strong> • Dept: <strong>{currentUser.department}</strong>
+                          {/* Title */}
+                          <h4 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 600, color: "var(--text-primary, #f1f5f9)" }}>
+                            {entryTitle}
+                          </h4>
+
+                          {/* Participant details */}
+                          <p style={{ margin: 0, fontSize: "0.82rem", color: "var(--text-secondary, #94a3b8)", lineHeight: 1.5 }}>
+                            {reg.name || currentUser.name} {reg.department ? `• ${reg.department}` : ""} {reg.rollNumber ? `• ${reg.rollNumber}` : ""}
                           </p>
-                          <p className={styles.certRecognitionText}>
-                            for active participation & artistic excellence in the category of <strong>{displaySubmissions[0]?.category?.toUpperCase() || "CREATIVE EXPRESSION"}</strong> during the festive festival confluence of Durga Puja 2026.
-                          </p>
-                        </div>
 
-                        <div className={styles.certSignatures}>
-                          <div className={styles.certSignBlock}>
-                            <div className={styles.digitalSign}>Sayan Chakraborty</div>
-                            <span className={styles.signLine} />
-                            <span className={styles.signRole}>Convenor, NAVMEDHA</span>
-                          </div>
-
-                          <div className={styles.certSealWrap}>
-                            <div className={styles.certSeal}>
+                          {/* Certificate thumbnail preview with cache-busting for regenerated certs */}
+                          {cert.certificate?.url && (
+                            <div style={{
+                              position: "relative",
+                              width: "100%",
+                              aspectRatio: "1.414 / 1",
+                              borderRadius: "0.6rem",
+                              overflow: "hidden",
+                              border: "1px solid rgba(255,255,255,0.08)",
+                              marginTop: "0.25rem",
+                            }}>
                               <Image
-                                src="/assets/giftsicon.png"
-                                alt="Official Seal"
-                                width={50}
-                                height={50}
+                                src={`${cert.certificate.url}${cert.updatedAt ? `?v=${new Date(cert.updatedAt).getTime()}` : ''}`}
+                                alt={`Certificate - ${categoryLabel}`}
+                                fill
+                                unoptimized
+                                style={{ objectFit: "cover" }}
+                                sizes="(max-width: 768px) 100vw, 320px"
                               />
                             </div>
-                            <span className={styles.sealText}>QR VERIFIED</span>
-                          </div>
+                          )}
 
-                          <div className={styles.certSignBlock}>
-                            <div className={styles.digitalSign}>President, Eklavya</div>
-                            <span className={styles.signLine} />
-                            <span className={styles.signRole}>Eklavya Official</span>
-                          </div>
+                          {/* Download button */}
+                          <a
+                            href={`${cert.certificate?.url}${cert.updatedAt ? `?v=${new Date(cert.updatedAt).getTime()}` : ''}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            download
+                            style={{
+                              display: "inline-flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              gap: "0.5rem",
+                              marginTop: "0.5rem",
+                              padding: "0.7rem 1.25rem",
+                              borderRadius: "0.6rem",
+                              background: "linear-gradient(135deg, #a855f7, #7c3aed)",
+                              color: "#fff",
+                              fontWeight: 600,
+                              fontSize: "0.88rem",
+                              textDecoration: "none",
+                              transition: "opacity 0.2s ease, transform 0.15s ease",
+                              cursor: "pointer",
+                            }}
+                            onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.opacity = "0.88"; }}
+                            onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.opacity = "1"; }}
+                          >
+                            <Download size={16} />
+                            Download Certificate
+                          </a>
+
+                          {/* Issue / Update date */}
+                          <span style={{ fontSize: "0.72rem", color: "var(--text-muted, #64748b)" }}>
+                            {cert.updatedAt && cert.updatedAt !== cert.createdAt
+                              ? `Updated: ${new Date(cert.updatedAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}`
+                              : `Issued: ${new Date(cert.createdAt).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}`}
+                          </span>
                         </div>
+                      );
+                    })}
+                  </div>
 
-                        <div className={styles.certWatermark}>
-                          <span>PENDING EVENT CONCLUSION • CERTIFICATE WILL UNLOCK POST RESULTS</span>
+                  <div className={styles.certNoteFooter}>
+                    <CheckCircle size={16} className={styles.noteIcon} />
+                    <span>
+                      These QR-verified e-certificates are suitable for university MAR (Mandatory Additional Requirements) activity submissions.
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* ── No certificates yet — show locked placeholder ── */}
+              {!isLoadingCertificates && issuedCertificates.length === 0 && (
+                <div className={styles.certCardSection}>
+                  <div className={styles.certStatusBanner}>
+                    <div className={styles.lockIconWrap}>
+                      <Lock size={28} className={styles.lockIcon} />
+                    </div>
+                    <div className={styles.certStatusText}>
+                      <h3>Certificate Unlocks After Festival Finale</h3>
+                      <p>
+                        Official <strong>QR-Verifiable Certificates of Appreciation</strong> issued by <strong>Eklavya Official ✕ NAVMEDHA</strong> will be published and available for high-res download once the grand Sharadotsav voting and jury curation concludes on <strong>October 30, 2026</strong>.
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Interactive Certificate Mock Preview */}
+                  <div className={styles.certPreviewWrapper}>
+                    <div className={styles.certPaper}>
+                      <div className={styles.certBorderOuter}>
+                        <div className={styles.certBorderInner}>
+                          <div className={styles.certHeader}>
+                            <div className={styles.certLogoRow}>
+                              <Image
+                                src="/assets/eklavyaicon.png"
+                                alt="Eklavya"
+                                width={48}
+                                height={48}
+                              />
+                              <span className={styles.certCross}>✕</span>
+                              <Image
+                                src="/assets/navmedha-logo.png"
+                                alt="Navmedha"
+                                width={150}
+                                height={40}
+                                style={{ width: "auto", height: "34px" }}
+                              />
+                            </div>
+                            <span className={styles.certKicker}>NAVMEDHA 2026 • SHARADOTSAV ART CONFLUENCE</span>
+                            <h2 className={styles.certTitle}>Certificate of Appreciation</h2>
+                          </div>
+
+                          <div className={styles.certBody}>
+                            <p className={styles.certBodyText}>This is proudly presented to</p>
+                            <h3 className={styles.certRecipient}>{currentUser.name}</h3>
+                            <p className={styles.certRollMeta}>
+                              Roll No: <strong>{currentUser.rollNumber}</strong> • Dept: <strong>{currentUser.department}</strong>
+                            </p>
+                            <p className={styles.certRecognitionText}>
+                              for active participation & artistic excellence in the category of <strong>{displaySubmissions[0]?.category?.toUpperCase() || "CREATIVE EXPRESSION"}</strong> during the festive festival confluence of Durga Puja 2026.
+                            </p>
+                          </div>
+
+                          <div className={styles.certSignatures}>
+                            <div className={styles.certSignBlock}>
+                              <div className={styles.digitalSign}>Sayan Chakraborty</div>
+                              <span className={styles.signLine} />
+                              <span className={styles.signRole}>Convenor, NAVMEDHA</span>
+                            </div>
+
+                            <div className={styles.certSealWrap}>
+                              <div className={styles.certSeal}>
+                                <Image
+                                  src="/assets/giftsicon.png"
+                                  alt="Official Seal"
+                                  width={50}
+                                  height={50}
+                                />
+                              </div>
+                              <span className={styles.sealText}>QR VERIFIED</span>
+                            </div>
+
+                            <div className={styles.certSignBlock}>
+                              <div className={styles.digitalSign}>President, Eklavya</div>
+                              <span className={styles.signLine} />
+                              <span className={styles.signRole}>Eklavya Official</span>
+                            </div>
+                          </div>
+
+                          <div className={styles.certWatermark}>
+                            <span>PENDING EVENT CONCLUSION • CERTIFICATE WILL UNLOCK POST RESULTS</span>
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                <div className={styles.certNoteFooter}>
-                  <CheckCircle size={16} className={styles.noteIcon} />
-                  <span>
-                    Once unlocked, this verified e-certificate includes a scannable QR code suitable for university MAR (Mandatory Additional Requirements) activity submissions.
-                  </span>
+                  <div className={styles.certNoteFooter}>
+                    <CheckCircle size={16} className={styles.noteIcon} />
+                    <span>
+                      Once unlocked, this verified e-certificate includes a scannable QR code suitable for university MAR (Mandatory Additional Requirements) activity submissions.
+                    </span>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
 
