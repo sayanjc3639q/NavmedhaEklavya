@@ -32,6 +32,7 @@ import {
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { logout, checkAuthSession, updateProfile } from "@/redux/slices/authSlice";
+import { clearSubmissions } from "@/redux/slices/submissionSlice";
 import { fetchMySubmissions, updateProfileOnServer, getMyNavmedhaCertificates } from "@/services/api";
 import { Navbar } from "@/components/layout/Navbar/Navbar";
 import { Footer } from "@/components/layout/Footer/Footer";
