@@ -28,12 +28,20 @@ import {
   PlayCircle,
   Image as ImageIcon,
   Edit3,
-  X
+  X,
+  Star
 } from "lucide-react";
+import { toast } from "sonner";
 import { useAppDispatch, useAppSelector } from "@/redux/hooks";
 import { logout, checkAuthSession, updateProfile } from "@/redux/slices/authSlice";
 import { clearSubmissions } from "@/redux/slices/submissionSlice";
-import { fetchMySubmissions, updateProfileOnServer, getMyNavmedhaCertificates } from "@/services/api";
+import { 
+  fetchMySubmissions, 
+  updateProfileOnServer, 
+  getMyNavmedhaCertificates,
+  submitEventRating,
+  getMyEventRating
+} from "@/services/api";
 import { Navbar } from "@/components/layout/Navbar/Navbar";
 import { Footer } from "@/components/layout/Footer/Footer";
 import styles from "./page.module.css";
@@ -72,6 +80,15 @@ const DEPARTMENT_OPTIONS = [
   "Other",
 ];
 
+const STAR_DESCRIPTIONS = [
+  "Tap a star to rate (1 - 5 Stars)",
+  "⭐ Poor — Needs significant improvement",
+  "⭐⭐ Fair — Below expectations",
+  "⭐⭐⭐ Good — Enjoyed the event & exhibits",
+  "⭐⭐⭐⭐ Very Good — Wonderful festive experience!",
+  "⭐⭐⭐⭐⭐ Outstanding! — Exceptional Sharadotsav confluence!",
+];
+
 export default function ProfilePage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
@@ -87,6 +104,18 @@ export default function ProfilePage() {
   const [submissionError, setSubmissionError] = useState<string | null>(null);
   const [issuedCertificates, setIssuedCertificates] = useState<any[]>([]);
   const [isLoadingCertificates, setIsLoadingCertificates] = useState(false);
+
+  // Mandatory Event Rating State (Required for certificate download)
+  const [hasRatedEvent, setHasRatedEvent] = useState(false);
+  const [userRating, setUserRating] = useState(0);
+  const [userFeedback, setUserFeedback] = useState("");
+  const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
+  const [ratingStars, setRatingStars] = useState(5);
+  const [ratingHover, setRatingHover] = useState(0);
+  const [ratingFeedbackText, setRatingFeedbackText] = useState("");
+  const [isSubmittingRating, setIsSubmittingRating] = useState(false);
+  const [ratingError, setRatingError] = useState<string | null>(null);
+  const [pendingDownloadCert, setPendingDownloadCert] = useState<any | null>(null);
 
   // Edit Profile Modal State
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -345,6 +374,127 @@ export default function ProfilePage() {
     mobileNumber: "+91 98765 43210",
     collegeName: "Haldia Institute of Technology",
     isAuthenticated: false,
+  };
+
+  // Load Event Rating for the logged-in or current user
+  useEffect(() => {
+    if (!mounted) return;
+    const userKey = user?.email || user?.id || (user as any)?._id || currentUser.email || "guest";
+    const savedRatingKey = `navmedha_event_rating_${userKey}`;
+
+    try {
+      const saved = localStorage.getItem(savedRatingKey);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed && typeof parsed.rating === "number" && parsed.rating >= 1) {
+          setHasRatedEvent(true);
+          setUserRating(parsed.rating);
+          setUserFeedback(parsed.feedback || "");
+          setRatingStars(parsed.rating);
+          setRatingFeedbackText(parsed.feedback || "");
+        }
+      }
+    } catch (e) {
+      console.warn("Could not read local rating:", e);
+    }
+
+    // Attempt to sync from backend if user is authenticated
+    if (user) {
+      getMyEventRating()
+        .then((res) => {
+          if (res?.success && res.data?.rating) {
+            setHasRatedEvent(true);
+            setUserRating(res.data.rating);
+            setUserFeedback(res.data.feedback || "");
+            setRatingStars(res.data.rating);
+            setRatingFeedbackText(res.data.feedback || "");
+            try {
+              localStorage.setItem(savedRatingKey, JSON.stringify({
+                rating: res.data.rating,
+                feedback: res.data.feedback || "",
+                submittedAt: new Date().toISOString(),
+              }));
+            } catch {}
+          }
+        })
+        .catch(() => {});
+    }
+  }, [mounted, user, currentUser.email]);
+
+  const handleRatingSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (ratingStars < 1 || ratingStars > 5) {
+      setRatingError("Please select a star rating (1 to 5 stars) to proceed.");
+      return;
+    }
+
+    setIsSubmittingRating(true);
+    setRatingError(null);
+
+    const userKey = user?.email || user?.id || (user as any)?._id || currentUser.email || "guest";
+    const savedRatingKey = `navmedha_event_rating_${userKey}`;
+
+    try {
+      await submitEventRating({
+        rating: ratingStars,
+        feedback: ratingFeedbackText.trim(),
+        userEmail: user?.email || currentUser.email,
+        userName: user?.name || currentUser.name,
+        category: pendingDownloadCert?.registrationModel || "All",
+      });
+
+      // Save to localStorage so participant certificate download remains unlocked permanently
+      try {
+        localStorage.setItem(
+          savedRatingKey,
+          JSON.stringify({
+            rating: ratingStars,
+            feedback: ratingFeedbackText.trim(),
+            submittedAt: new Date().toISOString(),
+          })
+        );
+      } catch (err) {
+        console.warn("Failed to write rating to localStorage:", err);
+      }
+
+      setHasRatedEvent(true);
+      setUserRating(ratingStars);
+      setUserFeedback(ratingFeedbackText.trim());
+      setIsRatingModalOpen(false);
+      toast.success("Thank you for rating NAVMEDHA 2026! Certificate download unlocked.");
+
+      // If user clicked download on a certificate before rating, trigger that download now!
+      if (pendingDownloadCert?.certificate?.url) {
+        const certUrl = `${pendingDownloadCert.certificate.url}${
+          pendingDownloadCert.updatedAt ? `?v=${new Date(pendingDownloadCert.updatedAt).getTime()}` : ""
+        }`;
+        const link = document.createElement("a");
+        link.href = certUrl;
+        link.target = "_blank";
+        link.rel = "noopener noreferrer";
+        link.download = `Navmedha-Certificate-${user?.name || currentUser.name || "Participant"}.jpg`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        setPendingDownloadCert(null);
+      }
+    } catch (err: any) {
+      console.error("Event rating submit error:", err);
+      toast.error("Could not submit rating. Please try again.");
+    } finally {
+      setIsSubmittingRating(false);
+    }
+  };
+
+  const handleDownloadClick = (e: React.MouseEvent, cert: any) => {
+    if (!hasRatedEvent) {
+      e.preventDefault();
+      setPendingDownloadCert(cert);
+      setRatingError(null);
+      setIsRatingModalOpen(true);
+      toast.info("Please rate the event (1 to 5 stars) to download your certificate!");
+      return;
+    }
   };
 
   const getStatusBadge = (status: "Pending" | "Verified" | "Rejected") => {
@@ -629,6 +779,73 @@ export default function ProfilePage() {
                 </div>
               )}
 
+              {/* ── Mandatory Event Rating Banner (Required to Download Certificate) ── */}
+              {!isLoadingCertificates && (
+                !hasRatedEvent ? (
+                  <div className={styles.ratingBanner}>
+                    <div className={styles.ratingBannerLeft}>
+                      <div className={styles.ratingIconWrap}>
+                        <Star size={24} fill="#f59e0b" color="#f59e0b" />
+                      </div>
+                      <div className={styles.ratingBannerText}>
+                        <h4>
+                          <span>Mandatory Event Rating</span>
+                          <span className={styles.cardRatingLocked}>5-Star Feedback Required</span>
+                        </h4>
+                        <p>
+                          Please submit your 5-star rating of NAVMEDHA 2026. Submitting this feedback is mandatory to unlock and download your official Certificate of Appreciation.
+                        </p>
+                      </div>
+                    </div>
+                    <div className={styles.ratingBannerAction}>
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          setRatingError(null);
+                          setIsRatingModalOpen(true);
+                        }}
+                        className={styles.rateNowBtn}
+                      >
+                        <Star size={16} fill="#ffffff" />
+                        Rate Event Now (5 Stars)
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className={styles.ratingBannerRated}>
+                    <div className={styles.ratingBannerLeft}>
+                      <div className={styles.ratingIconWrapSuccess}>
+                        <CheckCircle size={24} />
+                      </div>
+                      <div className={styles.ratingBannerTextRated}>
+                        <h4>
+                          <span>Event Rating Submitted!</span>
+                          <span className={styles.cardRatingUnlocked}>
+                            {"★".repeat(userRating)}{"☆".repeat(5 - userRating)} ({userRating}/5 Stars)
+                          </span>
+                        </h4>
+                        <p>
+                          Thank you for rating NAVMEDHA 2026! Your official certificates are completely unlocked for high-resolution download.
+                        </p>
+                      </div>
+                    </div>
+                    <div className={styles.ratingBannerAction}>
+                      <button 
+                        type="button"
+                        onClick={() => {
+                          setRatingError(null);
+                          setIsRatingModalOpen(true);
+                        }}
+                        className={styles.ratedBadgeBtn}
+                      >
+                        <Edit3 size={14} />
+                        Update Rating
+                      </button>
+                    </div>
+                  </div>
+                )
+              )}
+
               {/* ── Live Issued Certificates ── */}
               {!isLoadingCertificates && issuedCertificates.length > 0 && (
                 <div className={styles.certCardSection}>
@@ -673,21 +890,33 @@ export default function ProfilePage() {
                           onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(-3px)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "0 8px 32px rgba(168,85,247,0.15)"; }}
                           onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)"; (e.currentTarget as HTMLDivElement).style.boxShadow = "none"; }}
                         >
-                          {/* Category badge */}
-                          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                            <span style={{
-                              fontSize: "0.7rem",
-                              fontWeight: 700,
-                              textTransform: "uppercase",
-                              letterSpacing: "0.08em",
-                              padding: "0.25rem 0.6rem",
-                              borderRadius: "999px",
-                              background: "rgba(168,85,247,0.15)",
-                              color: "#c084fc",
-                            }}>{categoryLabel}</span>
-                            <span style={{ fontSize: "0.7rem", color: "var(--text-muted, #64748b)" }}>
-                              {cert.verification_code ? `#${cert.verification_code.slice(0, 8).toUpperCase()}` : ""}
-                            </span>
+                          {/* Category badge & Rating Status */}
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "0.5rem" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                              <span style={{
+                                fontSize: "0.7rem",
+                                fontWeight: 700,
+                                textTransform: "uppercase",
+                                letterSpacing: "0.08em",
+                                padding: "0.25rem 0.6rem",
+                                borderRadius: "999px",
+                                background: "rgba(168,85,247,0.15)",
+                                color: "#c084fc",
+                              }}>{categoryLabel}</span>
+                              <span style={{ fontSize: "0.7rem", color: "var(--text-muted, #64748b)" }}>
+                                {cert.verification_code ? `#${cert.verification_code.slice(0, 8).toUpperCase()}` : ""}
+                              </span>
+                            </div>
+
+                            {!hasRatedEvent ? (
+                              <span className={styles.cardRatingLocked}>
+                                <Lock size={11} /> Rating Required
+                              </span>
+                            ) : (
+                              <span className={styles.cardRatingUnlocked}>
+                                <CheckCircle size={11} /> Unlocked
+                              </span>
+                            )}
                           </div>
 
                           {/* Title */}
@@ -722,12 +951,13 @@ export default function ProfilePage() {
                             </div>
                           )}
 
-                          {/* Download button */}
+                          {/* Download button - Protected by mandatory rating */}
                           <a
-                            href={`${cert.certificate?.url}${cert.updatedAt ? `?v=${new Date(cert.updatedAt).getTime()}` : ''}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            download
+                            href={hasRatedEvent ? `${cert.certificate?.url}${cert.updatedAt ? `?v=${new Date(cert.updatedAt).getTime()}` : ''}` : "#"}
+                            target={hasRatedEvent ? "_blank" : undefined}
+                            rel={hasRatedEvent ? "noopener noreferrer" : undefined}
+                            download={hasRatedEvent ? true : undefined}
+                            onClick={(e) => handleDownloadClick(e, cert)}
                             style={{
                               display: "inline-flex",
                               alignItems: "center",
@@ -736,19 +966,33 @@ export default function ProfilePage() {
                               marginTop: "0.5rem",
                               padding: "0.7rem 1.25rem",
                               borderRadius: "0.6rem",
-                              background: "linear-gradient(135deg, #a855f7, #7c3aed)",
+                              background: hasRatedEvent
+                                ? "linear-gradient(135deg, #a855f7, #7c3aed)"
+                                : "linear-gradient(135deg, #d97706, #b45309)",
                               color: "#fff",
                               fontWeight: 600,
                               fontSize: "0.88rem",
                               textDecoration: "none",
-                              transition: "opacity 0.2s ease, transform 0.15s ease",
+                              transition: "all 0.2s ease, transform 0.15s ease",
                               cursor: "pointer",
+                              boxShadow: hasRatedEvent
+                                ? "0 4px 14px rgba(168,85,247,0.25)"
+                                : "0 4px 14px rgba(217,119,6,0.25)",
                             }}
                             onMouseEnter={(e) => { (e.currentTarget as HTMLAnchorElement).style.opacity = "0.88"; }}
                             onMouseLeave={(e) => { (e.currentTarget as HTMLAnchorElement).style.opacity = "1"; }}
                           >
-                            <Download size={16} />
-                            Download Certificate
+                            {hasRatedEvent ? (
+                              <>
+                                <Download size={16} />
+                                Download Certificate
+                              </>
+                            ) : (
+                              <>
+                                <Star size={16} fill="#fbbf24" color="#fbbf24" />
+                                Rate Event to Download
+                              </>
+                            )}
                           </a>
 
                           {/* Issue / Update date */}
@@ -1054,6 +1298,127 @@ export default function ProfilePage() {
                   {isSavingProfile ? "Saving..." : "Save Changes"}
                 </button>
               </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ─── EVENT RATING MODAL (5 STARS MANDATORY) ─── */}
+      {isRatingModalOpen && (
+        <div 
+          className={styles.modalOverlay} 
+          onClick={() => !isSubmittingRating && setIsRatingModalOpen(false)}
+        >
+          <div className={styles.ratingModal} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.ratingModalHeader}>
+              <div>
+                <h3 className={styles.ratingHeaderTitle}>Rate NAVMEDHA 2026</h3>
+                <p className={styles.ratingHeaderSubtitle}>
+                  Please rate your event experience. 5-star feedback is required to download your official certificate.
+                </p>
+              </div>
+              <button
+                type="button"
+                disabled={isSubmittingRating}
+                onClick={() => setIsRatingModalOpen(false)}
+                className={styles.modalCloseBtn}
+                title="Close"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className={styles.ratingNoticeBox}>
+              <Sparkles size={18} className={styles.ratingNoticeIcon} />
+              <span>
+                <strong>Mandatory Step:</strong> Submit your 5-star rating of NAVMEDHA 2026 to immediately unlock high-resolution certificate downloads!
+              </span>
+            </div>
+
+            <form onSubmit={handleRatingSubmit}>
+              {/* Interactive 5 Stars */}
+              <div className={styles.starRatingContainer}>
+                <div className={styles.starRatingRow}>
+                  {[1, 2, 3, 4, 5].map((star) => {
+                    const activeCount = ratingHover || ratingStars;
+                    const isFilled = star <= activeCount;
+                    return (
+                      <button
+                        type="button"
+                        key={star}
+                        className={styles.starBtn}
+                        onMouseEnter={() => setRatingHover(star)}
+                        onMouseLeave={() => setRatingHover(0)}
+                        onClick={() => {
+                          setRatingStars(star);
+                          setRatingError(null);
+                        }}
+                        aria-label={`Rate ${star} out of 5 stars`}
+                      >
+                        <Star
+                          size={36}
+                          className={isFilled ? styles.starIconFilled : styles.starIconEmpty}
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div
+                  className={styles.starFeedbackText}
+                  style={{
+                    color: (ratingHover || ratingStars) >= 4 ? "#16a34a" : (ratingHover || ratingStars) >= 2 ? "#d97706" : "#64748b"
+                  }}
+                >
+                  {STAR_DESCRIPTIONS[ratingHover || ratingStars]}
+                </div>
+              </div>
+
+              {/* Optional written feedback */}
+              <div className={styles.ratingTextareaGroup}>
+                <label htmlFor="eventFeedback">
+                  What did you like about NAVMEDHA 2026? (Optional)
+                </label>
+                <textarea
+                  id="eventFeedback"
+                  className={styles.ratingTextarea}
+                  placeholder="Share your thoughts about the competitions, exhibition, or suggestions for the next edition..."
+                  value={ratingFeedbackText}
+                  onChange={(e) => setRatingFeedbackText(e.target.value)}
+                  maxLength={600}
+                  disabled={isSubmittingRating}
+                />
+              </div>
+
+              {ratingError && (
+                <div style={{
+                  color: "#dc2626",
+                  fontSize: "0.85rem",
+                  marginBottom: "1rem",
+                  textAlign: "center",
+                  fontWeight: 600,
+                }}>
+                  {ratingError}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                className={styles.ratingSubmitBtn}
+                disabled={isSubmittingRating || ratingStars === 0}
+              >
+                {isSubmittingRating ? (
+                  <>
+                    <RefreshCw size={18} style={{ animation: "spin 1s linear infinite" }} />
+                    Submitting Rating…
+                  </>
+                ) : (
+                  <>
+                    <Award size={18} />
+                    {pendingDownloadCert ? "Submit Rating & Download Certificate" : "Submit Rating & Unlock Certificate"}
+                  </>
+                )}
+              </button>
             </form>
           </div>
         </div>

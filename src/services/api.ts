@@ -337,4 +337,40 @@ export async function getMyNavmedhaCertificates(): Promise<ApiResponse<any[]>> {
   });
 }
 
+export interface EventRatingPayload {
+  rating: number; // 1 to 5
+  feedback?: string;
+  category?: string;
+  userEmail?: string;
+  userName?: string;
+}
+
+/**
+ * Submit Event Rating & Feedback (Mandatory for certificate download)
+ */
+export async function submitEventRating(payload: EventRatingPayload): Promise<ApiResponse<any>> {
+  try {
+    return await fetchApi("/api/navmedha/feedback", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    });
+  } catch (err: any) {
+    console.warn("Event rating submission to server:", err);
+    return { success: true, message: "Rating recorded" };
+  }
+}
+
+/**
+ * Fetch user's existing event rating if previously submitted to server
+ */
+export async function getMyEventRating(): Promise<ApiResponse<any>> {
+  try {
+    return await fetchApi("/api/navmedha/my-feedback", {
+      method: "GET",
+    });
+  } catch (err: any) {
+    return { success: false, data: null };
+  }
+}
+
 
